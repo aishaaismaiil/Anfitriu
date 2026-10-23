@@ -528,6 +528,20 @@ main[data-v="sinais"]{--sec:var(--c-sinais)} main[data-v="diario"]{--sec:var(--c
 .pillar.row1 b{font-size:1.05rem}
 .pillar.row1 .stack-s>span{color:var(--muted);font-size:.9rem}
 .panel dl .rate{grid-template-columns:minmax(0,8.5rem) minmax(0,1fr)!important;gap:.8rem}
+.topmix{display:grid;gap:1rem;align-items:start}
+.topmix.two{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)}
+.topmix.three{grid-template-columns:minmax(0,.85fr) minmax(0,1.2fr) minmax(0,1fr)}
+@media (max-width:1100px){.topmix.three{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.topmix.three .agora4{grid-column:1/-1}}
+@media (max-width:760px){.topmix.two,.topmix.three{grid-template-columns:minmax(0,1fr)}}
+.orbitmini{gap:.5rem}
+.orbitmini h3,.agora4 h3{display:flex;align-items:center;gap:.4rem;margin:0}
+.agora4{gap:.35rem}
+.agrow{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:.6rem;padding:.5rem .55rem;border-radius:10px;border:1px solid transparent}
+.agrow:hover{background:var(--surface2);border-color:var(--line2)}
+.agic{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--surface2);border:1.5px solid var(--edge);flex:none}
+.agtx{flex:1;display:grid;font-size:.9rem;line-height:1.25}
+.agtx small{color:var(--muted);font-size:.78rem}
+.agbtns{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.3rem}
 </style>
 
 </head>
@@ -3157,6 +3171,66 @@ document.addEventListener("change",function(e){var el=e.target;if(el&&el.id==="p
 (function(){var X={"A tua órbita: as pessoas que juntas andam à tua volta.":["Your orbit: the people you add circle around you.","Tu órbita: las personas que añades giran a tu alrededor.","Dein Orbit: Die Leute, die du hinzufügst, kreisen um dich.","Ton orbite : les personnes que tu ajoutes tournent autour de toi.","La tua orbita: le persone che aggiungi ti girano intorno."]};var L=["en","es","de","fr","it"];Object.keys(X).forEach(function(k){L.forEach(function(l,i){if(window.I18N&&I18N[l]&&!I18N[l][k])I18N[l][k]=X[k][i]})})})();
 (function(){var X={"Dados do Guia de Candidatura 2026 da DGES, recolhidos a 23 de outubro de 2026. A propina e os prazos são indicativos: confirma sempre no site oficial.":["Data from the DGES 2026 Application Guide, collected on 23 October 2026. Fees and deadlines are indicative: always check the official site.","Datos de la Guía de Candidatura 2026 de la DGES, recogidos el 23 de octubre de 2026. La matrícula y los plazos son orientativos: confirma siempre en la web oficial.","Daten aus dem DGES-Bewerbungsleitfaden 2026, erhoben am 23. Oktober 2026. Gebühren und Fristen sind Richtwerte: prüfe immer die offizielle Seite.","Données du Guide de candidature 2026 de la DGES, recueillies le 23 octobre 2026. Frais et délais indicatifs : vérifie toujours sur le site officiel.","Dati della Guida alle candidature 2026 della DGES, raccolti il 23 ottobre 2026. Tasse e scadenze sono indicative: controlla sempre sul sito ufficiale."]};var L=["en","es","de","fr","it"];Object.keys(X).forEach(function(k){L.forEach(function(l,i){if(window.I18N&&I18N[l]&&!I18N[l][k])I18N[l][k]=X[k][i]})})})();
 (function(){var X={"Entra com o teu email para veres as avaliações.":["Sign in with your email to see the reviews.","Entra con tu email para ver las reseñas.","Melde dich mit deiner E-Mail an, um die Bewertungen zu sehen.","Connecte-toi avec ton email pour voir les avis.","Accedi con la tua email per vedere le recensioni."],"Diurno":["Daytime","Diurno","Tagsüber","En journée","Diurno"],"Regime pós-laboral":["Evening classes","Régimen vespertino","Abendstudium","Cours du soir","Corsi serali"],"Regime noturno":["Night classes","Régimen nocturno","Nachtstudium","Cours de nuit","Corsi notturni"]};var L=["en","es","de","fr","it"];Object.keys(X).forEach(function(k){L.forEach(function(l,i){if(window.I18N&&I18N[l]&&!I18N[l][k])I18N[l][k]=X[k][i]})})})();
+
+/* =====================================================================
+   UniOrbis — Início de membros v4: órbita e tutorial no topo.
+   1.ª sessão: mais explicativo. Seguintes: órbita pequena, tutorial ao
+   lado e um painel prático "Agora para ti".
+   ===================================================================== */
+var SESS=(function(){var n=0;try{n=(+localStorage.getItem("uo.sess")||0)+1;localStorage.setItem("uo.sess",String(n))}catch(e){n=1}return n})();
+function orbitMini(size){var orb=myOrbit(),sug=peopleInCommon(3).filter(function(x){return orbState(x.u)==="none"});
+  return'<section class="panel orbitmini"><div class="ph"><h3>'+ico("pessoas",18)+' '+esc(t("A tua órbita"))+' <span class="mono m">'+orb.length+'</span></h3><button class="lnk sm" type="button" data-a="goto" data-v="explorar" data-t="pessoas">'+esc(t("Juntar pessoas"))+'</button></div>'+
+   '<div style="display:grid;justify-items:center">'+orbitViz(orb.slice(0,8),size)+'</div>'+
+   (sug.length?'<div class="stack-s">'+sug.slice(0,size>220?3:1).map(function(x){return'<div class="row sb" style="flex-wrap:nowrap">'+whoHTML(x.u,28,esc(x.c.slice(0,2).join(" · ")))+orbitBtn(x.u)+'</div>'}).join("")+'</div>':(orb.length?'':'<p class="xs m" style="text-align:center">'+esc(t("Junta quem tem coisas em comum contigo e eles passam a girar à tua volta."))+'</p>'))+'</section>'}
+function daysTo(d){return Math.round((dOf(d)-dOf(todayStr()))/864e5)}
+function agoraHTML(){
+  var sn=typeof sinaisUnread==="function"?sinaisUnread():0,mn=typeof unreadCount==="function"?unreadCount():0,td=todayStr();
+  var prox=planItems().filter(function(e){return e.data>=td&&!e.done})[0],dl=DATAS.filter(function(d){return d.data>=td}).sort(function(a,b){return a.data.localeCompare(b.data)})[0];
+  var tr=TROCAS.filter(function(x){return x.para===UID&&x.estado==="pendente"}).length;
+  var row=function(ic,txt,act,n){return'<button class="agrow" type="button" '+act+'><span class="agic">'+ico(ic,17)+'</span><span class="agtx">'+txt+'</span>'+(n?'<span class="badge-n">'+n+'</span>':'<span class="m">→</span>')+'</button>'};
+  return'<section class="panel agora4"><h3>'+ico("spark",18)+' '+esc(t("Agora para ti"))+'</h3>'+
+   row("sinais",esc(t(sn?"Tens sinais novos":"Sem sinais novos")),'data-go="sinais"',sn)+
+   row("mensagens",esc(t(mn?"Mensagens por ler":"Sem mensagens por ler")),'data-go="mensagens"',mn)+
+   (tr?row("skills",esc(t("Propostas de troca à espera")),'data-a="goto" data-v="skills" data-t="trocas"',tr):'')+
+   (prox?row("agenda",'<b>'+esc(prox.titulo)+'</b><small>'+esc(fdate(dOf(prox.data),{weekday:"short",day:"numeric",month:"short"}))+'</small>','data-go="agenda"',0):row("agenda",esc(t("Agenda vazia: junta entregas e exames")),'data-go="agenda"',0))+
+   (dl?row("cal",'<b>'+esc(t(dl.titulo))+'</b><small>'+esc(t("faltam {n} dias",{n:daysTo(dl.data)}))+'</small>','data-go="oportunidades"',0):'')+
+   '<div class="agbtns"><button class="btn s" type="button" data-go="mural">'+esc(t("Publicar"))+'</button><button class="btn sec s" type="button" data-a="goto" data-v="explorar" data-t="prog">'+esc(t("Procurar curso"))+'</button><button class="btn sec s" type="button" data-a="goto" data-v="avaliacoes" data-t="escrever">'+esc(t("Avaliar"))+'</button><button class="btn sec s" type="button" data-a="goto" data-v="skills" data-t="trocas">'+esc(t("Propor troca"))+'</button></div></section>'}
+RENDER.inicio=function(){
+  if(!DB)return landingHTML();
+  var first=MYP?MYP.nome.split(" ")[0]:"",fresh=SESS<=1||!MYP,hideTour=ls("uo.tourhide")===1,guideOn=OPEN.guide||(fresh&&ls("uo.guide")!==1);
+  var h=secHead(t("início"),first?t(fresh?"Olá, {n}.":"Bem-vindo/a de volta, {n}.",{n:first}):t("Bem-vindo/a à UniOrbis."),esc(t(fresh?"O que se passa hoje à tua volta.":"Um resumo rápido do que mudou desde a última vez.")),'<div class="row"><button class="btn sec s" type="button" data-go="mural">'+esc(t("Publicar"))+'</button>'+(hideTour?'<button class="btn sec s" type="button" data-a="tourshow">'+esc(t("Ver tutorial"))+'</button>':'')+'</div>');
+  if(!MYP)h+='<div class="panel nag"><div class="row sb"><div class="stack-s"><h3>'+esc(t("Começa por criar o teu perfil"))+'</h3><p class="sm">'+esc(t("Foto, avatar, curso e cinco notas rápidas. Demora dois minutos."))+'</p></div><button class="btn" type="button" data-a="goto" data-v="espaco" data-t="perfil">'+esc(t("Criar perfil"))+'</button></div></div>';
+  else h+=quickNag();
+  if(fresh){
+    h+='<div class="topmix two">'+orbitMini(270)+(hideTour?agoraHTML():tourHTML())+'</div>'+stepsHTML();
+    if(guideOn)h+='<section class="panel guide" id="guia"><div class="ph"><h3>'+ico("map",18)+' '+esc(t("Para que serve cada secção"))+'</h3><button class="lnk m xs" type="button" data-a="guidehide">'+esc(t("Já percebi"))+'</button></div>'+siteMapHTML()+'</section>';
+  }else{
+    h+='<div class="topmix three">'+orbitMini(190)+(hideTour?'<div class="stack">'+badgeStrip()+'</div>':tourHTML())+agoraHTML()+'</div>'+stepsHTML();
+    if(OPEN.guide)h+='<section class="panel guide" id="guia"><div class="ph"><h3>'+ico("map",18)+' '+esc(t("Para que serve cada secção"))+'</h3><button class="lnk m xs" type="button" data-a="guidehide">'+esc(t("Já percebi"))+'</button></div>'+siteMapHTML(true)+'</section>';
+  }
+  var posts=POSTS.filter(visible).slice(0,3),pc=peopleInCommon(4);
+  h+='<div class="grid2"><div class="stack"><section class="stack-s"><div class="ph"><h3>'+esc(t("No mural agora"))+'</h3><button class="lnk sm" type="button" data-go="mural">'+esc(t("Ver tudo"))+'</button></div>'+(posts.length?'<ul class="feed">'+posts.map(postHTML).join("")+'</ul>':emptyHTML(esc(t("O mural está vazio. Escreve a primeira publicação.")),'<button class="btn s" type="button" data-go="mural">'+esc(t("Ir ao mural"))+'</button>'))+'</section>'+
+    '<section class="stack-s"><div class="ph"><h3>'+esc(t("Pessoas com coisas em comum"))+'</h3><button class="lnk sm" type="button" data-a="goto" data-v="explorar" data-t="pessoas">'+esc(t("Ver todas"))+'</button></div>'+(pc.length?'<ul class="olist">'+pc.map(function(x){return'<li><div class="stack-s">'+whoHTML(x.u,40,esc([P[x.u].curso,instName(P[x.u])].filter(Boolean).join(" · ")))+'<div class="chips">'+x.c.slice(0,4).map(function(g){return'<span class="chip">'+esc(g)+'</span>'}).join("")+'</div></div><div class="r">'+orbitBtn(x.u)+msgBtn(x.u,"sec s")+'</div></li>'}).join("")+'</ul>':emptyHTML(esc(t(MYP?"Junta interesses e hobbies ao perfil para encontrares pessoas parecidas contigo.":"Cria o perfil para veres quem tem coisas em comum contigo."))))+'</section></div>'+
+    '<div class="stack">'+(fresh?agoraHTML():'')+badgeStrip()+sideModules()+'</div></div>';
+  return h;
+};
+(function(){var X={"Juntar pessoas":["Add people","Añadir personas","Leute hinzufügen","Ajouter des gens","Aggiungi persone"],
+ "Junta quem tem coisas em comum contigo e eles passam a girar à tua volta.":["Add people with things in common and they'll start circling around you.","Añade a quien tiene cosas en común contigo y empezarán a girar a tu alrededor.","Füge Leute mit Gemeinsamkeiten hinzu, dann kreisen sie um dich.","Ajoute ceux qui ont des points communs avec toi et ils tourneront autour de toi.","Aggiungi chi ha cose in comune con te e inizieranno a girarti intorno."],
+ "Agora para ti":["Right now for you","Ahora para ti","Jetzt für dich","Pour toi maintenant","Adesso per te"],
+ "Tens sinais novos":["You have new signals","Tienes señales nuevas","Du hast neue Signale","Tu as de nouveaux signaux","Hai nuovi segnali"],
+ "Sem sinais novos":["No new signals","Sin señales nuevas","Keine neuen Signale","Pas de nouveaux signaux","Nessun nuovo segnale"],
+ "Mensagens por ler":["Unread messages","Mensajes sin leer","Ungelesene Nachrichten","Messages non lus","Messaggi non letti"],
+ "Sem mensagens por ler":["No unread messages","Sin mensajes sin leer","Keine ungelesenen Nachrichten","Aucun message non lu","Nessun messaggio non letto"],
+ "Propostas de troca à espera":["Swap proposals waiting","Propuestas de intercambio pendientes","Wartende Tauschvorschläge","Propositions d'échange en attente","Proposte di scambio in attesa"],
+ "Agenda vazia: junta entregas e exames":["Empty planner: add assignments and exams","Agenda vacía: añade entregas y exámenes","Leerer Kalender: füge Abgaben und Prüfungen hinzu","Agenda vide : ajoute rendus et examens","Agenda vuota: aggiungi consegne ed esami"],
+ "faltam {n} dias":["{n} days left","faltan {n} días","noch {n} Tage","encore {n} jours","mancano {n} giorni"],
+ "Procurar curso":["Find a course","Buscar curso","Studiengang suchen","Chercher une formation","Cerca corso"],
+ "Avaliar":["Review","Evaluar","Bewerten","Évaluer","Valuta"],
+ "Propor troca":["Propose a swap","Proponer intercambio","Tausch vorschlagen","Proposer un échange","Proponi scambio"],
+ "Bem-vindo/a de volta, {n}.":["Welcome back, {n}.","Bienvenido/a de nuevo, {n}.","Willkommen zurück, {n}.","Content de te revoir, {n}.","Bentornato/a, {n}."],
+ "Um resumo rápido do que mudou desde a última vez.":["A quick summary of what's changed since last time.","Un resumen rápido de lo que ha cambiado desde la última vez.","Eine kurze Übersicht, was sich seit dem letzten Mal geändert hat.","Un résumé rapide de ce qui a changé depuis la dernière fois.","Un rapido riepilogo di cosa è cambiato dall'ultima volta."],
+ "Foto, avatar, curso e cinco notas rápidas. Demora dois minutos.":["Photo, avatar, course and five quick ratings. It takes two minutes.","Foto, avatar, curso y cinco notas rápidas. Son dos minutos.","Foto, Avatar, Studiengang und fünf Schnellbewertungen. Dauert zwei Minuten.","Photo, avatar, formation et cinq notes rapides. Deux minutes.","Foto, avatar, corso e cinque voti rapidi. Due minuti."]};
+ var L=["en","es","de","fr","it"];Object.keys(X).forEach(function(k){L.forEach(function(l,i){if(window.I18N&&I18N[l]&&!I18N[l][k])I18N[l][k]=X[k][i]})})})();
 
 /* =====================================================================
    UniOrbis (versão com domínio próprio) — entrar por email, sair,
