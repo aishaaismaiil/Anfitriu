@@ -542,6 +542,7 @@ main[data-v="sinais"]{--sec:var(--c-sinais)} main[data-v="diario"]{--sec:var(--c
 .agtx{flex:1;display:grid;font-size:.9rem;line-height:1.25}
 .agtx small{color:var(--muted);font-size:.78rem}
 .agbtns{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.3rem}
+.bigsearch{font-size:1.05rem;padding:.8rem 1rem;border:1.5px solid var(--edge);box-shadow:3px 3px 0 var(--edge)}
 </style>
 
 </head>
@@ -2738,7 +2739,7 @@ var CPROGS=[];
     return o}
   DGES.c.forEach(function(c,ci){var nome=c[0],niv=NIVCAT[c[1]]||"Licenciatura";c[2].forEach(function(k){var inst=ix[k],id="d"+hash(nome+"|"+niv).toString(36)+"_"+inst;if(dup[id])return;dup[id]=1;
     var L0=norm(nome).charAt(0).toUpperCase();
-    CPROGS.push({id:id,nome:nome,nivel:niv,inst:inst,area:"",uid:SYS,ts:0,cat:1,oficial:Object.assign(ofic(ci,k,nome,inst),{link:CAT_FONTE+"?letra="+L0}),verifDGES:1})})});
+    CPROGS.push({id:id,nome:nome,nivel:niv,inst:inst,area:"",uid:SYS,ts:0,cat:1,oficial:Object.assign(ofic(ci,k,nome,inst),{link:CAT_FONTE+"?letra="+L0}),verifDGES:1,dg:(function(d){return d?{sem:d[0],ects:d[1],vag:+d[2]||0,ult:d[3]||""}:null})(DX.r[ci+"|"+k])})})});
   PROGS=CPROGS.slice();
 })();
 /* os cursos do catálogo juntam-se sempre aos que os membros adicionam */
@@ -3230,6 +3231,88 @@ RENDER.inicio=function(){
  "Bem-vindo/a de volta, {n}.":["Welcome back, {n}.","Bienvenido/a de nuevo, {n}.","Willkommen zurück, {n}.","Content de te revoir, {n}.","Bentornato/a, {n}."],
  "Um resumo rápido do que mudou desde a última vez.":["A quick summary of what's changed since last time.","Un resumen rápido de lo que ha cambiado desde la última vez.","Eine kurze Übersicht, was sich seit dem letzten Mal geändert hat.","Un résumé rapide de ce qui a changé depuis la dernière fois.","Un rapido riepilogo di cosa è cambiato dall'ultima volta."],
  "Foto, avatar, curso e cinco notas rápidas. Demora dois minutos.":["Photo, avatar, course and five quick ratings. It takes two minutes.","Foto, avatar, curso y cinco notas rápidas. Son dos minutos.","Foto, Avatar, Studiengang und fünf Schnellbewertungen. Dauert zwei Minuten.","Photo, avatar, formation et cinq notes rapides. Deux minutes.","Foto, avatar, corso e cinque voti rapidi. Due minuti."]};
+ var L=["en","es","de","fr","it"];Object.keys(X).forEach(function(k){L.forEach(function(l,i){if(window.I18N&&I18N[l]&&!I18N[l][k])I18N[l][k]=X[k][i]})})})();
+
+/* =====================================================================
+   UniOrbis — Explorar com pesquisa única (cursos, instituições e pessoas
+   de uma vez) e comparador com os dados oficiais
+   ===================================================================== */
+function matchQ(hay,q){var toks=norm(q).split(/\s+/).filter(Boolean);if(!toks.length)return true;var h=norm(hay);return toks.every(function(x){return h.indexOf(x)>-1})}
+var INSTHAY={};function instHay(i){if(INSTHAY[i.id])return INSTHAY[i.id];var s=[i.nome,i.cidade,i.dist,t(i.tipo),i.kind?t(i.kind):""].concat(progsOf(i.id).map(function(p){return p.nome})).join(" ");INSTHAY[i.id]=s;return s}
+function progHay(p){var i=instById(p.inst);return[p.nome,t(p.nivel||""),p.area||"",i?i.nome+" "+i.cidade+" "+i.dist:""].join(" ")}
+progList=function(q,embedded){
+  var nv=F.xniv||"",di=F.xpdist||"",ii=F.xpinst||"",lim=F.xlim||40;
+  var list=PROGS.filter(visible).filter(function(p){var i=instById(p.inst);return matchQ(progHay(p),q)&&(!nv||p.nivel===nv)&&(!ii||p.inst===ii)&&(!di||(i&&i.dist===di))});
+  list.sort(function(a,b){var sa=scoreOf("prog:"+a.id).n,sb=scoreOf("prog:"+b.id).n;return sb-sa||a.nome.localeCompare(b.nome,"pt")||((instById(a.inst)||{}).nome||"").localeCompare((instById(b.inst)||{}).nome||"","pt")});
+  var nivs=NIVEIS.filter(function(n){return PROGS.some(function(p){return p.nivel===n})||["CTeSP","Mestrado","Doutoramento","Pós-graduação"].indexOf(n)>-1});
+  var filt=(nv||di||ii)?'<button class="chip" type="button" data-a="xclear">× '+esc(t("Limpar filtros"))+'</button>':'';
+  return chipsHTML("xniv",nivs,nv)+'<div class="fg"><select class="fld" id="xpdist" data-flt="xpdist" aria-label="'+esc(t("Distrito"))+'"><option value="">'+esc(t("Todos os distritos e ilhas"))+'</option>'+DIST.map(function(x){return'<option value="'+esc(x)+'"'+(di===x?" selected":"")+'>'+esc(x)+'</option>'}).join("")+'</select><select class="fld" id="xpinst" data-flt="xpinst" aria-label="'+esc(t("Instituição"))+'"><option value="">'+esc(t("Todas as instituições"))+'</option>'+allInst().filter(function(i){return!di||i.dist===di}).map(function(i){return'<option value="'+esc(i.id)+'"'+(ii===i.id?" selected":"")+'>'+esc(i.nome)+'</option>'}).join("")+'</select></div>'+
+   '<div class="row sb"><p class="xs m" style="margin:0">'+esc(t("{n} resultados.",{n:list.length}))+'</p>'+filt+'</div>'+
+   (list.length?'<ul class="inst-list">'+list.slice(0,lim).map(function(p){var i=instById(p.inst),s=scoreOf("prog:"+p.id),dg=p.dg;return'<li><div class="stack-s"><button class="lnk" style="text-align:left;color:var(--ink);text-decoration:none;font:600 1rem var(--f-body)" type="button" data-a="prog" data-id="'+esc(p.id)+'">'+esc(p.nome)+'</button><span class="xs m"><span class="tag">'+esc(t(p.nivel||""))+'</span> '+esc(i?i.nome:"")+(i&&i.cidade?' · '+esc(i.cidade):'')+(dg&&dg.vag?' · '+esc(t("{n} vagas",{n:dg.vag})):'')+(dg&&dg.ult?' · '+esc(t("último colocado {n}",{n:dg.ult})):'')+'</span></div><div class="score">'+f1(s.g)+'<small>'+esc(t("{n} aval.",{n:s.n}))+'</small></div>'+cmpBtn("prog:"+p.id)+'</li>'}).join("")+'</ul>'+(list.length>lim?'<button class="btn sec" type="button" data-a="xmore">'+esc(t("Ver mais ({n})",{n:list.length-lim}))+'</button>':''):emptyHTML(esc(t((nv||di||ii)?"Nenhum curso com estes filtros. Experimenta limpar os filtros.":"Nenhum curso encontrado. Falta algum? Junta-o abaixo."))+(filt?' '+filt:'')))+
+   (embedded?'':'<p class="xs m">'+esc(t("Licenciaturas e mestrados integrados do índice oficial da DGES (Acesso 2026). Mestrados, CTeSP, pós-graduações e doutoramentos são juntados pelos membros."))+'</p>'+(DB?'<form class="panel tight" data-f="progadd"><span class="lbl">'+esc(t("Juntar um curso que falta (mestrado, CTeSP, pós-graduação, doutoramento…)"))+'</span><div class="fg"><select class="fld" id="pa-inst" required aria-label="'+esc(t("Instituição"))+'"><option value="">'+esc(t("Instituição"))+'</option>'+allInst().map(function(i){return'<option value="'+esc(i.id)+'">'+esc(i.nome)+'</option>'}).join("")+'</select><select class="fld" id="pa-niv" aria-label="'+esc(t("Nível"))+'">'+NIVEIS.map(function(x){return'<option value="'+esc(x)+'"'+(x==="Mestrado"?" selected":"")+'>'+esc(t(x))+'</option>'}).join("")+'</select><input class="fld" id="pa-nome" maxlength="110" required placeholder="'+esc(t("Nome, como aparece no site oficial"))+'" aria-label="'+esc(t("Nome"))+'"><input class="fld" id="pa-area" maxlength="60" placeholder="'+esc(t("Área (ex.: Psicologia)"))+'" aria-label="'+esc(t("Área"))+'"></div><div class="row"><button class="btn s" type="submit">'+esc(t("Juntar"))+'</button><span class="msg" id="pa-msg"></span></div></form>':''));
+};
+ACT.xclear=function(){F.xniv="";F.xpdist="";F.xpinst="";F.xdist="";F.xtipo="";F.xkind="";F.xlim=40;render()};
+function instMatches(q){var d=F.xdist||"",tp=F.xtipo||"",kd=F.xkind||"";return allInst().filter(function(i){return matchQ(instHay(i),q)&&(!d||i.dist===d)&&(!tp||i.tipo===tp)&&(!kd||(i.kind||"Instituto ou escola")===kd)})}
+var _instListU=instList;
+instList=function(q){var save=F.xq;var h=_instListU("");var list=instMatches(q);
+  /* reconstruir só a lista, mantendo os filtros e o formulário */
+  var a=h.indexOf('<p class="xs m">'),b=h.indexOf('<details');if(b<0)b=h.length;
+  var items=list.length?'<ul class="inst-list">'+list.map(function(i){var s=scoreOf("inst:"+i.id),np=progsOf(i.id).length;return'<li><div class="stack-s"><button class="lnk" style="text-align:left;color:var(--ink);text-decoration:none;font:600 1rem var(--f-body)" type="button" data-a="inst" data-id="'+esc(i.id)+'">'+esc(i.nome)+'</button><span class="xs m">'+esc([i.cidade,t(i.tipo),i.kind?t(i.kind):"",np?t("{n} cursos",{n:np}):""].filter(Boolean).join(" · "))+'</span></div><div class="score" title="'+esc(t("Experiência geral"))+'">'+f1(s.g)+'<small>'+esc(t("{n} aval.",{n:s.n}))+'</small></div>'+cmpBtn("inst:"+i.id)+'</li>'}).join("")+'</ul>':emptyHTML(esc(t("Nenhuma instituição com estes filtros.")));
+  return h.slice(0,a)+'<p class="xs m">'+esc(t("{n} instituições.",{n:list.length}))+'</p>'+items+h.slice(b)};
+RENDER.explorar=function(){
+  if(DET&&DET.k==="inst")return instDetail(DET.id);
+  if(DET&&DET.k==="prog")return progDetail(DET.id);
+  if(DET&&DET.k==="user")return userDetail(DET.id);
+  var tb=curTab("explorar","prog"),q=F.xq||"";
+  var nP=PROGS.filter(visible).filter(function(p){return matchQ(progHay(p),q)}).length,nI=instMatches(q).length,nU=DB?Object.keys(P).filter(function(u){var p=P[u];return u!==UID&&matchQ([p.nome,p.curso,instName(p),p.dist,p.interesses,p.hobbies,p.of].join(" "),q)}).length:0;
+  var h=secHead(t("explorar"),t("Explorar"),esc(t(VDESC.explorar)))+
+    '<input class="fld bigsearch" id="xq" type="search" data-flt="xq" value="'+esc(q)+'" placeholder="'+esc(t("Procura tudo: curso, universidade, cidade, área ou pessoa (ex.: psicologia lisboa)"))+'" aria-label="'+esc(t("Procurar"))+'">'+
+    (q?'<p class="sm">'+esc(t("Para «{q}»: {a} cursos, {b} instituições, {c} pessoas.",{q:q,a:nP,b:nI,c:nU}))+'</p>':'')+
+    tabsHTML("explorar",[["prog","Cursos",nP],["inst","Instituições",nI],["pessoas","Pessoas",DB?nU:0]]);
+  if(tb==="inst")h+=instList(q);
+  else if(tb==="pessoas")h+=peopleList(q);
+  else h+=progList(q);
+  return h+trayHTML();
+};
+/* pesquisar a partir de qualquer separador leva logo aos resultados com mais conteúdo */
+document.addEventListener("input",function(e){if(e.target&&e.target.id==="xq"){F.xlim=40;var q=e.target.value;if(q&&V==="explorar"){var tb=TAB.explorar||"prog";if(tb==="inst"&&!instMatches(q).length)TAB.explorar="prog"}}});
+
+/* ---------- comparar ---------- */
+function instAgg(id){var ps=progsOf(id),v=0,n=0;ps.forEach(function(p){if(p.dg&&p.dg.vag){v+=p.dg.vag;n++}});return{np:ps.length,vag:v}}
+compareHTML=function(){
+  var add='<div class="row"><select class="fld" id="cmpinst" data-flt="cmpInst" style="max-width:300px" aria-label="'+esc(t("Instituição"))+'"><option value="">'+esc(t("Escolhe a instituição…"))+'</option>'+allInst().map(function(i){return'<option value="'+esc(i.id)+'"'+(F.cmpInst===i.id?" selected":"")+'>'+esc(i.nome)+'</option>'}).join("")+'</select>'+
+    '<select class="fld" id="cmpadd" style="max-width:360px" aria-label="'+esc(t("Juntar à comparação"))+'"><option value="">'+esc(t(F.cmpInst?"Juntar à comparação…":"Escolhe primeiro a instituição"))+'</option>'+(F.cmpInst?['<option value="inst:'+esc(F.cmpInst)+'">'+esc(t("A instituição em geral"))+'</option>'].concat(progsOf(F.cmpInst).slice().sort(function(a,b){return a.nome.localeCompare(b.nome,"pt")}).filter(function(p){return CMP.indexOf("prog:"+p.id)<0}).map(function(p){return'<option value="prog:'+esc(p.id)+'">'+esc(p.nome)+' · '+esc(t(p.nivel||""))+'</option>'})).join(""):"")+'</select><button class="btn sec s" type="button" data-a="cmpadd">'+esc(t("Juntar"))+'</button>'+(CMP.length?'<button class="btn ghost s" type="button" data-a="cmpclear">'+esc(t("Limpar tudo"))+'</button>':'')+'</div><p class="xs m">'+esc(t("Também podes usar o botão Comparar em Explorar."))+'</p>';
+  if(CMP.length<2)return add+emptyHTML(esc(t("Escolhe pelo menos duas instituições ou cursos.")));
+  var cols=CMP.map(function(k){var p=k.split(":"),o={k:k,name:targetName(k),R:revsFor(k),of:{}};
+    if(p[0]==="inst"){var i=instById(p[1])||{},ag=instAgg(p[1]);o.of={tipo:[t(i.tipo||""),i.kind?t(i.kind):""].filter(Boolean).join(" · "),cidade:i.cidade||"",dist:i.dist||"",ncur:ag.np?String(ag.np):"",vag:ag.vag?String(ag.vag):"",propina:i.tipo==="Pública"?t("Licenciaturas: até 697 € por ano"):"",link:""};o.na={duracao:1,horario:1,requisitos:1,ult:1,prazo:1,conteudo:1,estagio:1,link:1}}
+    else{var g=progById(p[1])||{},ii=instById(g.inst)||{},of=obj(g.oficial),dg=g.dg||{};o.of={tipo:t(g.nivel||""),cidade:ii.cidade||"",dist:ii.dist||"",propina:of.propina||"",duracao:of.duracao||"",horario:of.horario||"",vag:dg.vag?String(dg.vag):"",ult:dg.ult||"",requisitos:of.requisitos?of.requisitos.split(". Vagas")[0].replace(/\s*\(vê as combinações aceites na página oficial\)/,"").replace("Provas de ingresso possíveis: ",""):"",prazo:of.prazo||"",conteudo:of.conteudo||"",estagio:of.estagio||"",link:of.link||""};o.na={ncur:1}}
+    return o});
+  var rows=[["tipo","Nível ou tipo"],["cidade","Cidade"],["dist","Distrito ou região"],["ncur","Cursos na lista"],["propina","Propina anual"],["duracao","Duração"],["horario","Horário e regime"],["vag","Vagas 2026/2027"],["ult","Último colocado 2025 (1.ª fase)"],["requisitos","Provas de ingresso"],["prazo","Prazo de candidatura"],["conteudo","Conteúdos principais"],["estagio","Estágio ou investigação"],["link","Página oficial"]]; //i18n
+  rows=rows.filter(function(r){return cols.some(function(c){return!c.na||!c.na[r[0]]})});
+  var h='<div class="scroll"><table><thead><tr><th></th>'+cols.map(function(c){return'<th>'+esc(c.name)+' <button class="lnk m xs" type="button" data-a="cmp" data-k="'+esc(c.k)+'" aria-label="'+esc(t("Remover"))+'">×</button></th>'}).join("")+'</tr></thead><tbody><tr class="grp"><th colspan="'+(cols.length+1)+'">'+esc(t("Dados oficiais"))+'</th></tr>';
+  rows.forEach(function(r){var vals=cols.map(function(c){return c.of[r[0]]}),best=null;
+    if(r[0]==="ult"){var nums=vals.map(function(v){return v?parseFloat(String(v).replace(",",".")):null}).filter(function(x){return x!=null});if(nums.length>1)best=Math.max.apply(null,nums)}
+    h+='<tr><th>'+esc(t(r[1]))+'</th>'+cols.map(function(c){var v=c.of[r[0]];if(c.na&&c.na[r[0]])return'<td class="m">—</td>';return'<td>'+(v?(r[0]==="link"?linkOut(v,t("Abrir")):esc(v)):'<span class="pend">'+esc(t("a confirmar"))+'</span>')+'</td>'}).join("")+'</tr>'});
+  h+='<tr class="grp"><th colspan="'+(cols.length+1)+'">'+esc(t("Opinião da comunidade (não verificada)"))+'</th></tr><tr><th>'+esc(t("Número de avaliações"))+'</th>'+cols.map(function(c){return'<td class="num">'+c.R.length+'</td>'}).join("")+'</tr>';
+  CATS.forEach(function(ca){var vals=cols.map(function(c){return avg(c.R.map(function(r){return obj(r.notas)[ca[0]]}))}),best=Math.max.apply(null,vals.map(function(v){return v||0}));
+    h+='<tr><th>'+esc(t(ca[1]))+'</th>'+vals.map(function(v){return'<td class="num"'+(v&&v===best&&vals.filter(function(x){return x}).length>1?' style="color:var(--accent);font-weight:700"':'')+'>'+(v?f1(v):"–")+'</td>'}).join("")+'</tr>'});
+  return add+h+'</tbody></table></div><p class="xs m">'+esc(t("Dados oficiais do Guia de Candidatura 2026 da DGES. «—» quer dizer que não se aplica. Médias de notas de 1 a 5: com poucas avaliações, os números dizem pouco."))+'</p>';
+};
+(function(){var X={"Limpar filtros":["Clear filters","Borrar filtros","Filter löschen","Effacer les filtres","Cancella filtri"],"{n} vagas":["{n} places","{n} plazas","{n} Plätze","{n} places","{n} posti"],"último colocado {n}":["last admitted {n}","último admitido {n}","zuletzt Zugelassene {n}","dernier admis {n}","ultimo ammesso {n}"],
+ "Nenhum curso com estes filtros. Experimenta limpar os filtros.":["No courses with these filters. Try clearing them.","Ningún curso con estos filtros. Prueba a borrarlos.","Keine Studiengänge mit diesen Filtern. Versuch, sie zu löschen.","Aucune formation avec ces filtres. Essaie de les effacer.","Nessun corso con questi filtri. Prova a cancellarli."],
+ "Nenhum curso encontrado. Falta algum? Junta-o abaixo.":["No courses found. Missing one? Add it below.","No se encontró ningún curso. ¿Falta alguno? Añádelo abajo.","Kein Studiengang gefunden. Fehlt einer? Füg ihn unten hinzu.","Aucune formation trouvée. Il en manque une ? Ajoute-la ci-dessous.","Nessun corso trovato. Ne manca uno? Aggiungilo qui sotto."],
+ "Procura tudo: curso, universidade, cidade, área ou pessoa (ex.: psicologia lisboa)":["Search everything: course, university, city, field or person (e.g. psychology lisbon)","Busca todo: curso, universidad, ciudad, área o persona (ej.: psicología lisboa)","Alles durchsuchen: Studiengang, Hochschule, Stadt, Fach oder Person (z. B. psicologia lisboa)","Cherche tout : formation, université, ville, domaine ou personne (ex. : psicologia lisboa)","Cerca tutto: corso, università, città, area o persona (es.: psicologia lisboa)"],
+ "Para «{q}»: {a} cursos, {b} instituições, {c} pessoas.":["For “{q}”: {a} courses, {b} institutions, {c} people.","Para «{q}»: {a} cursos, {b} instituciones, {c} personas.","Für „{q}“: {a} Studiengänge, {b} Hochschulen, {c} Personen.","Pour « {q} » : {a} formations, {b} établissements, {c} personnes.","Per «{q}»: {a} corsi, {b} istituzioni, {c} persone."],
+ "Escolhe a instituição…":["Choose the institution…","Elige la institución…","Hochschule wählen…","Choisis l'établissement…","Scegli l'istituzione…"],
+ "Também podes usar o botão Comparar em Explorar.":["You can also use the Compare button in Explore.","También puedes usar el botón Comparar en Explorar.","Du kannst auch den Vergleichen-Knopf unter Entdecken nutzen.","Tu peux aussi utiliser le bouton Comparer dans Explorer.","Puoi anche usare il pulsante Confronta in Esplora."],
+ "Escolhe pelo menos duas instituições ou cursos.":["Choose at least two institutions or courses.","Elige al menos dos instituciones o cursos.","Wähle mindestens zwei Hochschulen oder Studiengänge.","Choisis au moins deux établissements ou formations.","Scegli almeno due istituzioni o corsi."],
+ "Licenciaturas: até 697 € por ano":["Bachelor's: up to €697 a year","Grados: hasta 697 € al año","Bachelor: bis 697 € pro Jahr","Licences : jusqu'à 697 € par an","Lauree: fino a 697 € l'anno"],
+ "Cursos na lista":["Courses listed","Cursos en la lista","Studiengänge in der Liste","Formations listées","Corsi in elenco"],
+ "Vagas 2026/2027":["Places 2026/2027","Plazas 2026/2027","Plätze 2026/2027","Places 2026/2027","Posti 2026/2027"],
+ "Último colocado 2025 (1.ª fase)":["Last admitted 2025 (1st phase)","Último admitido 2025 (1.ª fase)","Zuletzt Zugelassene 2025 (1. Phase)","Dernier admis 2025 (1re phase)","Ultimo ammesso 2025 (1ª fase)"],
+ "Provas de ingresso":["Entrance exams","Pruebas de acceso","Aufnahmeprüfungen","Épreuves d'admission","Prove di ammissione"],
+ "Abrir":["Open","Abrir","Öffnen","Ouvrir","Apri"],
+ "Dados oficiais do Guia de Candidatura 2026 da DGES. «—» quer dizer que não se aplica. Médias de notas de 1 a 5: com poucas avaliações, os números dizem pouco.":["Official data from the DGES 2026 Application Guide. “—” means not applicable. Averages from 1 to 5: with few reviews, the numbers say little.","Datos oficiales de la Guía de Candidatura 2026 de la DGES. «—» significa que no se aplica. Medias de 1 a 5: con pocas reseñas, los números dicen poco.","Offizielle Daten aus dem DGES-Bewerbungsleitfaden 2026. „—“ heißt: trifft nicht zu. Durchschnitte von 1 bis 5: Mit wenigen Bewertungen sagen die Zahlen wenig.","Données officielles du Guide de candidature 2026 de la DGES. « — » veut dire non applicable. Moyennes de 1 à 5 : avec peu d'avis, les chiffres disent peu.","Dati ufficiali della Guida alle candidature 2026 della DGES. «—» significa non applicabile. Medie da 1 a 5: con poche recensioni i numeri dicono poco."]};
  var L=["en","es","de","fr","it"];Object.keys(X).forEach(function(k){L.forEach(function(l,i){if(window.I18N&&I18N[l]&&!I18N[l][k])I18N[l][k]=X[k][i]})})})();
 
 /* =====================================================================
