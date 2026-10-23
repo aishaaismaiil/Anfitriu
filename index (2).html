@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Anfitriu: a rede de estudantes do ensino superior em Portugal. Avaliações de cursos e mestrados, debates, comunidades e oportunidades.">
-<link rel="icon" href="icon-192.png">
+<link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="alternate icon" href="icon-192.png">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Anfitriu</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -641,6 +641,34 @@ html.anf-paused *,html.anf-paused *::after{animation-play-state:paused!important
 
 .tour{background:linear-gradient(135deg,#2B1B2F,#4A2440 60%,#6A2E3A);box-shadow:5px 5px 0 var(--accent)}
 .tart .anf-step{opacity:.35}.tart .anf-aisle{opacity:.2}
+/* bancada v2: auditório */
+.anfv2{position:relative;margin:0 auto;max-width:100%}
+.anf2-floor{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle closest-side,color-mix(in srgb,var(--accent) 34%,#2B1B2F) 0 33%,#2B1B2F 33% 39%,color-mix(in srgb,var(--accent) 18%,#2B1B2F) 39% 57%,color-mix(in srgb,var(--acid) 16%,#2B1B2F) 57% 74%,color-mix(in srgb,var(--violet) 22%,#2B1B2F) 74% 91%,#2B1B2F 91%);box-shadow:0 18px 40px -18px rgba(43,27,47,.6)}
+.anf2-aisle{position:absolute;transform-origin:0 50%;background:rgba(255,244,234,.22);border-radius:2px}
+.anf2-spotwrap{position:absolute;inset:0;border-radius:50%;overflow:hidden;pointer-events:none}
+.anf2-spot{position:absolute;inset:0;background:conic-gradient(from 0deg,transparent 0 320deg,color-mix(in srgb,var(--acid) 45%,transparent) 345deg,transparent 360deg);animation:anfspin 14s linear infinite}
+@keyframes anfspin{to{transform:rotate(360deg)}}
+.anf2-seat{position:absolute;border-radius:6px;box-sizing:border-box}
+.anf2-seat.r1{background:var(--acid)}.anf2-seat.r2{background:color-mix(in srgb,var(--violet) 70%,#fff)}
+.anf2-seat button{all:unset;cursor:pointer;display:block;width:100%;height:100%}
+.anf2-seat:hover{filter:brightness(1.15)}
+.anf2-seat.live,.anf2-friend.live{animation:anfpulse2 2.2s ease-in-out infinite}
+@keyframes anfpulse2{0%,100%{box-shadow:0 0 0 2px rgba(43,212,138,.35)}50%{box-shadow:0 0 0 5px rgba(43,212,138,.95)}}
+.anf2-empty{position:absolute;border-radius:6px;border:1.4px dashed rgba(255,244,234,.5);box-sizing:border-box;display:grid;place-items:center}
+.anf2-empty.round{border-radius:50%}
+.anf2-empty button{all:unset;cursor:pointer;width:100%;height:100%;display:grid;place-items:center;color:rgba(255,244,234,.75);font:700 .75rem var(--f-body);border-radius:50%}
+.anf2-empty:hover{border-color:var(--acid)}
+.anf2-friend{position:absolute;border-radius:50%;border:2.5px solid #FFF4EA;background:var(--accent);overflow:hidden;display:grid;z-index:2;animation:anfrise 3.2s ease-in-out infinite;box-sizing:border-box}
+.anf2-friend.live{animation:anfrise 3.2s ease-in-out infinite,anfpulse2 2.2s ease-in-out infinite}
+.anf2-friend button{all:unset;cursor:pointer;display:block;width:100%;height:100%}
+.anf2-friend .av,.anf2-me .av{display:block;width:100%;height:100%}
+.anf2-friend:hover{z-index:4;transform:scale(1.12)}
+@keyframes anfrise{0%,100%{translate:0 0}50%{translate:0 -3px}}
+.anf2-stage{position:absolute;border-radius:50%;display:grid;place-items:center;z-index:3;box-shadow:0 0 50px 8px color-mix(in srgb,var(--accent) 55%,transparent)}
+.anf2-lvl{border-radius:50%;display:grid;place-items:center}
+.anf2-me{border-radius:50%;overflow:hidden;background:#FFF6EC;display:grid}
+.anf2-lv{position:absolute;right:-6px;bottom:6%;padding:2px 8px;border-radius:999px;background:var(--acid);color:#2B1B2F;font:700 .7rem var(--f-body);border:1.5px solid #2B1B2F}
+.anf2-door{position:absolute;text-align:center;padding:4px 0;border-radius:999px;background:var(--accent);color:#fff;font:700 .68rem var(--f-body);letter-spacing:.06em;text-transform:uppercase;z-index:2}
 </style>
 
 </head>
@@ -3841,6 +3869,50 @@ RENDER.inicio=function(){var h=_inAnf();if(!DB||!MYP)return h;var i=h.indexOf('<
 /* nas outras línguas, a "órbita" passa a "círculo/tribuna" */
 (function(){if(!window.I18N)return;var R={en:[[/\bin orbit\b/g,"in your circle"],[/\borbit\b/g,"circle"],[/\bOrbit\b/g,"Circle"]],de:[[/\bOrbit\b/g,"Kreis"]],fr:[[/\borbite\b/g,"tribune"],[/\bOrbite\b/g,"Tribune"]],it:[[/\borbita\b/g,"tribuna"],[/\bOrbita\b/g,"Tribuna"]]};
  Object.keys(R).forEach(function(l){var d=I18N[l];if(!d)return;Object.keys(d).forEach(function(k){var v=d[k];if(typeof v!=="string")return;R[l].forEach(function(p){v=v.replace(p[0],p[1])});d[k]=v})})})();
+
+/* =====================================================================
+   Anfitriu v2 — logótipo "Louros" e bancada em forma de auditório:
+   3 filas em degraus com corredores, entrada do palco em baixo, tu no
+   palco com o arco do teu nível, amigos na 1.ª fila, lugares ocupados
+   coloridos, vazios tracejados (convites) e um foco de luz a rodar.
+   ===================================================================== */
+var LOUROS_LEAVES=[[25.8,12.8,-40],[17.9,16.6,-61],[11.9,22.9,-82],[8.5,31,-103],[8.3,39.8,-124],[11.2,48,-145],[16.9,54.7,-166],[38.2,12.8,40],[46.1,16.6,61],[52.1,22.9,82],[55.5,31,103],[55.7,39.8,124],[52.8,48,145],[47.1,54.7,166]];
+function lourosSVG(s,o){o=o||{};var a=o.a||"var(--accent)",b=o.b||"var(--acid)",bg=o.bg||"var(--surface)";
+  return'<svg width="'+s+'" height="'+s+'" viewBox="0 0 64 70" aria-hidden="true">'+LOUROS_LEAVES.map(function(l){return'<ellipse cx="'+l[0]+'" cy="'+l[1]+'" rx="4.4" ry="1.9" transform="rotate('+l[2]+' '+l[0]+' '+l[1]+')" fill="'+b+'"/>'}).join("")+
+  '<circle cx="32" cy="36" r="17" fill="'+a+'"/><path d="M19.5 44A12.5 12.5 0 0 1 44.5 44" fill="none" stroke="'+bg+'" stroke-width="3.6"/><path d="M25 44A7 7 0 0 1 39 44" fill="none" stroke="'+b+'" stroke-width="3.6"/><rect x="18" y="44.5" width="28" height="3" rx="1.5" fill="'+bg+'"/><path d="M32 23.2l1.6 3.2 3.5.5-2.5 2.5.6 3.5-3.2-1.7-3.2 1.7.6-3.5-2.5-2.5 3.5-.5z" fill="'+bg+'"/><path d="M27 60L32 57L37 60" fill="none" stroke="'+b+'" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'}
+orbitMark=function(size,inv){return lourosSVG(size||28,inv?{bg:"#2B1B2F"}:{})};
+
+orbitViz=function(list,size,demo){
+  size=size||300;var f=size/520,C=size/2,small=size<300;
+  var rows=small?[{r:150,n:2,w:40,h:28},{r:205,n:3,w:36,h:26}]:[{r:128,n:3,w:30,h:22},{r:172,n:4,w:28,h:20},{r:214,n:5,w:26,h:18}];
+  var people=(list||[]).slice();
+  if(!demo)people.sort(function(a,b){return(anfActiveToday(b)-anfActiveToday(a))||(anfCommon(b)-anfCommon(a))});
+  var lvl=demo?{lv:4,f:.68}:anfLevel();
+  var seats=[];rows.forEach(function(row,ri){for(var sec=0;sec<5;sec++){var a0=120+sec*60+4,span=52;for(var j=0;j<row.n;j++){var ang=a0+span*(j+.5)/row.n,rad=ang*Math.PI/180;seats.push({ri:ri,ang:ang,x:C+row.r*f*Math.cos(rad),y:C+row.r*f*Math.sin(rad),w:row.w*f,h:row.h*f})}}});
+  var total=seats.length,pi=0;
+  var h='<div class="anfv2" style="width:'+size+'px;height:'+size+'px" role="img" aria-label="'+esc(t("A tua bancada: {n} de {t} lugares ocupados",{n:Math.min(people.length,total),t:total}))+'">';
+  h+='<div class="anf2-floor"></div>';
+  for(var s=0;s<=5;s++)h+='<span class="anf2-aisle" style="left:'+C+'px;top:'+(C-2*f)+'px;width:'+(150*f).toFixed(1)+'px;height:'+Math.max(2,4*f).toFixed(1)+'px;transform:rotate('+(120+s*60)+'deg) translateX('+(100*f).toFixed(1)+'px)"></span>';
+  h+='<div class="anf2-spotwrap"><div class="anf2-spot"></div></div>';
+  seats.forEach(function(st,i){var u=people[pi];
+    if(st.ri===0){var d=Math.max(22,Math.round((small?46:40)*f*(small?1.4:1)));
+      if(u){pi++;var act=demo?(i%4===1):anfActiveToday(u);
+        h+='<span class="anf2-friend'+(act?' live':'')+'" style="left:'+(st.x-d/2).toFixed(1)+'px;top:'+(st.y-d/2).toFixed(1)+'px;width:'+d+'px;height:'+d+'px;animation-delay:'+(i%5)*.4+'s">'+(demo?'<span class="av">'+avatarSVG(avSeed(u))+'</span>':'<button type="button" data-a="user" data-id="'+esc(u)+'" title="'+esc(nameOf(u)+(act?" · "+t("ativo hoje"):""))+'" aria-label="'+esc(nameOf(u))+'">'+ident(u,d)+'</button>')+'</span>'}
+      else{var e=Math.round(d*.7);h+='<span class="anf2-empty round" style="left:'+(st.x-e/2).toFixed(1)+'px;top:'+(st.y-e/2).toFixed(1)+'px;width:'+e+'px;height:'+e+'px">'+(demo?'':'<button type="button" data-a="goto" data-v="explorar" data-t="pessoas" aria-label="'+esc(t("Lugar livre: convida alguém para a tua bancada"))+'" title="'+esc(t("Lugar livre: convida alguém para a tua bancada"))+'">+</button>')+'</span>'}
+      return}
+    var pos='left:'+(st.x-st.w/2).toFixed(1)+'px;top:'+(st.y-st.h/2).toFixed(1)+'px;width:'+st.w.toFixed(1)+'px;height:'+st.h.toFixed(1)+'px;transform:rotate('+(st.ang+90).toFixed(1)+'deg)';
+    var filled=demo?((i*7+st.ri*3)%10)<6:!!u;
+    if(filled){var who=demo?null:u;if(!demo)pi++;var act2=who&&anfActiveToday(who);
+      h+='<span class="anf2-seat r'+st.ri+(act2?' live':'')+'" style="'+pos+'">'+(who?'<button type="button" data-a="user" data-id="'+esc(who)+'" title="'+esc(nameOf(who))+'" aria-label="'+esc(nameOf(who))+'"></button>':'')+'</span>'}
+    else h+='<span class="anf2-empty" style="'+pos+'"></span>'});
+  var R=Math.round(64*f*(small?1.25:1)),ring=Math.round(R*2*.97);
+  h+='<div class="anf2-stage" style="left:'+(C-R)+'px;top:'+(C-R)+'px;width:'+R*2+'px;height:'+R*2+'px"><div class="anf2-lvl" style="width:'+ring+'px;height:'+ring+'px;background:conic-gradient(var(--acid) 0 '+Math.round(lvl.f*100)+'%,rgba(255,244,234,.18) '+Math.round(lvl.f*100)+'% 100%)"><span class="anf2-me" style="width:'+Math.round(ring*.8)+'px;height:'+Math.round(ring*.8)+'px">'+(demo?'<span class="av">'+avatarSVG(avSeed("tour-me"))+'</span>':ident(UID,Math.round(ring*.8)))+'</span></div><span class="anf2-lv">'+esc(t("NV"))+' '+lvl.lv+'</span></div>';
+  if(!small)h+='<span class="anf2-door" style="left:'+(C-34*f)+'px;top:'+(C+196*f)+'px;width:'+(68*f)+'px">'+esc(t("Palco"))+'</span>';
+  h+='</div>';
+  if(!demo){var n=Math.min(people.length,total),live=people.filter(anfActiveToday).length;
+    h+='<div class="anf-legend"><span><b>'+n+'</b>/'+total+' '+esc(t("lugares"))+'</span><span><i class="dot live"></i>'+esc(t("{n} ativos hoje",{n:live}))+'</span><span><i class="dot front"></i>'+esc(t("1.ª fila: mais em comum"))+'</span></div>'}
+  return h};
+(function(){var X={"Palco":["Stage","Escenario","Bühne","Scène","Palco"]};var L=["en","es","de","fr","it"];Object.keys(X).forEach(function(k){L.forEach(function(l,i){if(window.I18N&&I18N[l])I18N[l][k]=X[k][i]})})})();
 
 </script>
 </body>
