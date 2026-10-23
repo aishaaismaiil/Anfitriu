@@ -543,6 +543,28 @@ main[data-v="sinais"]{--sec:var(--c-sinais)} main[data-v="diario"]{--sec:var(--c
 .agtx small{color:var(--muted);font-size:.78rem}
 .agbtns{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.3rem}
 .bigsearch{font-size:1.05rem;padding:.8rem 1rem;border:1.5px solid var(--edge);box-shadow:3px 3px 0 var(--edge)}
+.sbox{position:relative;display:flex;align-items:center;gap:.4rem;width:100%}
+.sbox .sic{position:absolute;left:.75rem;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;display:grid}
+.sbox input[type=search]{padding-left:2.4rem;flex:1;min-width:0}
+.sbox.big input[type=search]{padding-left:2.6rem}
+.sbox .sgo{flex:none}
+.sgbox{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:60;background:var(--surface);border:1.5px solid var(--edge);border-radius:12px;box-shadow:5px 5px 0 var(--edge);padding:.35rem;display:grid;gap:2px;max-height:min(70vh,440px);overflow:auto}
+.sgi,.sgall{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:.6rem;padding:.5rem .55rem;border-radius:8px;color:var(--ink)}
+.sgi:hover,.sgi.on,.sgall:hover{background:var(--surface2)}
+.sgic{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:var(--surface2);flex:none}
+.sgt{display:grid;line-height:1.25;font-size:.92rem}.sgt b{font-weight:600}.sgt small{color:var(--muted);font-size:.78rem}
+.sgt mark{background:var(--c-live);color:#0D1122;border-radius:3px;padding:0 1px}
+.sgall{border-top:1px dashed var(--line2);margin-top:.2rem;font-weight:600;font-size:.88rem}
+.sgnone{padding:.5rem .6rem;color:var(--muted);font-size:.86rem}
+.gsearch{padding:.2rem 0 .6rem}.gsearch .sgo{display:none}
+.gsearch .sgbox{min-width:300px}
+#top .gsearch{padding:.4rem 0 .2rem}
+.cmpfind{gap:.55rem}.cmpfind h3{display:flex;align-items:center;gap:.4rem;margin:0}
+.cmplist{list-style:none;margin:0;padding:0;display:grid;gap:2px;max-height:460px;overflow:auto;border:1px solid var(--line2);border-radius:10px;background:var(--surface)}
+.cmplist li{display:flex;gap:.7rem;align-items:center;padding:.5rem .7rem;border-top:1px solid var(--line2)}.cmplist li:first-child{border-top:0}
+.cmpck{all:unset;cursor:pointer;width:22px;height:22px;border-radius:6px;border:1.5px solid var(--edge);display:grid;place-items:center;flex:none;background:var(--surface)}
+.cmpck[aria-pressed="true"]{background:var(--c-aval);color:#fff}
+.gsearch .sgbox{width:min(380px,90vw);right:auto}
 </style>
 
 </head>
@@ -3313,6 +3335,175 @@ compareHTML=function(){
  "Provas de ingresso":["Entrance exams","Pruebas de acceso","Aufnahmeprüfungen","Épreuves d'admission","Prove di ammissione"],
  "Abrir":["Open","Abrir","Öffnen","Ouvrir","Apri"],
  "Dados oficiais do Guia de Candidatura 2026 da DGES. «—» quer dizer que não se aplica. Médias de notas de 1 a 5: com poucas avaliações, os números dizem pouco.":["Official data from the DGES 2026 Application Guide. “—” means not applicable. Averages from 1 to 5: with few reviews, the numbers say little.","Datos oficiales de la Guía de Candidatura 2026 de la DGES. «—» significa que no se aplica. Medias de 1 a 5: con pocas reseñas, los números dicen poco.","Offizielle Daten aus dem DGES-Bewerbungsleitfaden 2026. „—“ heißt: trifft nicht zu. Durchschnitte von 1 bis 5: Mit wenigen Bewertungen sagen die Zahlen wenig.","Données officielles du Guide de candidature 2026 de la DGES. « — » veut dire non applicable. Moyennes de 1 à 5 : avec peu d'avis, les chiffres disent peu.","Dati ufficiali della Guida alle candidature 2026 della DGES. «—» significa non applicabile. Medie da 1 a 5: con poche recensioni i numeri dicono poco."]};
+ var L=["en","es","de","fr","it"];Object.keys(X).forEach(function(k){L.forEach(function(l,i){if(window.I18N&&I18N[l]&&!I18N[l][k])I18N[l][k]=X[k][i]})})})();
+
+/* =====================================================================
+   UniOrbis — pesquisa em todo o lado: lupa, botão Procurar e sugestões
+   enquanto escreves (como no Google). Pesquisa global no menu.
+   Comparador por tema: escreves "psicologia" ou "mestrado psicologia" e
+   aparecem todos os cursos de todas as instituições para juntar.
+   ===================================================================== */
+var CMPMAX=8;
+ACT.cmp=function(d){var i=CMP.indexOf(d.k);if(i>-1)CMP.splice(i,1);else{if(CMP.length>=CMPMAX){toast(t("Podes comparar até {n} de cada vez.",{n:CMPMAX}));return}CMP.push(d.k)}render()};
+ACT.cmpadd=function(){var v=val("cmpadd");if(v&&CMP.indexOf(v)<0&&CMP.length<CMPMAX)CMP.push(v);render()};
+
+/* ---------- interpretar a pesquisa: palavras de nível viram filtro ---------- */
+var LVLW={mestrado:"M",mestrados:"M",master:"M",licenciatura:"Licenciatura",licenciaturas:"Licenciatura",ctesp:"CTeSP",doutoramento:"Doutoramento",doutoramentos:"Doutoramento",phd:"Doutoramento",posgraduacao:"Pós-graduação","pos-graduacao":"Pós-graduação",posgraduacoes:"Pós-graduação","pos-graduacoes":"Pós-graduação",integrado:"MI"};
+var STOPW={de:1,da:1,do:1,das:1,dos:1,em:1,e:1,a:1,o:1,na:1,no:1};
+function parseQ(q){var toks=norm(q).split(/\s+/).filter(Boolean),lv=null,rest=[];
+  toks.forEach(function(k){var w=LVLW[k];if(w){lv=(w==="MI"||(lv==="M"&&w==="MI"))?"MI":(lv==="MI"?"MI":w)}else rest.push(k)});
+  return{lv:lv,text:rest.filter(function(k){return!STOPW[k]||rest.length===1}).join(" ")}}
+function lvOk(p,lv){if(!lv)return true;if(lv==="M")return p.nivel==="Mestrado"||p.nivel==="Mestrado integrado";if(lv==="MI")return p.nivel==="Mestrado integrado";return p.nivel===lv}
+function progHayNL(p){var i=instById(p.inst);return[p.nome,p.area||"",i?i.nome+" "+i.cidade+" "+i.dist:""].join(" ")}
+function progMatch(p,q){var pq=parseQ(q);return lvOk(p,pq.lv)&&matchQ(progHayNL(p),pq.text)}
+function lvName(lv){return lv==="M"?t("Mestrados"):lv==="MI"?t("Mestrados integrados"):t(lv)}
+
+/* explorar: usar a nova interpretação */
+progHay=function(p){return progHayNL(p)};
+var _progListS=progList;
+/* versão com nível: substitui a filtragem */
+(function(){var base=_progListS;progList=function(q,emb){var pq=parseQ(q||""),keep=PROGS;
+  if(pq.lv){PROGS=PROGS.filter(function(p){return lvOk(p,pq.lv)})}
+  var h;try{h=base(pq.text,emb)}finally{PROGS=keep}
+  if(pq.lv&&h.indexOf('<ul class="inst-list">')<0){h='<div class="note">'+esc(t("Ainda não há {l} com «{q}» na lista. Os mestrados, CTeSP, pós-graduações e doutoramentos são juntados pelos membros: junta o teu no fim desta página.",{l:lvName(pq.lv).toLowerCase(),q:pq.text}))+(pq.text?' <button class="lnk" type="button" data-a="sgset" data-q="'+esc(pq.text)+'">'+esc(t("Ver todos os cursos de «{q}»",{q:pq.text}))+'</button>':'')+'</div>'+h}
+  return h}})();
+ACT.sgset=function(d){F.xq=d.q;F.cmpq=d.q;render()};
+
+/* contagens do Explorar e tab "No site" */
+function siteHits(q){if(!q)return[];var L=[];
+  COMS.filter(visible).forEach(function(c){if(matchQ(c.nome+" "+(c.desc||"")+" "+tags(c.tags).join(" "),q))L.push({k:"Comunidade",ic:"comunidades",tit:c.nome,sub:c.desc||"",a:'data-a="com" data-id="'+esc(c.id)+'"'})});
+  DEBS.filter(visible).forEach(function(d){if(matchQ(d.tit+" "+(d.desc||""),q))L.push({k:"Debate",ic:"agora",tit:d.tit,sub:d.desc||"",a:'data-a="deb" data-id="'+esc(d.id)+'"'})});
+  OPOS.filter(visible).concat(BOLSAS.map(function(b){return{id:b.id,tit:t(b.tit),desc:t(b.d),cur:1}})).forEach(function(o){if(matchQ(o.tit+" "+(o.desc||"")+" "+(o.org||""),q))L.push({k:"Oportunidade",ic:"oportunidades",tit:o.tit,sub:o.desc||"",a:'data-go="oportunidades"'})});
+  DATAS.forEach(function(d){if(matchQ(t(d.titulo)+" "+t(d.desc),q))L.push({k:"Prazo",ic:"cal",tit:t(d.titulo),sub:fdate(dOf(d.data),{day:"numeric",month:"long",year:"numeric"}),a:'data-go="oportunidades"'})});
+  POSTS.filter(visible).forEach(function(p){if(matchQ((p.tit||"")+" "+p.txt+" "+tags(p.tags).join(" "),q))L.push({k:"Publicação",ic:"mural",tit:p.tit||String(p.txt).slice(0,90),sub:nameOf(p.uid),a:'data-a="post1" data-id="'+esc(p.id)+'"'})});
+  AREAS.forEach(function(a){a.s.forEach(function(s){if(matchQ(s+" "+t(a.a),q))L.push({k:"Skill",ic:"skills",tit:s,sub:t(a.a),a:'data-a="goto" data-v="skills" data-t="skills"'})})});
+  return L}
+function peopleHits(q){if(!DB)return[];return Object.keys(P).filter(function(u){var p=P[u];return u!==UID&&!isBlocked(u)&&matchQ([p.nome,p.curso,instName(p),p.dist,p.interesses,p.hobbies,p.of,p.pr].join(" "),q)})}
+RENDER.explorar=function(){
+  if(DET&&DET.k==="inst")return instDetail(DET.id);
+  if(DET&&DET.k==="prog")return progDetail(DET.id);
+  if(DET&&DET.k==="user")return userDetail(DET.id);
+  var tb=curTab("explorar","prog"),q=F.xq||"",pq=parseQ(q);
+  var nP=PROGS.filter(visible).filter(function(p){return progMatch(p,q)}).length,nI=instMatches(pq.text).length,nU=peopleHits(pq.text).length,S=siteHits(pq.text),nS=q?S.length:0;
+  var h=secHead(t("explorar"),t("Explorar"),esc(t(VDESC.explorar)))+
+    '<input class="fld bigsearch" id="xq" type="search" data-flt="xq" data-sug="all" value="'+esc(q)+'" placeholder="'+esc(t("Procura tudo: curso, universidade, cidade, área ou pessoa (ex.: psicologia lisboa)"))+'" aria-label="'+esc(t("Procurar"))+'" autocomplete="off">'+
+    (q?'<p class="sm">'+esc(t("Para «{q}»: {a} cursos, {b} instituições, {c} pessoas.",{q:q,a:nP,b:nI,c:nU}))+(nS?' '+esc(t("E mais {n} resultados no site.",{n:nS})):'')+'</p>':'')+
+    tabsHTML("explorar",[["prog","Cursos",nP],["inst","Instituições",nI],["pessoas","Pessoas",DB?nU:0]].concat(q?[["site","No site",nS]]:[]));
+  if(tb==="inst")h+=instList(pq.text);
+  else if(tb==="pessoas")h+=peopleList(pq.text);
+  else if(tb==="site"&&q)h+=S.length?'<ul class="olist">'+S.slice(0,60).map(function(x){return'<li><div class="row" style="gap:.6rem;flex-wrap:nowrap"><span class="agic">'+ico(x.ic,16)+'</span><div class="stack-s"><button class="lnk" style="text-align:left;color:var(--ink);text-decoration:none;font-weight:600" type="button" '+x.a+'>'+esc(x.tit)+'</button><span class="xs m">'+esc(t(x.k))+(x.sub?' · '+esc(String(x.sub).slice(0,110)):'')+'</span></div></div></li>'}).join("")+'</ul>':emptyHTML(esc(t("Nada encontrado.")));
+  else h+=progList(q);
+  return h+trayHTML();
+};
+
+/* ---------- sugestões ---------- */
+var SUG={id:null,open:false,list:[],sel:-1};
+function sgCourses(q,n,mode){var pq=parseQ(q);if(pq.text.length<2&&!pq.lv)return[];var g={};
+  var run=function(lv){g={};PROGS.filter(visible).forEach(function(p){if(!lvOk(p,lv))return;if(pq.text&&!matchQ(progHayNL(p),pq.text))return;var k=p.nome+"|"+p.nivel;(g[k]=g[k]||{nome:p.nome,niv:p.nivel,n:0}).n++})};run(pq.lv);if(!Object.keys(g).length&&pq.lv){run(null);pq.lv=null}
+  var tx=norm(pq.text);return Object.keys(g).map(function(k){return g[k]}).sort(function(a,b){var sa=norm(a.nome).indexOf(tx)===0?0:1,sb=norm(b.nome).indexOf(tx)===0?0:1;return sa-sb||b.n-a.n||a.nome.localeCompare(b.nome,"pt")}).slice(0,n||6).map(function(x){return{ic:"saber",label:x.nome,sub:t(x.niv)+" · "+t(x.n===1?"1 instituição":"{n} instituições",{n:x.n})+(function(){var extra=norm(pq.text).split(/\s+/).filter(function(w){return w&&norm(x.nome).indexOf(w)<0}).join(" ");return extra?" · "+extra:""})(),act:{set:(function(){var extra=norm(pq.text).split(/\s+/).filter(function(w){return w&&norm(x.nome).indexOf(w)<0}).join(" ");return x.nome+(extra?" "+extra:"")+(pq.lv?" "+(pq.lv==="M"?"mestrado":pq.lv==="MI"?"mestrado integrado":norm(pq.lv)):"")})()}}})}
+function sgInst(q,n){var pq=parseQ(q);if(pq.text.length<2)return[];return allInst().filter(function(i){return matchQ(i.nome+" "+i.cidade+" "+i.dist,pq.text)}).slice(0,n||4).map(function(i){return{ic:"explorar",label:i.nome,sub:[i.cidade,t(i.tipo)].filter(Boolean).join(" · "),act:{fn:function(){ACT.inst({id:i.id})}}}})}
+function sgPeople(q,n){if(!DB||q.length<2)return[];return peopleHits(q).slice(0,n||3).map(function(u){var p=P[u];return{ic:"espaco",label:p.nome,sub:[p.curso,instName(p)].filter(Boolean).join(" · "),act:{fn:function(){ACT.user({id:u})}}}})}
+function sgSite(q,n){if(q.length<2)return[];return siteHits(q).slice(0,n||4).map(function(x){return{ic:x.ic,label:x.tit,sub:t(x.k),act:{attr:x.a}}})}
+var SUGGEST={
+ all:function(q){return sgCourses(q,5).concat(sgInst(q,3),sgPeople(q,3),sgSite(q,3))},
+ cmp:function(q){return sgCourses(q,7).concat(sgInst(q,3))},
+ com:function(q){if(q.length<2)return[];return COMS.filter(visible).filter(function(c){return matchQ(c.nome+" "+(c.desc||"")+" "+tags(c.tags).join(" "),q)}).slice(0,7).map(function(c){return{ic:"comunidades",label:c.nome,sub:t(c.tipo||""),act:{fn:function(){ACT.com({id:c.id})}}}})},
+ opo:function(q){if(q.length<2)return[];return OPOS.filter(visible).map(function(o){return{tit:o.tit,tipo:o.tipo}}).concat(BOLSAS.map(function(b){return{tit:t(b.tit),tipo:b.tipo}}),DATAS.map(function(d){return{tit:t(d.titulo),tipo:d.tipo}})).filter(function(o){return matchQ(o.tit,q)}).slice(0,7).map(function(o){return{ic:"oportunidades",label:o.tit,sub:t(o.tipo||""),act:{set:o.tit}}})},
+ skill:function(q){if(q.length<2)return[];var seen={},L=[];AREAS.forEach(function(a){a.s.forEach(function(s){if(!seen[norm(s)]&&matchQ(s,q)){seen[norm(s)]=1;L.push({ic:"skills",label:s,sub:t(a.a),act:{set:s}})}})});
+   Object.keys(P).forEach(function(u){tags(P[u].of).forEach(function(s){if(!seen[norm(s)]&&matchQ(s,q)){seen[norm(s)]=1;L.push({ic:"skills",label:s,sub:t("ensinado por membros"),act:{set:s}})}})});return L.slice(0,8)},
+ global:function(q){return sgCourses(q,4).concat(sgInst(q,3),sgPeople(q,3),sgSite(q,4))}
+};
+function sugKind(el){var k=el.getAttribute("data-sug");if(k)return k;return{cq:"com",oq:"opo",sq:"skill",xq:"all",cmpq:"cmp",gq:"global",gq2:"global"}[el.id]||null}
+function closeSug(){SUG.open=false;SUG.list=[];SUG.sel=-1;document.querySelectorAll(".sgbox").forEach(function(b){b.remove()})}
+function drawSug(el){document.querySelectorAll(".sgbox").forEach(function(b){b.remove()});var k=sugKind(el);if(!k||!SUGGEST[k])return;var q=el.value.trim();if(q.length<2){SUG.list=[];return}
+  var L=SUGGEST[k](q);SUG.list=L;SUG.id=el.id;if(!L.length)L=[];var wrap=el.closest(".sbox")||el.parentNode;
+  var box=document.createElement("div");box.className="sgbox";box.setAttribute("role","listbox");
+  box.innerHTML=(L.length?L.map(function(s,i){return'<button type="button" role="option" class="sgi'+(i===SUG.sel?' on':'')+'" data-sg="'+i+'"><span class="sgic">'+ico(s.ic,15)+'</span><span class="sgt"><b>'+hl(s.label,q)+'</b>'+(s.sub?'<small>'+esc(s.sub)+'</small>':'')+'</span></button>'}).join(""):'<div class="sgnone">'+esc(t("Sem sugestões. Carrega em Procurar para ver todos os resultados."))+'</div>')+'<button type="button" class="sgall" data-sg="all">'+ico("explorar",14)+' '+esc(t("Procurar «{q}»",{q:q}))+'</button>';
+  wrap.appendChild(box)}
+function hl(label,q){var pq=parseQ(q),toks=norm(pq.text).split(/\s+/).filter(function(x){return x.length>1}),s=esc(label);if(!toks.length)return s;
+  var n=norm(label),marks=[];toks.forEach(function(tk){var i=n.indexOf(tk);if(i>-1)marks.push([i,i+tk.length])});if(!marks.length)return s;marks.sort(function(a,b){return a[0]-b[0]});
+  var out="",pos=0;marks.forEach(function(m){if(m[0]<pos)return;out+=esc(label.slice(pos,m[0]))+"<mark>"+esc(label.slice(m[0],m[1]))+"</mark>";pos=m[1]});return out+esc(label.slice(pos))}
+function runSearch(el){closeSug();var q=el.value.trim();
+  if(el.id==="gq"||el.id==="gq2"){F.xq=q;F.xlim=40;DET=null;var pq=parseQ(q);TAB.explorar=PROGS.some(function(p){return progMatch(p,q)})?"prog":instMatches(pq.text).length?"inst":peopleHits(pq.text).length?"pessoas":"site";go("explorar");return}
+  var fl=el.getAttribute("data-flt");if(fl){F[fl]=q;render()}
+  setTimeout(function(){var m=document.querySelector("main .inst-list, main .olist, main .grid2e, main .scroll");if(m)m.scrollIntoView({behavior:"smooth",block:"start"})},120)}
+function pickSug(i,el){var s=i==="all"?null:SUG.list[+i];if(!s){runSearch(el);return}closeSug();
+  if(s.act.set!=null){el.value=s.act.set;runSearch(el);return}
+  if(s.act.fn){if(el.id==="gq"||el.id==="gq2")el.value="";s.act.fn();return}
+  if(s.act.attr){var tmp=document.createElement("button");tmp.setAttribute("type","button");var m=/data-(\w+)="([^"]*)"/g,x,d={};while((x=m.exec(s.act.attr)))d[x[1]]=x[2].replace(/&quot;/g,'"').replace(/&amp;/g,"&");
+    if(d.go){go(d.go);return}var fn=ACT[d.a];if(fn)fn(d,tmp)}}
+document.addEventListener("input",function(e){var el=e.target;if(!el||el.tagName!=="INPUT"||el.type!=="search")return;SUG.open=true;SUG.sel=-1;SUG.id=el.id;if(!el.getAttribute("data-flt"))drawSug(el)});
+document.addEventListener("focusin",function(e){var el=e.target;if(el&&el.tagName==="INPUT"&&el.type==="search"&&el.value.trim().length>=2){SUG.open=true;SUG.id=el.id;drawSug(el)}});
+document.addEventListener("keydown",function(e){var el=e.target;if(!el||el.tagName!=="INPUT"||el.type!=="search")return;
+  if(e.key==="Enter"){e.preventDefault();if(SUG.open&&SUG.sel>-1)pickSug(SUG.sel,el);else runSearch(el);return}
+  if(e.key==="Escape"){closeSug();return}
+  if((e.key==="ArrowDown"||e.key==="ArrowUp")&&SUG.list.length){e.preventDefault();SUG.sel=(SUG.sel+(e.key==="ArrowDown"?1:-1)+SUG.list.length+1)%(SUG.list.length+1);if(SUG.sel===SUG.list.length)SUG.sel=-1;drawSug(el)}},true);
+document.addEventListener("mousedown",function(e){var b=e.target.closest&&e.target.closest("[data-sg]");if(b){e.preventDefault();var el=document.getElementById(SUG.id);if(el)pickSug(b.getAttribute("data-sg"),el);return}
+  var go2=e.target.closest&&e.target.closest("[data-sgo]");if(go2){e.preventDefault();var el2=document.getElementById(go2.getAttribute("data-sgo"));if(el2)runSearch(el2);return}
+  if(!(e.target.closest&&e.target.closest(".sbox")))closeSug()});
+/* lupa + botão em todas as caixas de pesquisa, depois de cada render */
+function enhanceSearch(root){(root||document).querySelectorAll('input[type="search"]').forEach(function(el){if(el.closest(".sbox"))return;
+  var foc=document.activeElement===el,ss=foc?[el.selectionStart,el.selectionEnd]:null;
+  var w=document.createElement("div");w.className="sbox"+(el.classList.contains("bigsearch")?" big":"");if(el.style.maxWidth){w.style.maxWidth=el.style.maxWidth;el.style.maxWidth=""}
+  el.parentNode.insertBefore(w,el);w.innerHTML='<span class="sic">'+ico("explorar",18)+'</span>';w.appendChild(el);
+  var b=document.createElement("button");b.type="button";b.className="btn s sgo";b.setAttribute("data-sgo",el.id);b.textContent=t("Procurar");w.appendChild(b);
+  if(foc){el.focus({preventScroll:true});try{el.setSelectionRange(ss[0],ss[1])}catch(e){}}
+  if(SUG.open&&document.activeElement===el&&el.value.trim().length>=2)drawSug(el)})}
+var _drS=doRender;
+doRender=function(tp){_drS(tp);enhanceSearch(document.getElementById("main"))};
+
+/* pesquisa global no menu */
+var _dcS=drawChrome;
+drawChrome=function(){var g=document.getElementById("gq"),g2=document.getElementById("gq2"),st=null,a=document.activeElement;
+  [g,g2].forEach(function(x){if(x&&x===a)st={id:x.id,v:x.value,s:x.selectionStart,e:x.selectionEnd}});var v1=g?g.value:"",v2=g2?g2.value:"";
+  _dcS();
+  var rail=document.querySelector("#rail .logo"),top=document.querySelector("#top .row1");
+  if(rail&&!document.getElementById("gq"))rail.insertAdjacentHTML("afterend",'<div class="gsearch"><input class="fld" id="gq" type="search" autocomplete="off" placeholder="'+esc(t("Procurar no site…"))+'" aria-label="'+esc(t("Procurar no site"))+'"></div>');
+  if(top&&!document.getElementById("gq2"))top.insertAdjacentHTML("afterend",'<div class="gsearch m"><input class="fld" id="gq2" type="search" autocomplete="off" placeholder="'+esc(t("Procurar cursos, universidades, pessoas…"))+'" aria-label="'+esc(t("Procurar no site"))+'"></div>');
+  var n1=document.getElementById("gq"),n2=document.getElementById("gq2");if(n1)n1.value=v1;if(n2)n2.value=v2;
+  enhanceSearch(document.getElementById("rail"));enhanceSearch(document.getElementById("top"));
+  if(st){var x=document.getElementById(st.id);if(x){x.focus({preventScroll:true});try{x.setSelectionRange(st.s,st.e)}catch(e){}if(SUG.open)drawSug(x)}}};
+
+/* ---------- comparar por tema ---------- */
+var _cmpS=compareHTML;
+compareHTML=function(){
+  var q=F.cmpq||"",pq=parseQ(q),lim=F.cmplim||30;
+  var hits=q?PROGS.filter(visible).filter(function(p){return progMatch(p,q)}).sort(function(a,b){return a.nome.localeCompare(b.nome,"pt")||((instById(a.inst)||{}).nome||"").localeCompare((instById(b.inst)||{}).nome||"","pt")}):[];
+  var ih=q&&pq.text?instMatches(pq.text).filter(function(i){return matchQ(i.nome+" "+i.cidade+" "+i.dist,pq.text)}).slice(0,6):[];
+  var notIn=hits.filter(function(p){return CMP.indexOf("prog:"+p.id)<0});
+  var top='<section class="panel cmpfind"><h3>'+ico("explorar",18)+' '+esc(t("O que queres comparar?"))+'</h3><p class="xs m">'+esc(t("Escreve um tema ou parte do nome (ex.: psicologia, mestrado gestão, enfermagem porto). Aparecem os cursos de todas as instituições: junta os que quiseres, até {n}.",{n:CMPMAX}))+'</p>'+
+   '<input class="fld bigsearch" id="cmpq" type="search" data-flt="cmpq" data-sug="cmp" value="'+esc(q)+'" autocomplete="off" placeholder="'+esc(t("Ex.: psicologia, mestrado psicologia clínica, direito lisboa"))+'" aria-label="'+esc(t("Procurar o que comparar"))+'">'+
+   (q?(hits.length||ih.length?'<div class="row sb"><span class="sm">'+esc(t("{n} cursos encontrados.",{n:hits.length}))+'</span>'+(notIn.length&&CMP.length<CMPMAX?'<button class="btn s" type="button" data-a="cmpall">'+esc(t("Juntar os primeiros {n}",{n:Math.min(CMPMAX-CMP.length,notIn.length)}))+'</button>':'')+'</div>'+
+     (ih.length?'<div class="chips">'+ih.map(function(i){var on=CMP.indexOf("inst:"+i.id)>-1;return'<button class="chip" type="button" data-a="cmp" data-k="inst:'+esc(i.id)+'" aria-pressed="'+on+'">'+(on?"✓ ":"+ ")+esc(i.nome)+'</button>'}).join("")+'</div>':'')+
+     '<ul class="cmplist">'+hits.slice(0,lim).map(function(p){var i=instById(p.inst)||{},on=CMP.indexOf("prog:"+p.id)>-1,dg=p.dg||{};return'<li><button class="cmpck" type="button" data-a="cmp" data-k="prog:'+esc(p.id)+'" aria-pressed="'+on+'" aria-label="'+esc(t(on?"Tirar da comparação":"Juntar à comparação"))+'">'+(on?ico("check",14):"")+'</button><div class="stack-s" style="gap:.1rem"><b>'+esc(p.nome)+'</b><span class="xs m">'+esc([t(p.nivel||""),i.nome,i.cidade,dg.vag?t("{n} vagas",{n:dg.vag}):"",dg.ult?t("último colocado {n}",{n:dg.ult}):""].filter(Boolean).join(" · "))+'</span></div></li>'}).join("")+'</ul>'+(hits.length>lim?'<button class="btn sec s" type="button" data-a="cmpmore">'+esc(t("Ver mais ({n})",{n:hits.length-lim}))+'</button>':'')
+     :'<div class="note">'+esc(pq.lv?t("Ainda não há {l} com «{q}» na lista. Os mestrados, CTeSP, pós-graduações e doutoramentos são juntados pelos membros: junta o teu no fim desta página.",{l:lvName(pq.lv).toLowerCase(),q:pq.text}):t("Nada encontrado. Experimenta só uma palavra, por exemplo o tema."))+'</div>'):'')+'</section>';
+  var tbl=_cmpS();tbl=tbl.replace(/^<div class="row">[\s\S]*?<\/div><p class="xs m">[\s\S]*?<\/p>/,"");
+  return top+(CMP.length?'<div class="row sb"><h3>'+esc(t("A comparar ({n})",{n:CMP.length}))+'</h3><button class="btn ghost s" type="button" data-a="cmpclear">'+esc(t("Limpar tudo"))+'</button></div>':'')+tbl};
+ACT.cmpall=function(){var q=F.cmpq||"";PROGS.filter(visible).filter(function(p){return progMatch(p,q)}).sort(function(a,b){return a.nome.localeCompare(b.nome,"pt")}).forEach(function(p){if(CMP.length<CMPMAX&&CMP.indexOf("prog:"+p.id)<0)CMP.push("prog:"+p.id)});render()};
+ACT.cmpmore=function(){F.cmplim=(F.cmplim||30)+40;render()};
+
+(function(){var X={"Podes comparar até {n} de cada vez.":["You can compare up to {n} at a time.","Puedes comparar hasta {n} a la vez.","Du kannst bis zu {n} gleichzeitig vergleichen.","Tu peux comparer jusqu'à {n} à la fois.","Puoi confrontare fino a {n} alla volta."],
+ "Mestrados":["Master's","Másteres","Master","Masters","Master"],"Mestrados integrados":["Integrated master's","Másteres integrados","Integrierte Master","Masters intégrés","Lauree magistrali a ciclo unico"],
+ "Ainda não há {l} com «{q}» na lista. Os mestrados, CTeSP, pós-graduações e doutoramentos são juntados pelos membros: junta o teu no fim desta página.":["There are no {l} matching “{q}” on the list yet. Master's, CTeSP, postgraduate and PhD programmes are added by members: add yours at the bottom of this page.","Aún no hay {l} con «{q}» en la lista. Los másteres, CTeSP, posgrados y doctorados los añaden los miembros: añade el tuyo al final de esta página.","Noch keine {l} mit „{q}“ in der Liste. Master, CTeSP, Aufbaustudien und Promotionen ergänzen die Mitglieder: Füg deinen unten hinzu.","Il n'y a pas encore de {l} avec « {q} » dans la liste. Masters, CTeSP, post-diplômes et doctorats sont ajoutés par les membres : ajoute le tien en bas de page.","Non ci sono ancora {l} con «{q}» nella lista. Master, CTeSP, post-laurea e dottorati li aggiungono i membri: aggiungi il tuo in fondo alla pagina."],
+ "Ver todos os cursos de «{q}»":["See all “{q}” courses","Ver todos los cursos de «{q}»","Alle Studiengänge zu „{q}“","Voir toutes les formations « {q} »","Vedi tutti i corsi di «{q}»"],
+ "E mais {n} resultados no site.":["And {n} more results on the site.","Y {n} resultados más en el sitio.","Und {n} weitere Ergebnisse auf der Seite.","Et {n} autres résultats sur le site.","E altri {n} risultati nel sito."],
+ "No site":["On the site","En el sitio","Auf der Seite","Sur le site","Nel sito"],"Nada encontrado.":["Nothing found.","No se encontró nada.","Nichts gefunden.","Rien trouvé.","Niente trovato."],
+ "Comunidade":["Community","Comunidad","Community","Communauté","Comunità"],"Oportunidade":["Opportunity","Oportunidad","Chance","Opportunité","Opportunità"],"Prazo":["Deadline","Plazo","Frist","Date limite","Scadenza"],"Publicação":["Post","Publicación","Beitrag","Publication","Post"],"Skill":["Skill","Skill","Skill","Compétence","Skill"],"Debate":["Debate","Debate","Debatte","Débat","Dibattito"],
+ "1 instituição":["1 institution","1 institución","1 Hochschule","1 établissement","1 istituzione"],"{n} instituições":["{n} institutions","{n} instituciones","{n} Hochschulen","{n} établissements","{n} istituzioni"],
+ "ensinado por membros":["taught by members","enseñado por miembros","von Mitgliedern unterrichtet","enseigné par des membres","insegnato dai membri"],
+ "Sem sugestões. Carrega em Procurar para ver todos os resultados.":["No suggestions. Press Search to see all results.","Sin sugerencias. Pulsa Buscar para ver todos los resultados.","Keine Vorschläge. Drück auf Suchen für alle Ergebnisse.","Pas de suggestions. Appuie sur Chercher pour tout voir.","Nessun suggerimento. Premi Cerca per vedere tutti i risultati."],
+ "Procurar «{q}»":["Search “{q}”","Buscar «{q}»","„{q}“ suchen","Chercher « {q} »","Cerca «{q}»"],"Procurar":["Search","Buscar","Suchen","Chercher","Cerca"],
+ "Procurar no site…":["Search the site…","Buscar en el sitio…","Auf der Seite suchen…","Chercher sur le site…","Cerca nel sito…"],"Procurar no site":["Search the site","Buscar en el sitio","Auf der Seite suchen","Chercher sur le site","Cerca nel sito"],
+ "Procurar cursos, universidades, pessoas…":["Search courses, universities, people…","Buscar cursos, universidades, personas…","Studiengänge, Hochschulen, Leute suchen…","Chercher formations, universités, personnes…","Cerca corsi, università, persone…"],
+ "O que queres comparar?":["What do you want to compare?","¿Qué quieres comparar?","Was willst du vergleichen?","Que veux-tu comparer ?","Cosa vuoi confrontare?"],
+ "Escreve um tema ou parte do nome (ex.: psicologia, mestrado gestão, enfermagem porto). Aparecem os cursos de todas as instituições: junta os que quiseres, até {n}.":["Type a topic or part of the name (e.g. psychology, master management, nursing porto). Courses from every institution appear: add the ones you want, up to {n}.","Escribe un tema o parte del nombre (ej.: psicología, máster gestión, enfermería porto). Aparecen los cursos de todas las instituciones: añade los que quieras, hasta {n}.","Gib ein Thema oder einen Teil des Namens ein (z. B. psicologia, mestrado gestão, enfermagem porto). Es erscheinen Studiengänge aller Hochschulen: Füg bis zu {n} hinzu.","Écris un thème ou une partie du nom (ex. : psicologia, mestrado gestão, enfermagem porto). Les formations de tous les établissements apparaissent : ajoute celles que tu veux, jusqu'à {n}.","Scrivi un tema o parte del nome (es.: psicologia, mestrado gestão, enfermagem porto). Compaiono i corsi di tutte le istituzioni: aggiungi quelli che vuoi, fino a {n}."],
+ "Ex.: psicologia, mestrado psicologia clínica, direito lisboa":["E.g. psicologia, mestrado psicologia clínica, direito lisboa","Ej.: psicologia, mestrado psicologia clínica, direito lisboa","Z. B. psicologia, mestrado psicologia clínica, direito lisboa","Ex. : psicologia, mestrado psicologia clínica, direito lisboa","Es.: psicologia, mestrado psicologia clínica, direito lisboa"],
+ "Procurar o que comparar":["Search what to compare","Buscar qué comparar","Suchen, was verglichen werden soll","Chercher quoi comparer","Cerca cosa confrontare"],
+ "{n} cursos encontrados.":["{n} courses found.","{n} cursos encontrados.","{n} Studiengänge gefunden.","{n} formations trouvées.","{n} corsi trovati."],
+ "Juntar os primeiros {n}":["Add the first {n}","Añadir los primeros {n}","Die ersten {n} hinzufügen","Ajouter les {n} premières","Aggiungi i primi {n}"],
+ "Tirar da comparação":["Remove from comparison","Quitar de la comparación","Aus dem Vergleich entfernen","Retirer de la comparaison","Togli dal confronto"],
+ "Nada encontrado. Experimenta só uma palavra, por exemplo o tema.":["Nothing found. Try a single word, like the topic.","No se encontró nada. Prueba una sola palabra, como el tema.","Nichts gefunden. Versuch ein einzelnes Wort, z. B. das Thema.","Rien trouvé. Essaie un seul mot, par exemple le thème.","Niente trovato. Prova una sola parola, ad esempio il tema."],
+ "A comparar ({n})":["Comparing ({n})","Comparando ({n})","Im Vergleich ({n})","En comparaison ({n})","A confronto ({n})"]};
  var L=["en","es","de","fr","it"];Object.keys(X).forEach(function(k){L.forEach(function(l,i){if(window.I18N&&I18N[l]&&!I18N[l][k])I18N[l][k]=X[k][i]})})})();
 
 /* =====================================================================
