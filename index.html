@@ -496,8 +496,15 @@ main[data-v="sinais"]{--sec:var(--c-sinais)} main[data-v="diario"]{--sec:var(--c
   if(configured&&window.supabase&&window.supabase.createClient){
     sb=window.supabase.createClient(C.SUPABASE_URL,C.SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true},realtime:{params:{eventsPerSecond:20}}});
   }
-  var ready=(sb?sb.auth.getSession().then(function(r){session=r&&r.data?r.data.session:null}).catch(function(){}):Promise.resolve());
-  if(sb)sb.auth.onAuthStateChange(function(ev,s){var had=!!session;session=s;if(ev==="SIGNED_IN"&&!had)location.reload();if(ev==="SIGNED_OUT"&&had)location.reload()});
+  var booted=false,bootUid=null;
+  function uidOf(x){return x&&x.user?x.user.id:null}
+  var ready=(sb?sb.auth.getSession().then(function(r){session=r&&r.data?r.data.session:null}).catch(function(){}):Promise.resolve()).then(function(){bootUid=uidOf(session);booted=true});
+  /* Só recarrega se a conta mudar DEPOIS do arranque (ex.: entraste ou saíste noutra aba).
+     Eventos do próprio arranque e de renovação do token não recarregam. */
+  if(sb)sb.auth.onAuthStateChange(function(ev,s){session=s;if(!booted)return;var u=uidOf(s);if(u===bootUid)return;
+    var k="uo_reload_guard",n=0;try{n=+(sessionStorage.getItem(k)||0)}catch(e){}
+    if(n>2)return;try{sessionStorage.setItem(k,String(n+1));setTimeout(function(){try{sessionStorage.removeItem(k)}catch(e){}},10000)}catch(e){}
+    bootUid=u;location.reload()});
 
   function rid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,10)}
   function parentOf(path){return path.slice(0,path.lastIndexOf("/"))}
