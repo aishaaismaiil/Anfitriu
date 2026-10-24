@@ -1540,7 +1540,7 @@ function trocasHTML(){
   h+='<section class="stack">'+(tf.u?'<form class="panel tight" data-f="troca"><span class="lbl">'+esc(t("Proposta para {n}",{n:nameOf(tf.u)}))+'</span><div class="fg"><label class="f">'+esc(t("Ofereço"))+'<input class="fld" id="tr-of" maxlength="80" required value="'+esc(tf.o||"")+'"></label><label class="f">'+esc(t("Em troca de"))+'<input class="fld" id="tr-q" maxlength="80" required value="'+esc(tf.q||"")+'"></label></div><textarea class="fld" id="tr-msg" rows="2" maxlength="300" placeholder="'+esc(t("Quando e como? Online ou presencial?"))+'" aria-label="'+esc(t("Mensagem"))+'"></textarea><div class="row"><button class="btn s" type="submit">'+esc(t("Enviar proposta"))+'</button><button class="btn ghost s" type="button" data-a="trclose">'+esc(t("Cancelar"))+'</button><span class="msg" id="tr-m"></span></div></form>':'')+
    '<h3>'+esc(t("As minhas trocas"))+'</h3>';
   var mine=TROCAS.filter(function(x){return x.de===UID||x.para===UID});
-  h+=mine.length?'<ul class="olist">'+mine.map(function(x){var o=x.de===UID?x.para:x.de,rec=x.para===UID,ac=x.estado==="aceite",p=P[o];return'<li><div class="stack-s">'+whoHTML(o,30,esc(rec?t("propôs-te uma troca"):t("proposta enviada")))+'<span class="sm">'+esc(x.of)+' ⇄ '+esc(x.quero)+'</span>'+(x.msg?'<span class="sm m wrap">'+esc(x.msg)+'</span>':'')+(ac?(p&&p.contacto?'<span class="sm">'+esc(t("Contacto"))+': <b style="user-select:all">'+esc(p.contacto)+'</b></span>':'<span class="xs m">'+esc(t("Combinem numa comunidade em comum ou no feed."))+'</span>'):'')+'</div><div class="r"><span class="tag '+(ac?"a":x.estado==="recusada"?"w":"")+'">'+esc(t(x.estado==="aceite"?"aceite":x.estado==="recusada"?"recusada":"pendente"))+'</span>'+(rec&&x.estado==="pendente"?'<button class="btn s" type="button" data-a="trst" data-id="'+esc(x.id)+'" data-s="aceite">'+esc(t("Aceitar"))+'</button><button class="btn ghost s" type="button" data-a="trst" data-id="'+esc(x.id)+'" data-s="recusada">'+esc(t("Recusar"))+'</button>':'')+(!rec?'<button class="lnk m xs" type="button" data-a="trdel" data-id="'+esc(x.id)+'">'+esc(t("Remover"))+'</button>':'')+'</div></li>'}).join("")+'</ul>':'<p class="sm m">'+esc(t("Ainda sem trocas."))+'</p>';
+  h+=mine.length?'<ul class="olist">'+mine.map(function(x){var o=x.de===UID?x.para:x.de,rec=x.para===UID,ac=x.estado==="aceite",p=P[o];return'<li><div class="stack-s">'+whoHTML(o,30,esc(rec?t("propôs-te uma troca"):t("proposta enviada")))+'<span class="sm">'+esc(x.of)+' ⇄ '+esc(x.quero)+'</span>'+(x.msg?'<span class="sm m wrap">'+esc(x.msg)+'</span>':'')+(ac?(p&&p.contacto?'<span class="sm">'+esc(t("Contacto"))+': <b style="user-select:all">'+esc(p.contacto)+'</b></span>':'<span class="xs m">'+esc(t("Combinem numa comunidade em comum ou no feed."))+'</span>'):'')+'</div><div class="r">'+(ac&&window.salaBtnHTML?salaBtnHTML(x):'')+'<span class="tag '+(ac?"a":x.estado==="recusada"?"w":"")+'">'+esc(t(x.estado==="aceite"?"aceite":x.estado==="recusada"?"recusada":"pendente"))+'</span>'+(rec&&x.estado==="pendente"?'<button class="btn s" type="button" data-a="trst" data-id="'+esc(x.id)+'" data-s="aceite">'+esc(t("Aceitar"))+'</button><button class="btn ghost s" type="button" data-a="trst" data-id="'+esc(x.id)+'" data-s="recusada">'+esc(t("Recusar"))+'</button>':'')+(!rec?'<button class="lnk m xs" type="button" data-a="trdel" data-id="'+esc(x.id)+'">'+esc(t("Remover"))+'</button>':'')+'</div></li>'}).join("")+'</ul>':'<p class="sm m">'+esc(t("Ainda sem trocas."))+'</p>';
   return h+'</section></div>';
 }
 
@@ -3914,6 +3914,513 @@ orbitViz=function(list,size,demo){
   return h};
 (function(){var X={"Palco":["Stage","Escenario","Bühne","Scène","Palco"]};var L=["en","es","de","fr","it"];Object.keys(X).forEach(function(k){L.forEach(function(l,i){if(window.I18N&&I18N[l])I18N[l][k]=X[k][i]})})})();
 
+</script>
+<script>
+/* Anfitriu — motor de xadrez pequeno (regras completas: roque, en passant,
+   promoção, xeque, xeque-mate, afogamento, material insuficiente, 50 lances). */
+var AnfChess=(function(){
+  var N=[-17,-15,-10,-6,6,10,15,17],K=[-9,-8,-7,-1,1,7,8,9],B=[-9,-7,7,9],R=[-8,-1,1,8];
+  function f_(s){return s&7}function r_(s){return s>>3}
+  function sqName(s){return"abcdefgh"[f_(s)]+(8-r_(s))}
+  function sqIdx(n){return(8-(+n[1]))*8+"abcdefgh".indexOf(n[0])}
+  function white(p){return!!p&&p===p.toUpperCase()}
+  function colorOf(p){return p?(white(p)?"w":"b"):null}
+  function init(){var b=[],row="rnbqkbnr";for(var i=0;i<64;i++)b.push("");
+    for(var f=0;f<8;f++){b[f]=row[f];b[8+f]="p";b[48+f]="P";b[56+f]=row[f].toUpperCase()}
+    return{b:b,t:"w",c:{K:1,Q:1,k:1,q:1},ep:-1,h:0,n:1}}
+  function clone(s){return{b:s.b.slice(),t:s.t,c:{K:s.c.K,Q:s.c.Q,k:s.c.k,q:s.c.q},ep:s.ep,h:s.h,n:s.n}}
+  /* passo válido sem dar a volta ao tabuleiro */
+  function step(s,d){var t=s+d;if(t<0||t>63)return-1;if(Math.abs(f_(t)-f_(s))>2)return-1;return t}
+  function attacked(st,sq,by){var b=st.b,i,t,p;
+    for(i=0;i<8;i++){t=step(sq,N[i]);if(t>-1&&Math.abs(f_(t)-f_(sq))<=2){p=b[t];if(p&&colorOf(p)===by&&p.toLowerCase()==="n")return true}}
+    for(i=0;i<8;i++){t=step(sq,K[i]);if(t>-1&&Math.abs(f_(t)-f_(sq))<=1){p=b[t];if(p&&colorOf(p)===by&&p.toLowerCase()==="k")return true}}
+    var pd=by==="w"?[7,9]:[-7,-9];
+    for(i=0;i<2;i++){t=step(sq,pd[i]);if(t>-1&&Math.abs(f_(t)-f_(sq))===1){p=b[t];if(p===(by==="w"?"P":"p"))return true}}
+    function ray(dirs,set){for(var j=0;j<dirs.length;j++){var c=sq;for(;;){var n=step(c,dirs[j]);if(n<0||Math.abs(f_(n)-f_(c))>1)break;c=n;var q=b[c];if(q){if(colorOf(q)===by&&set.indexOf(q.toLowerCase())>-1)return true;break}}}return false}
+    return ray(B,"bq")||ray(R,"rq")}
+  function kingSq(st,col){var k=col==="w"?"K":"k";return st.b.indexOf(k)}
+  function inCheck(st,col){col=col||st.t;var k=kingSq(st,col);return k>-1&&attacked(st,k,col==="w"?"b":"w")}
+  function pseudo(st){var b=st.b,me=st.t,op=me==="w"?"b":"w",L=[],s,i,t,p,lp;
+    function add(f,to,extra){var x=b[to],pc=b[f];
+      if(pc.toLowerCase()==="p"&&(r_(to)===0||r_(to)===7)){"qrbn".split("").forEach(function(pr){L.push({f:f,to:to,p:pc,x:x,pr:me==="w"?pr.toUpperCase():pr})})}
+      else L.push(Object.assign({f:f,to:to,p:pc,x:x},extra||{}))}
+    for(s=0;s<64;s++){p=b[s];if(!p||colorOf(p)!==me)continue;lp=p.toLowerCase();
+      if(lp==="p"){var dir=me==="w"?-8:8,start=me==="w"?6:1;t=s+dir;
+        if(t>=0&&t<64&&!b[t]){add(s,t);if(r_(s)===start&&!b[t+dir])add(s,t+dir,{dbl:1})}
+        [dir-1,dir+1].forEach(function(d){var c=s+d;if(c<0||c>63||Math.abs(f_(c)-f_(s))!==1)return;
+          if(b[c]&&colorOf(b[c])===op)add(s,c);else if(c===st.ep)L.push({f:s,to:c,p:p,x:me==="w"?"p":"P",ep:1})})}
+      else if(lp==="n"||lp==="k"){var D=lp==="n"?N:K,mx=lp==="n"?2:1;for(i=0;i<8;i++){t=step(s,D[i]);if(t<0||Math.abs(f_(t)-f_(s))>mx)continue;if(!b[t]||colorOf(b[t])===op)add(s,t)}}
+      else{var dirs=lp==="b"?B:lp==="r"?R:B.concat(R);for(i=0;i<dirs.length;i++){var c=s;for(;;){var n=step(c,dirs[i]);if(n<0||Math.abs(f_(n)-f_(c))>1)break;c=n;if(!b[c]){add(s,c);continue}if(colorOf(b[c])===op)add(s,c);break}}}}
+    /* roque */
+    var ks=me==="w"?60:4,kc=me==="w"?"K":"k",qc=me==="w"?"Q":"q",rk=me==="w"?"R":"r";
+    if(b[ks]===(me==="w"?"K":"k")&&!attacked(st,ks,op)){
+      if(st.c[kc]&&!b[ks+1]&&!b[ks+2]&&b[ks+3]===rk&&!attacked(st,ks+1,op)&&!attacked(st,ks+2,op))L.push({f:ks,to:ks+2,p:b[ks],x:"",ck:1});
+      if(st.c[qc]&&!b[ks-1]&&!b[ks-2]&&!b[ks-3]&&b[ks-4]===rk&&!attacked(st,ks-1,op)&&!attacked(st,ks-2,op))L.push({f:ks,to:ks-2,p:b[ks],x:"",cq:1})}
+    return L}
+  function make(st,m){var s=clone(st),b=s.b,me=st.t;
+    b[m.to]=m.pr||m.p;b[m.f]="";
+    if(m.ep)b[m.to+(me==="w"?8:-8)]="";
+    if(m.ck){b[m.f+1]=b[m.f+3];b[m.f+3]=""}
+    if(m.cq){b[m.f-1]=b[m.f-4];b[m.f-4]=""}
+    s.ep=m.dbl?(m.f+m.to)/2:-1;
+    if(m.p==="K"){s.c.K=0;s.c.Q=0}if(m.p==="k"){s.c.k=0;s.c.q=0}
+    [m.f,m.to].forEach(function(q){if(q===63)s.c.K=0;if(q===56)s.c.Q=0;if(q===7)s.c.k=0;if(q===0)s.c.q=0});
+    s.h=(m.p.toLowerCase()==="p"||m.x)?0:st.h+1;if(me==="b")s.n++;s.t=me==="w"?"b":"w";return s}
+  function moves(st,from){var me=st.t;return pseudo(st).filter(function(m){if(from!=null&&m.f!==from)return false;return!inCheck(make(st,m),me)})}
+  function insufficient(st){var o=st.b.filter(function(p){return p&&p.toLowerCase()!=="k"});if(!o.length)return true;
+    if(o.length===1&&"nb".indexOf(o[0].toLowerCase())>-1)return true;
+    if(o.every(function(p){return p.toLowerCase()==="b"})){var cs=[];st.b.forEach(function(p,i){if(p&&p.toLowerCase()==="b")cs.push((f_(i)+r_(i))&1)});return cs.every(function(c){return c===cs[0]})}
+    return false}
+  function status(st){var L=moves(st),ch=inCheck(st);
+    if(!L.length)return ch?{over:1,kind:"mate",winner:st.t==="w"?"b":"w"}:{over:1,kind:"stalemate"};
+    if(insufficient(st))return{over:1,kind:"material"};
+    if(st.h>=100)return{over:1,kind:"fifty"};
+    return{over:0,check:ch}}
+  function uci(m){return sqName(m.f)+sqName(m.to)+(m.pr?m.pr.toLowerCase():"")}
+  function san(st,m){var lp=m.p.toLowerCase(),s;
+    if(m.ck)s="O-O";else if(m.cq)s="O-O-O";else{
+      if(lp==="p")s=(m.x?"abcdefgh"[f_(m.f)]+"x":"")+sqName(m.to)+(m.pr?"="+m.pr.toUpperCase():"");
+      else{var amb=moves(st).filter(function(o){return o.p===m.p&&o.to===m.to&&o.f!==m.f}),d="";
+        if(amb.length){var sf=amb.some(function(o){return f_(o.f)===f_(m.f)}),sr=amb.some(function(o){return r_(o.f)===r_(m.f)});d=!sf?"abcdefgh"[f_(m.f)]:!sr?String(8-r_(m.f)):sqName(m.f)}
+        s=m.p.toUpperCase()+d+(m.x?"x":"")+sqName(m.to)}}
+    var n=make(st,m),stt=status(n);return s+(stt.kind==="mate"?"#":stt.check?"+":"")}
+  /* aplica uma lista de lances UCI desde o início; devolve null se algum for ilegal */
+  function replay(list){var st=init(),hist=[];for(var i=0;i<list.length;i++){var m=byUci(st,list[i]);if(!m)return null;hist.push({san:san(st,m),m:m});st=make(st,m)}return{st:st,hist:hist}}
+  function byUci(st,u){var f=sqIdx(u.slice(0,2)),to=sqIdx(u.slice(2,4)),pr=u[4];
+    return moves(st,f).filter(function(m){return m.to===to&&(!m.pr||(pr&&m.pr.toLowerCase()===pr))})[0]||null}
+  function fromFen(fen){var p=fen.split(" "),b=[];p[0].split("/").forEach(function(row){row.split("").forEach(function(ch){if(/\d/.test(ch))for(var i=0;i<+ch;i++)b.push("");else b.push(ch)})});
+    return{b:b,t:p[1],c:{K:+(p[2].indexOf("K")>-1),Q:+(p[2].indexOf("Q")>-1),k:+(p[2].indexOf("k")>-1),q:+(p[2].indexOf("q")>-1)},ep:p[3]==="-"?-1:sqIdx(p[3]),h:+(p[4]||0),n:+(p[5]||1)}}
+  return{init:init,moves:moves,make:make,status:status,inCheck:inCheck,uci:uci,san:san,replay:replay,byUci:byUci,sqName:sqName,sqIdx:sqIdx,colorOf:colorOf,fromFen:fromFen,kingSq:kingSq}
+})();
+
+/* =====================================================================
+   Anfitriu — Sala de troca: chamada (Jitsi), quadro branco e xadrez,
+   partilhados em tempo real entre as duas pessoas de uma troca aceite.
+   Usa o canal ao vivo do Supabase (ROOM.join). O estado fica guardado
+   em cada dispositivo e sincroniza quando as duas pessoas estão na sala.
+   ===================================================================== */
+(function(){
+"use strict";
+var CH=window.AnfChess,S=null,noop=function(){};
+var COLORS=[["#2B1B2F","Ameixa"],["#FF5A3C","Coral"],["#E0A100","Mostarda"],["#2F8CF0","Azul"],["#14A37A","Verde"]];
+var WIDTHS=[[3,"Fino"],[7,"Médio"],[14,"Grosso"]];
+var GLYPH={k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"};
+var PNAME={k:"Rei",q:"Dama",r:"Torre",b:"Bispo",n:"Cavalo",p:"Peão"};
+var VAL={p:1,n:3,b:3,r:5,q:9,k:0};
+function LS(k,v){try{if(v===undefined){var x=localStorage.getItem(k);return x?JSON.parse(x):null}localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
+function rid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function trocaById(id){for(var i=0;i<TROCAS.length;i++)if(TROCAS[i].id===id)return TROCAS[i];return null}
+function T(s,v){var k="\u00a7"+s,x=t(k,v);return x.charAt(0)==="\u00a7"?t(s,v):x}
+function cfg(){return window.UO_CONFIG||{}}
+function roomName(id){return"Anfitriu-troca-"+String(id).replace(/[^a-zA-Z0-9]/g,"")}
+function callUrl(){var dom=cfg().JITSI_DOMAIN||"meet.jit.si",me=nameOf(UID);
+  return"https://"+dom+"/"+roomName(S.id)+"#userInfo.displayName="+encodeURIComponent(JSON.stringify(me))+"&config.prejoinPageEnabled=true"}
+function icon(k){var P={
+  close:'<path d="M6 6l12 12M18 6L6 18"/>',
+  cam:'<rect x="3" y="6" width="13" height="12" rx="3"/><path d="M16 10l5-3v10l-5-3"/>',
+  board:'<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21l4-4 4 4M7 12c2-3 3 1 5-2s3 0 5-2"/>',
+  chess:'<path d="M9 20h6M8 17h8l-1-5h-6zM10 12V9h4v3M12 4v5M10 6h4"/>',
+  pen:'<path d="M4 20l4-1 11-11-3-3L5 16z"/>',
+  hl:'<path d="M9 15l-4 5h6l2-3M9 15l7-11 4 3-7 10z"/>',
+  eraser:'<path d="M8 20h12M4 15l9-9 6 6-7 7H8z"/>',
+  undo:'<path d="M9 7L4 12l5 5M4 12h11a5 5 0 0 1 0 10h-2"/>',
+  trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+  dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+  link:'<path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1"/>',
+  flip:'<path d="M7 4v16M7 20l-3-3M7 20l3-3M17 20V4M17 4l-3 3M17 4l3 3"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>'};
+  return'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+P[k]+'</svg>'}
+
+/* ---------------- estilos ---------------- */
+var css=document.createElement("style");css.textContent=[
+'.sala{position:fixed;inset:0;z-index:880;background:var(--bg);color:var(--ink);display:grid;grid-template-rows:auto auto 1fr;font-family:var(--f-body)}',
+'.sala *{box-sizing:border-box}',
+'.sala-top{display:flex;align-items:center;gap:.8rem;padding:.65rem 1rem;background:var(--surface);border-bottom:1.5px solid var(--line)}',
+'.sala-id{min-width:0;flex:1;display:grid;gap:.1rem}',
+'.sala-id .lbl{font:700 .7rem var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}',
+'.sala-id h2{margin:0;font:800 clamp(1.05rem,2.6vw,1.35rem)/1.15 var(--f-disp);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+'.sala-with{font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}',
+'.sala-dot{width:.6rem;height:.6rem;border-radius:50%;background:var(--line2);display:inline-block;flex:none}',
+'.sala-dot.on{background:#1DB954;box-shadow:0 0 0 3px rgba(29,185,84,.22)}',
+'.sala-faces{display:flex;align-items:center}.sala-faces>*{margin-left:-6px;border-radius:50%;box-shadow:0 0 0 2px var(--surface)}',
+'.sala-x{border:1.5px solid var(--line2);background:var(--surface);color:var(--ink);width:2.4rem;height:2.4rem;border-radius:50%;display:grid;place-items:center;cursor:pointer;flex:none}',
+'.sala-x:hover{border-color:var(--accent);color:var(--accent)}',
+'.sala-tabs{display:flex;gap:.4rem;padding:.55rem 1rem;background:var(--surface);border-bottom:1.5px solid var(--line);overflow-x:auto}',
+'.sala-tab{display:inline-flex;align-items:center;gap:.4rem;border:1.5px solid var(--line2);background:transparent;color:var(--ink);font:600 .9rem var(--f-body);padding:.42rem .9rem;border-radius:999px;cursor:pointer;white-space:nowrap}',
+'.sala-tab[aria-selected="true"]{background:var(--stage);border-color:var(--stage);color:var(--stage-ink)}',
+'.sala-tab .n{display:inline-grid;place-items:center;min-width:1.1rem;height:1.1rem;border-radius:999px;background:var(--accent);color:#fff;font-size:.7rem;padding:0 .3rem}',
+'.sala-body{min-height:0;overflow:auto;padding:1rem;display:grid;gap:1rem;align-content:start}',
+'.sala-pane{display:none;min-width:0}.sala-pane.on{display:block}',
+'@media (min-width:980px){.sala-body{grid-template-columns:300px minmax(0,1fr);align-items:start}.sala-tab[data-p="chamada"]{display:none}.sala-pane[data-p="chamada"]{display:block;position:sticky;top:0}}',
+/* chamada */
+'.sala-call{background:var(--stage);color:var(--stage-ink);border-radius:20px;padding:1.1rem;display:grid;gap:.75rem}',
+'.sala-call h3{margin:0;font:800 1.15rem var(--f-disp);color:var(--stage-ink)}',
+'.sala-call p{margin:0;font-size:.88rem;line-height:1.45;color:var(--stage-muted)}',
+'.sala-call .art{height:120px;border-radius:14px;background:radial-gradient(circle at 30% 40%,rgba(255,90,60,.55),transparent 55%),radial-gradient(circle at 75% 60%,rgba(255,201,60,.45),transparent 50%),var(--stage2);display:grid;place-items:center;position:relative;overflow:hidden}',
+'.sala-call .art .faces2{display:flex;gap:.8rem}.sala-call .art .faces2>*{border-radius:50%;box-shadow:0 0 0 3px var(--stage)}',
+'.sala-call .st{display:flex;align-items:center;gap:.45rem;font-size:.84rem;color:var(--stage-ink)}',
+'.sala-call .sala-acts{display:flex;gap:.5rem;flex-wrap:wrap}',
+'.sala-call .btn.sec{background:var(--stage2);color:var(--stage-ink);border-color:var(--stage-line)}',
+'.sala-call iframe{width:100%;aspect-ratio:4/5;border:0;border-radius:14px;background:#000}',
+'@media (min-width:980px){.sala-call iframe{aspect-ratio:auto;height:calc(100dvh - 300px);min-height:320px}}',
+/* quadro */
+'.wb-tools{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin:0 auto .7rem;width:min(100%,calc((100dvh - 250px)*1.6))}',
+'.wb-grp{display:flex;align-items:center;gap:.25rem;background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:.22rem}',
+'.wb-b{border:0;background:transparent;color:var(--ink);min-width:2.2rem;height:2.2rem;border-radius:999px;display:inline-grid;place-items:center;cursor:pointer;padding:0 .5rem;font:600 .82rem var(--f-body);gap:.3rem;grid-auto-flow:column}',
+'.wb-b:hover{background:var(--surface2)}.wb-b[aria-pressed="true"]{background:var(--stage);color:var(--stage-ink)}',
+'.wb-sw{width:1.45rem;height:1.45rem;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1.5px var(--line2);cursor:pointer;padding:0}',
+'.wb-sw[aria-pressed="true"]{box-shadow:0 0 0 2.5px var(--ink)}',
+'.wb-w{display:block;border-radius:999px;background:currentColor}',
+'.wb-b.warn{color:var(--accent)}',
+'.wb-wrap{position:relative;width:min(100%,calc((100dvh - 250px)*1.6));margin:0 auto;border-radius:18px;overflow:hidden;border:1.5px solid var(--edge);box-shadow:5px 5px 0 var(--acid);background:#FFFCF7}',
+'.wb-wrap canvas{display:block;width:100%;touch-action:none;cursor:crosshair}',
+'.wb-wrap.er canvas{cursor:cell}',
+'.wb-cur{position:absolute;left:0;top:0;pointer-events:none;transition:transform .12s linear,opacity .3s;z-index:2}',
+'.wb-cur i{display:block;width:12px;height:12px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);transform:translate(-50%,-50%)}',
+'.wb-cur span{position:absolute;left:9px;top:6px;background:var(--accent);color:#fff;font:700 .7rem var(--f-body);padding:.1rem .4rem;border-radius:6px;white-space:nowrap}',
+'.wb-hint{text-align:center;font-size:.78rem;color:var(--muted);margin:.6rem 0 0}',
+/* xadrez */
+'.ch-wrap{display:grid;gap:1rem;justify-content:center;grid-template-columns:minmax(0,min(100%,calc(100dvh - 260px),560px))}',
+'@media (min-width:760px){.ch-wrap{grid-template-columns:minmax(0,min(calc(100dvh - 240px),560px)) minmax(220px,280px);align-items:start}}',
+'.ch-board{position:relative;aspect-ratio:1;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);border-radius:14px;overflow:hidden;border:1.5px solid var(--edge);box-shadow:5px 5px 0 var(--accent);container-type:inline-size;user-select:none}',
+'.csq{position:relative;border:0;padding:0;margin:0;display:grid;place-items:center;cursor:pointer;background:#FBE7D3;font-family:"Segoe UI Symbol","Apple Symbols","Noto Sans Symbols 2","DejaVu Sans",serif;line-height:1}',
+'.csq.d{background:#D9917A}',
+'.csq.last{background:#F8D772}.csq.d.last{background:#E2B24F}',
+'.csq.sel{box-shadow:inset 0 0 0 4px var(--stage)}',
+'.csq.chk{background:radial-gradient(circle,#FF5A3C 0,#FF5A3C 35%,rgba(255,90,60,0) 72%),#FBE7D3}',
+'.csq.tg::after{content:"";position:absolute;width:28%;height:28%;border-radius:50%;background:rgba(43,27,47,.32)}',
+'.csq.tg.cap::after{width:88%;height:88%;background:transparent;border:4px solid rgba(43,27,47,.38)}',
+'.csq:focus-visible{outline:3px solid var(--violet);outline-offset:-3px}',
+'.pc{font-size:10.2cqi;transform:translateY(-2%);pointer-events:none;paint-order:stroke fill}',
+'.pc.w{color:#FFF8F0;-webkit-text-stroke:1.4px #2B1B2F;text-shadow:0 2px 0 rgba(43,27,47,.25)}',
+'.pc.b{color:#2B1B2F;-webkit-text-stroke:.6px #2B1B2F;text-shadow:0 2px 0 rgba(43,27,47,.18)}',
+'.csq .co{position:absolute;font:700 2.1cqi var(--f-body);color:rgba(43,27,47,.55);pointer-events:none}',
+'.csq .co.f{right:4%;bottom:3%}.csq .co.r{left:5%;top:4%}',
+'.ch-promo{position:absolute;inset:0;background:rgba(43,27,47,.55);display:grid;place-items:center;z-index:3}',
+'.ch-promo div{background:var(--surface);border-radius:16px;padding:.8rem;display:grid;gap:.5rem;text-align:center}',
+'.ch-promo .row2{display:flex;gap:.4rem}',
+'.ch-promo button{width:3.4rem;height:3.4rem;border-radius:12px;border:1.5px solid var(--line2);background:#FBE7D3;font-size:2.2rem;cursor:pointer;display:grid;place-items:center}',
+'.ch-promo button:hover{border-color:var(--accent)}','.ch-promo .btn{width:auto;height:auto;font-size:.85rem;justify-self:center;background:transparent;border:0}',
+'.ch-side{display:grid;gap:.75rem}',
+'.ch-card{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:.85rem;display:grid;gap:.55rem}',
+'.ch-pl{display:flex;align-items:center;gap:.55rem;font-size:.9rem}.ch-pl b{font-weight:700}',
+'.ch-pl .g{font-size:1.4rem;line-height:1;width:1.6rem;text-align:center}',
+'.ch-pl.turn{background:var(--accent-soft);border-radius:12px;padding:.3rem .45rem;margin:-.3rem -.45rem}',
+'.ch-cap{margin-left:auto;font-size:.95rem;letter-spacing:-.1em;color:var(--muted);white-space:nowrap}',
+'.ch-stat{font:800 1.05rem/1.25 var(--f-disp);margin:0}',
+'.ch-stat.hot{color:var(--accent)}',
+'.ch-moves{max-height:11rem;overflow:auto;font:500 .82rem/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;display:grid;grid-template-columns:2.2rem 1fr 1fr;column-gap:.3rem}',
+'.ch-moves .i{color:var(--muted)}',
+'.ch-acts{display:flex;gap:.45rem;flex-wrap:wrap}',
+'.sala-off{background:var(--acid);color:var(--acid-ink);border-radius:12px;padding:.5rem .8rem;font-size:.84rem;margin:0}',
+'.tr-live{display:inline-flex;align-items:center;gap:.35rem;font-size:.78rem;font-weight:600;color:#14A37A}',
+'#toast{z-index:1000}'
+].join("\n");document.head.appendChild(css);
+
+/* ---------------- abrir e fechar ---------------- */
+function open(id,fromHash){
+  var x=trocaById(id);if(!x){toast(t("Esta troca já não existe."));return}
+  if(x.de!==UID&&x.para!==UID)return;
+  if(x.estado!=="aceite"){toast(t("A sala abre quando a troca for aceite."));return}
+  if(S)close(true);
+  var saved=LS("anf.sala."+id)||{},sw=saved.wb||{};
+  S={id:id,x:x,other:x.de===UID?x.para:x.de,tab:"quadro",
+    wb:{g:sw.g||0,s:Array.isArray(sw.s)?sw.s:[],d:Array.isArray(sw.d)?sw.d:[]},
+    tool:"pen",color:COLORS[0][0],width:7,live:{},cur:null,
+    ch:saved.ch&&Array.isArray(saved.ch.mv)?saved.ch:{g:0,w:x.de,mv:[]},sel:-1,promo:null,
+    peers:[],room:null,offs:[],hello:false,replied:{},call:false,embed:false,popup:null,tm:[],clr:0};
+  build();join();
+  if(!fromHash){try{history.pushState({sala:id},"","#sala-"+id)}catch(e){}}
+}
+function close(silent){if(!S)return;var s=S;S=null;
+  s.offs.forEach(function(f){try{f()}catch(e){}});
+  if(s.room){try{s.room.leave()}catch(e){}}
+  if(ROOM)ROOM.presence({sala:null}).catch(noop);
+  s.tm.forEach(clearInterval);if(s.ro)s.ro.disconnect();
+  var el=document.getElementById("sala");if(el)el.remove();
+  document.documentElement.style.overflow="";document.removeEventListener("keydown",onKey);
+  if(!silent&&/^#sala-/.test(location.hash)){try{history.replaceState(null,"",location.pathname+location.search+"#"+V)}catch(e){}}
+  if(V==="skills")render()}
+function userClose(){if(history.state&&history.state.sala&&/^#sala-/.test(location.hash))history.back();else close()}
+window.addEventListener("popstate",function(){if(S&&!/^#sala-/.test(location.hash))close(true)});
+function onKey(e){if(e.key==="Escape"&&S&&!S.promo&&!S.drawing){var a=document.activeElement;if(a&&a.tagName==="IFRAME")return;userClose()}}
+
+/* ---------------- estrutura ---------------- */
+function build(){
+  var el=document.createElement("div");el.id="sala";el.className="sala";el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");el.setAttribute("aria-labelledby","sala-t");
+  el.innerHTML='<header class="sala-top"><div class="sala-id"><span class="lbl">'+esc(t("Sala de troca"))+'</span><h2 id="sala-t">'+esc(S.x.of||"")+' ⇄ '+esc(S.x.quero||"")+'</h2><span class="sala-with" id="sala-with"></span></div><div class="sala-faces" id="sala-faces"></div><button class="sala-x" type="button" data-s="close" aria-label="'+esc(t("Sair da sala"))+'">'+icon("close")+'</button></header>'+
+   '<nav class="sala-tabs" role="tablist">'+[["chamada","cam","Chamada"],["quadro","board","Quadro"],["xadrez","chess","Xadrez"]].map(function(x){return'<button class="sala-tab" type="button" role="tab" data-s="tab" data-p="'+x[0]+'" aria-selected="'+(S.tab===x[0])+'">'+icon(x[1])+esc(T(x[2]))+'<span class="n" data-n="'+x[0]+'" hidden></span></button>'}).join("")+'</nav>'+
+   '<div class="sala-body"><section class="sala-pane" data-p="chamada" id="sala-call"></section>'+
+   '<section class="sala-pane" data-p="quadro"><div class="wb-tools" id="wb-tools"></div><div class="wb-wrap" id="wb-wrap"><canvas id="wb-cv" aria-label="'+esc(t("Quadro branco partilhado"))+'"></canvas><div class="wb-cur" id="wb-cur" style="opacity:0"><i></i><span></span></div></div><p class="wb-hint">'+esc(t("O que desenhas aparece no ecrã da outra pessoa ao mesmo tempo. A borracha apaga traços inteiros."))+'</p></section>'+
+   '<section class="sala-pane" data-p="xadrez" id="sala-ch"></section></div>';
+  document.body.appendChild(el);document.documentElement.style.overflow="hidden";
+  el.addEventListener("click",onClick);document.addEventListener("keydown",onKey);
+  S.cv=document.getElementById("wb-cv");S.ctx=S.cv.getContext("2d");
+  S.cv.addEventListener("pointerdown",pDown);S.cv.addEventListener("pointermove",pMove);S.cv.addEventListener("pointerup",pUp);S.cv.addEventListener("pointercancel",pUp);
+  if(window.ResizeObserver){S.ro=new ResizeObserver(sizeCanvas);S.ro.observe(document.getElementById("wb-wrap"))}else window.addEventListener("resize",sizeCanvas);
+  showTab(S.tab);renderTop();renderTools();renderCall();renderChess();sizeCanvas();
+  setTimeout(function(){var b=el.querySelector(".sala-x");if(b)b.focus()},50)}
+function showTab(p){S.tab=p;var el=document.getElementById("sala");if(!el)return;
+  el.querySelectorAll(".sala-tab").forEach(function(b){b.setAttribute("aria-selected",String(b.getAttribute("data-p")===p))});
+  el.querySelectorAll(".sala-pane").forEach(function(s){s.classList.toggle("on",s.getAttribute("data-p")===p)});
+  var n=el.querySelector('[data-n="'+p+'"]');if(n){n.hidden=true;n.textContent=""}
+  if(p==="quadro")sizeCanvas();
+  if(S.room)S.room.presence({uid:UID,tab:p,call:S.call}).catch(noop)}
+function bump(p){if(!S||S.tab===p)return;var n=document.querySelector('#sala [data-n="'+p+'"]');if(!n)return;n.hidden=false;n.textContent=String((+n.textContent||0)+1)}
+
+/* ---------------- tempo real ---------------- */
+function emit(topic,data){if(S&&S.room)S.room.emit(topic,data).catch(noop)}
+function others(){return S?S.peers.filter(function(p){return!p.isMe&&p.by===S.other}):[]}
+function join(){
+  if(!ROOM||!ROOM.join){S.offline=true;renderTop();return}
+  var r;try{r=ROOM.join("troca-"+S.id)}catch(e){S.offline=true;renderTop();return}
+  S.room=r;r.presence({uid:UID,tab:S.tab,call:false}).catch(noop);
+  S.offs.push(r.onPeers(function(c){if(!S)return;var before=others().length;S.peers=c.peers||[];
+    if(!S.hello&&S.peers.some(function(p){return p.isMe})){S.hello=true;emit("hi",{u:UID})}
+    var now=others().length;if(now&&!before&&S.hello)toast(t("{n} entrou na sala.",{n:nameOf(S.other)}));
+    renderTop();renderCall();renderChessSide()}));
+  [["hi",onHi],["st",onSt],["wb-s",onPart],["wb-e",onEnd],["wb-del",onDel],["wb-clr",onClr],["wb-cur",onCur],["ch-mv",onMv],["ch-new",onNew]].forEach(function(x){S.offs.push(r.on(x[0],function(m){if(!S||!m||m.isMe||!m.data)return;try{x[1](m.data)}catch(e){}}))});
+  if(ROOM.presence)ROOM.presence({sala:S.id}).catch(noop)}
+function save(){if(!S)return;clearTimeout(S.svT);var s=S;s.svT=setTimeout(function(){LS("anf.sala."+s.id,{wb:{g:s.wb.g,s:s.wb.s.slice(-600),d:s.wb.d.slice(-600)},ch:s.ch})},400)}
+function sendState(isReply){var s=S.wb.s,chunks=[],i;for(i=0;i<s.length;i+=8)chunks.push(s.slice(i,i+8));if(!chunks.length)chunks.push([]);
+  chunks.forEach(function(c,i){setTimeout(function(){if(S)emit("st",{u:UID,r:isReply?1:0,first:i===0?1:0,wb:{g:S.wb.g,s:c,d:i===0?S.wb.d.slice(-600):[]},ch:i===0?S.ch:null})},i*140)})}
+function onHi(d){sendState(false)}
+function onSt(d){
+  if(d.wb){var w=d.wb;if(w.g>S.wb.g){S.wb={g:w.g,s:[],d:[]};S.live={}}
+    if(w.g===S.wb.g){var have={};S.wb.s.forEach(function(x){have[x.id]=1});
+      (w.d||[]).forEach(function(id){if(S.wb.d.indexOf(id)<0)S.wb.d.push(id)});
+      (w.s||[]).forEach(function(x){if(x&&x.id&&!have[x.id]&&S.wb.d.indexOf(x.id)<0&&Array.isArray(x.p)){S.wb.s.push(x);have[x.id]=1}});
+      S.wb.s=S.wb.s.filter(function(x){return S.wb.d.indexOf(x.id)<0});redraw()}}
+  if(d.ch&&Array.isArray(d.ch.mv)){var c=d.ch,mine=S.ch;
+    var take=c.g>mine.g||(c.g===mine.g&&c.mv.length>mine.mv.length&&mine.mv.every(function(u,i){return c.mv[i]===u}));
+    if(take&&CH.replay(c.mv)){S.ch={g:c.g,w:c.w,mv:c.mv.slice()};S.sel=-1;S.promo=null;renderChess()}}
+  save();
+  if(d.first&&!d.r&&!S.replied[d.u]){S.replied[d.u]=1;sendState(true)}}
+
+/* ---------------- quadro branco ---------------- */
+function renderTools(){var el=document.getElementById("wb-tools");if(!el)return;
+  var tool=function(k,ic,lb){return'<button class="wb-b" type="button" data-s="tool" data-v="'+k+'" aria-pressed="'+(S.tool===k)+'" title="'+esc(t(lb))+'" aria-label="'+esc(t(lb))+'">'+icon(ic)+'</button>'};
+  el.innerHTML='<div class="wb-grp" role="group" aria-label="'+esc(t("Ferramenta"))+'">'+tool("pen","pen","Caneta")+tool("hl","hl","Marcador")+tool("er","eraser","Borracha")+'</div>'+
+   '<div class="wb-grp" role="group" aria-label="'+esc(t("Cor"))+'">'+COLORS.map(function(c){return'<button class="wb-sw" type="button" data-s="color" data-v="'+c[0]+'" style="background:'+c[0]+'" aria-pressed="'+(S.color===c[0])+'" aria-label="'+esc(t(c[1]))+'" title="'+esc(t(c[1]))+'"></button>'}).join("")+'</div>'+
+   '<div class="wb-grp" role="group" aria-label="'+esc(t("Espessura"))+'">'+WIDTHS.map(function(w){var s=Math.max(4,w[0]*.9);return'<button class="wb-b" type="button" data-s="width" data-v="'+w[0]+'" aria-pressed="'+(S.width===w[0])+'" aria-label="'+esc(T(w[1]))+'" title="'+esc(T(w[1]))+'"><span class="wb-w" style="width:'+s+'px;height:'+s+'px"></span></button>'}).join("")+'</div>'+
+   '<div class="wb-grp">'+'<button class="wb-b" type="button" data-s="undo" title="'+esc(t("Desfazer o meu último traço"))+'" aria-label="'+esc(t("Desfazer"))+'">'+icon("undo")+'</button>'+
+   '<button class="wb-b'+(S.clr?" warn":"")+'" type="button" data-s="clear" aria-label="'+esc(t("Limpar quadro"))+'" title="'+esc(t("Limpar quadro"))+'">'+icon("trash")+(S.clr?esc(t("Limpar para os dois?")):"")+'</button>'+
+   '<button class="wb-b" type="button" data-s="png" aria-label="'+esc(t("Descarregar imagem"))+'" title="'+esc(t("Descarregar imagem"))+'">'+icon("dl")+'</button></div>';
+  var wr=document.getElementById("wb-wrap");if(wr)wr.classList.toggle("er",S.tool==="er")}
+function sizeCanvas(){if(!S||!S.cv)return;var w=S.cv.parentNode.clientWidth;if(!w)return;var dpr=Math.min(window.devicePixelRatio||1,2),h=Math.round(w*.625);
+  S.cv.style.height=h+"px";S.cv.width=Math.round(w*dpr);S.cv.height=Math.round(h*dpr);redraw(true)}
+function redraw(now){if(!S)return;if(now){drawAll();return}if(S.rq)return;S.rq=true;requestAnimationFrame(function(){if(!S)return;S.rq=false;drawAll()})}
+function drawAll(){var cv=S.cv,c=S.ctx,W=cv.width,H=cv.height,k=W/1000;if(!W)return;
+  c.setTransform(1,0,0,1,0,0);c.globalAlpha=1;c.fillStyle="#FFFCF7";c.fillRect(0,0,W,H);
+  c.fillStyle="rgba(43,27,47,.13)";var st=25*k,r=Math.max(1,1.1*k);for(var x=st;x<W;x+=st)for(var y=st;y<H;y+=st){c.fillRect(x-r/2,y-r/2,r,r)}
+  S.wb.s.forEach(function(s){stroke(c,s,k)});Object.keys(S.live).forEach(function(id){stroke(c,S.live[id],k)})}
+function stroke(c,s,k){var p=s.p;if(!p||p.length<2)return;c.save();c.lineCap="round";c.lineJoin="round";c.strokeStyle=s.c;c.lineWidth=Math.max(1,s.w*k*(s.m==="hl"?2.8:1));c.globalAlpha=s.m==="hl"?.35:1;
+  c.beginPath();c.moveTo(p[0]*k,p[1]*k);
+  if(p.length<=4)c.lineTo(p[p.length-2]*k+.01,p[p.length-1]*k);
+  else{for(var i=2;i<p.length-2;i+=2){c.quadraticCurveTo(p[i]*k,p[i+1]*k,(p[i]+p[i+2])/2*k,(p[i+1]+p[i+3])/2*k)}c.lineTo(p[p.length-2]*k,p[p.length-1]*k)}
+  c.stroke();c.restore()}
+function pt(e){var r=S.cv.getBoundingClientRect();return[Math.round((e.clientX-r.left)/r.width*1000),Math.round((e.clientY-r.top)/r.width*1000)]}
+function pDown(e){if(!S||e.button>0)return;e.preventDefault();try{S.cv.setPointerCapture(e.pointerId)}catch(x){}var q=pt(e);
+  if(S.tool==="er"){S.erasing=[];eraseAt(q);return}
+  var s={id:rid(),u:UID,c:S.color,w:S.width,m:S.tool==="hl"?"hl":"pen",p:[q[0],q[1]]};S.drawing=s;S.sent=0;S.wb.s.push(s);redraw();
+  S.flushT=setInterval(flushPart,90)}
+function pMove(e){if(!S)return;var q=pt(e);
+  if(S.erasing){eraseAt(q);return}
+  if(S.drawing){var p=S.drawing.p,lx=p[p.length-2],ly=p[p.length-1];if(Math.abs(q[0]-lx)+Math.abs(q[1]-ly)<2)return;
+    p.push(q[0],q[1]);redraw();return}
+  var nw=Date.now();if(!S.curT||nw-S.curT>220){S.curT=nw;emit("wb-cur",{x:q[0],y:q[1],u:UID})}}
+function flushPart(){if(!S||!S.drawing)return;var s=S.drawing;if(s.p.length<=S.sent)return;emit("wb-s",{id:s.id,u:UID,c:s.c,w:s.w,m:s.m,o:S.sent,p:s.p.slice(S.sent)});S.sent=s.p.length}
+function pUp(e){if(!S)return;
+  if(S.erasing){if(S.erasing.length)emit("wb-del",{ids:S.erasing});S.erasing=undefined;save();return}
+  if(!S.drawing)return;clearInterval(S.flushT);var s=S.drawing;S.drawing=null;s.p=simplify(s.p,.9);emit("wb-e",s);redraw();save()}
+/* tira pontos redundantes (Ramer–Douglas–Peucker) para mensagens mais leves */
+function simplify(p,eps){var n=p.length/2;if(n<3)return p;var keep=new Uint8Array(n),st=[[0,n-1]];keep[0]=keep[n-1]=1;
+  while(st.length){var r=st.pop(),a=r[0],b=r[1],ax=p[a*2],ay=p[a*2+1],bx=p[b*2],by=p[b*2+1],dx=bx-ax,dy=by-ay,L=Math.hypot(dx,dy)||1,md=0,mi=-1;
+    for(var i=a+1;i<b;i++){var d=Math.abs(dy*p[i*2]-dx*p[i*2+1]+bx*ay-by*ax)/L;if(d>md){md=d;mi=i}}
+    if(md>eps&&mi>-1){keep[mi]=1;st.push([a,mi],[mi,b])}}
+  var o=[];for(var j=0;j<n;j++)if(keep[j])o.push(p[j*2],p[j*2+1]);return o}
+function eraseAt(q){var R=14,hit=[];S.wb.s.forEach(function(s){var p=s.p,rr=R+s.w*(s.m==="hl"?1.4:.5);for(var i=0;i<p.length;i+=2){if(segDist(q[0],q[1],p[i],p[i+1],i+2<p.length?p[i+2]:p[i],i+2<p.length?p[i+3]:p[i+1])<rr){hit.push(s.id);break}}});
+  if(!hit.length)return;removeIds(hit);hit.forEach(function(id){S.erasing.push(id)});
+  if(S.erasing.length>=8){emit("wb-del",{ids:S.erasing});S.erasing=[]}}
+function segDist(x,y,ax,ay,bx,by){var dx=bx-ax,dy=by-ay,l=dx*dx+dy*dy,u=l?Math.max(0,Math.min(1,((x-ax)*dx+(y-ay)*dy)/l)):0;return Math.hypot(x-(ax+u*dx),y-(ay+u*dy))}
+function removeIds(ids){ids.forEach(function(id){if(S.wb.d.indexOf(id)<0)S.wb.d.push(id)});S.wb.s=S.wb.s.filter(function(x){return ids.indexOf(x.id)<0});redraw()}
+function onPart(d){var l=S.live[d.id];if(!l){if(S.wb.d.indexOf(d.id)>-1)return;l=S.live[d.id]={id:d.id,u:d.u,c:d.c,w:d.w,m:d.m,p:[]}}
+  if(d.o>l.p.length)return;l.p=l.p.slice(0,d.o).concat(d.p);showCur(l.p[l.p.length-2],l.p[l.p.length-1]);redraw();bump("quadro")}
+function onEnd(d){delete S.live[d.id];if(!d.id||!Array.isArray(d.p)||S.wb.d.indexOf(d.id)>-1)return;if(!S.wb.s.some(function(x){return x.id===d.id}))S.wb.s.push({id:d.id,u:d.u,c:d.c,w:d.w,m:d.m,p:d.p});redraw();save()}
+function onDel(d){if(Array.isArray(d.ids)){removeIds(d.ids);save()}}
+function onClr(d){if(d.g>S.wb.g){S.wb={g:d.g,s:[],d:[]};S.live={};redraw();save();toast(t("{n} limpou o quadro.",{n:nameOf(S.other)}))}}
+function onCur(d){showCur(d.x,d.y)}
+function showCur(x,y){var el=document.getElementById("wb-cur");if(!el||x==null)return;var w=S.cv.clientWidth/1000;el.style.transform="translate("+(x*w)+"px,"+(y*w)+"px)";el.style.opacity="1";
+  el.querySelector("span").textContent=nameOf(S.other);clearTimeout(S.curHide);S.curHide=setTimeout(function(){el.style.opacity="0"},2500)}
+function downloadPNG(){try{S.cv.toBlob(function(b){if(!b)return;var u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download="anfitriu-quadro.png";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000)})}catch(e){toast(t("Não foi possível descarregar."))}}
+
+/* ---------------- xadrez ---------------- */
+function game(){var r=CH.replay(S.ch.mv);if(!r){S.ch.mv=[];r=CH.replay([])}return r}
+function whiteUid(){return S.ch.w===S.x.de||S.ch.w===S.x.para?S.ch.w:S.x.de}
+function myColor(){return whiteUid()===UID?"w":"b"}
+function uidOf(col){return col==="w"?whiteUid():(whiteUid()===S.x.de?S.x.para:S.x.de)}
+function glyph(p){return GLYPH[p.toLowerCase()]+"︎"}
+function renderChess(){var el=document.getElementById("sala-ch");if(!el)return;
+  el.innerHTML='<div class="ch-wrap"><div class="ch-board" id="ch-board" role="grid" aria-label="'+esc(t("Tabuleiro de xadrez"))+'"></div><div class="ch-side" id="ch-side"></div></div>';
+  renderBoard();renderChessSide()}
+function renderBoard(){var el=document.getElementById("ch-board");if(!el)return;var g=game(),st=g.st,flip=myColor()==="b",last=g.hist.length?g.hist[g.hist.length-1].m:null,
+  stt=CH.status(st),ck=stt.check||stt.kind==="mate"?CH.kingSq(st,st.t):-1,tg={},h="";
+  if(S.sel>-1)CH.moves(st,S.sel).forEach(function(m){tg[m.to]=m.x?2:1});
+  for(var i=0;i<64;i++){var sq=flip?63-i:i,f=sq&7,r=sq>>3,p=st.b[sq],dk=(f+r)&1,
+    cls="csq"+(dk?" d":"")+(last&&(last.f===sq||last.to===sq)?" last":"")+(sq===ck?" chk":"")+(sq===S.sel?" sel":"")+(tg[sq]?" tg"+(tg[sq]===2?" cap":""):""),
+    lab=CH.sqName(sq)+(p?", "+t(PNAME[p.toLowerCase()])+" "+t(CH.colorOf(p)==="w"?"branco":"preto"):"");
+    h+='<button class="'+cls+'" type="button" data-s="sq" data-q="'+sq+'" aria-label="'+esc(lab)+'">'+(p?'<span class="pc '+CH.colorOf(p)+'">'+glyph(p)+'</span>':'')+
+     ((flip?r===0:r===7)?'<span class="co f">'+"abcdefgh"[f]+'</span>':'')+((flip?f===7:f===0)?'<span class="co r">'+(8-r)+'</span>':'')+'</button>'}
+  if(S.promo){var col=myColor();h+='<div class="ch-promo"><div><b>'+esc(t("Promover a"))+'</b><div class="row2">'+["q","r","b","n"].map(function(k){return'<button type="button" data-s="promo" data-v="'+k+'" aria-label="'+esc(t(PNAME[k]))+'"><span class="pc '+col+'" style="font-size:2.2rem">'+GLYPH[k]+'︎</span></button>'}).join("")+'</div><button class="btn ghost s" type="button" data-s="promox">'+esc(t("Cancelar"))+'</button></div></div>'}
+  el.innerHTML=h}
+function captured(st){var start={p:8,n:2,b:2,r:2,q:1},cnt={w:{},b:{}};st.b.forEach(function(p){if(!p)return;var c=CH.colorOf(p),k=p.toLowerCase();cnt[c][k]=(cnt[c][k]||0)+1});
+  var out={w:[],b:[]},mat={w:0,b:0};["w","b"].forEach(function(c){["q","r","b","n","p"].forEach(function(k){var lost=Math.max(0,start[k]-(cnt[c][k]||0));for(var i=0;i<lost;i++)out[c].push(k);mat[c]+=(cnt[c][k]||0)*VAL[k]})});
+  return{lost:out,mat:mat}}
+function renderChessSide(){var el=document.getElementById("ch-side");if(!el||!S)return;var g=game(),st=g.st,stt=CH.status(st),me=myColor(),cap=captured(st),oth=nameOf(S.other),
+  present=others().length>0,msg,hot=false;
+  if(stt.kind==="mate"){msg=stt.winner===me?t("Xeque-mate! Ganhaste."):t("Xeque-mate. Ganhou {n}.",{n:oth});hot=true}
+  else if(stt.kind==="stalemate")msg=t("Empate por afogamento.");
+  else if(stt.kind==="material")msg=t("Empate: material insuficiente.");
+  else if(stt.kind==="fifty")msg=t("Empate pela regra dos 50 lances.");
+  else if(st.t===me){msg=stt.check?t("Estás em xeque! É a tua vez."):t("É a tua vez.");hot=true}
+  else msg=t("Vez de {n}.",{n:oth})+(stt.check?" "+t("Está em xeque."):"");
+  function pl(col){var u=uidOf(col),lost=cap.lost[col==="w"?"b":"w"],adv=cap.mat[col]-cap.mat[col==="w"?"b":"w"];
+    return'<div class="ch-pl'+(st.t===col&&!stt.over?" turn":"")+'"><span class="g pc '+col+'" style="font-size:1.35rem">'+GLYPH.k+'︎</span><span><b>'+esc(u===UID?t("Tu"):nameOf(u))+'</b> <span class="xs m">· '+esc(t(col==="w"?"brancas":"pretas"))+'</span></span><span class="ch-cap" title="'+esc(t("Peças capturadas"))+'">'+lost.map(function(k){return GLYPH[k]+"︎"}).join("")+(adv>0?' <small>+'+adv+'</small>':'')+'</span></div>'}
+  var rows="";for(var i=0;i<g.hist.length;i+=2)rows+='<span class="i">'+(i/2+1)+'.</span><span>'+esc(g.hist[i].san)+'</span><span>'+(g.hist[i+1]?esc(g.hist[i+1].san):"")+'</span>';
+  el.innerHTML='<div class="ch-card">'+pl(me==="w"?"b":"w")+pl(me)+'</div>'+
+   '<div class="ch-card"><p class="ch-stat'+(hot?" hot":"")+'" aria-live="polite">'+esc(msg)+'</p>'+(!present&&!S.offline?'<p class="xs m" style="margin:0">'+esc(t("{n} ainda não está na sala. Os lances ficam guardados e sincronizam quando entrar.",{n:oth}))+'</p>':'')+'</div>'+
+   (g.hist.length?'<div class="ch-card"><span class="lbl">'+esc(t("Lances"))+'</span><div class="ch-moves" id="ch-moves">'+rows+'</div></div>':'')+
+   '<div class="ch-acts">'+(g.hist.length===0?'<button class="btn sec s" type="button" data-s="swap">'+icon("flip")+' '+esc(t("Trocar cores"))+'</button>':'<button class="btn sec s" type="button" data-s="newg">'+icon("plus")+' '+esc(S.newc?t("Confirmar novo jogo"):t("Novo jogo"))+'</button>')+'</div>';
+  var mv=document.getElementById("ch-moves");if(mv)mv.scrollTop=mv.scrollHeight}
+function clickSq(sq){var g=game(),st=g.st,stt=CH.status(st),me=myColor();
+  if(stt.over)return;
+  if(st.t!==me){if(st.b[sq]&&CH.colorOf(st.b[sq])===me)toast(t("Espera pela jogada de {n}.",{n:nameOf(S.other)}));return}
+  if(S.sel>-1){var ms=CH.moves(st,S.sel).filter(function(m){return m.to===sq});
+    if(ms.length){if(ms.length>1){S.promo={f:S.sel,to:sq};renderBoard();return}doMove(ms[0]);return}}
+  var p=st.b[sq];S.sel=p&&CH.colorOf(p)===me&&S.sel!==sq?sq:-1;renderBoard()}
+function doMove(m){var u=CH.uci(m);S.ch.mv.push(u);S.sel=-1;S.promo=null;S.newc=false;emit("ch-mv",{u:u,n:S.ch.mv.length-1,g:S.ch.g});renderBoard();renderChessSide();save()}
+function onMv(d){if(d.g!==S.ch.g){emit("hi",{u:UID});return}
+  if(d.n===S.ch.mv.length){var g=game(),m=CH.byUci(g.st,d.u);if(!m||g.st.t===myColor())return;S.ch.mv.push(d.u);S.sel=-1;S.promo=null;renderBoard();renderChessSide();save();bump("xadrez")}
+  else if(!(d.n<S.ch.mv.length&&S.ch.mv[d.n]===d.u))emit("hi",{u:UID})}
+function onNew(d){if(d.g>S.ch.g){S.ch={g:d.g,w:d.w,mv:[]};S.sel=-1;S.promo=null;S.newc=false;renderChess();save();toast(t("Novo jogo de xadrez."));bump("xadrez")}}
+function newGame(swap){var w=whiteUid();if(swap)w=w===S.x.de?S.x.para:S.x.de;S.ch={g:S.ch.g+1,w:w,mv:[]};S.sel=-1;S.promo=null;S.newc=false;emit("ch-new",{g:S.ch.g,w:w});renderChess();save()}
+
+/* ---------------- chamada ---------------- */
+function renderCall(){var el=document.getElementById("sala-call");if(!el||!S)return;
+  var oth=nameOf(S.other),inCall=others().some(function(p){return p.presence&&p.presence.call}),dom=cfg().JITSI_DOMAIN;
+  if(S.embed&&el.querySelector("iframe")){var s=el.querySelector("[data-callst]");if(s)s.innerHTML=callSt(inCall,oth);return}
+  el.innerHTML='<div class="sala-call">'+(S.embed?'<iframe src="'+esc(callUrl())+'" allow="camera; microphone; display-capture; fullscreen; autoplay; clipboard-write" title="'+esc(t("Chamada de vídeo"))+'"></iframe><div class="st" data-callst>'+callSt(inCall,oth)+'</div><div class="sala-acts"><button class="btn sec s" type="button" data-s="callend">'+esc(t("Sair da chamada"))+'</button></div>':
+   '<div class="art"><div class="faces2">'+ident(UID,54)+ident(S.other,54)+'</div></div><h3>'+esc(t("Chamada de vídeo"))+'</h3><p>'+esc(t("Fala com {n} enquanto usam o quadro e o xadrez. A chamada é feita no Jitsi Meet: gratuita e sem instalar nada.",{n:oth}))+'</p>'+
+   '<div class="st" data-callst>'+callSt(inCall,oth)+'</div><div class="sala-acts"><button class="btn s" type="button" data-s="call">'+icon("cam")+' '+esc(S.call?t("Voltar à chamada"):t("Entrar na chamada"))+'</button><button class="btn sec s" type="button" data-s="copy">'+icon("link")+' '+esc(t("Copiar link"))+'</button></div>'+
+   (dom?'':'<p class="xs">'+esc(t("Abre numa janela à parte, para continuares a ver o quadro. Se o Jitsi pedir, quem entra primeiro inicia sessão com Google ou GitHub para abrir a sala."))+'</p>'))+'</div>'}
+function callSt(on,n){return'<span class="sala-dot'+(on?" on":"")+'"></span>'+esc(on?t("{n} está na chamada",{n:n}):t("{n} ainda não está na chamada",{n:n}))}
+function setCall(v){S.call=v;if(S.room)S.room.presence({uid:UID,tab:S.tab,call:v}).catch(noop);renderCall()}
+function startCall(){if(cfg().JITSI_DOMAIN){S.embed=true;setCall(true);return}
+  if(S.popup&&!S.popup.closed){try{S.popup.focus()}catch(e){}return}
+  var w=Math.min(960,screen.availWidth||960),h=Math.min(720,screen.availHeight||720);
+  S.popup=window.open(callUrl(),"anf-call-"+S.id,innerWidth<760?"":"width="+w+",height="+h);
+  if(!S.popup){location.href=callUrl();return}
+  setCall(true);var s=S,iv=setInterval(function(){if(!s.popup||s.popup.closed){clearInterval(iv);if(S===s)setCall(false)}},2000);s.tm.push(iv)}
+function copyLink(){var u="https://"+(cfg().JITSI_DOMAIN||"meet.jit.si")+"/"+roomName(S.id);
+  (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(function(){toast(t("Link da chamada copiado."))}).catch(function(){window.prompt(t("Copia o link:"),u)})}
+
+/* ---------------- topo ---------------- */
+function renderTop(){var w=document.getElementById("sala-with"),fc=document.getElementById("sala-faces");if(!w||!S)return;var oth=nameOf(S.other),on=others(),tab=on.length&&on[0].presence?on[0].presence.tab:null;
+  w.innerHTML=S.offline?'<span class="sala-off">'+esc(t("Sem ligação em tempo real: o quadro e o xadrez funcionam só neste dispositivo."))+'</span>':
+   '<span class="sala-dot'+(on.length?" on":"")+'"></span>'+esc(on.length?(tab==="xadrez"?t("{n} está na sala, no xadrez",{n:oth}):tab==="quadro"?t("{n} está na sala, no quadro",{n:oth}):t("{n} está na sala",{n:oth})):t("À espera de {n}. Vê esta troca na página Skills e trocas.",{n:oth}));
+  fc.innerHTML=ident(UID,30)+(on.length?ident(S.other,30):"")}
+
+/* ---------------- cliques ---------------- */
+function onClick(e){var b=e.target.closest&&e.target.closest("[data-s]");if(!b||!S)return;var a=b.getAttribute("data-s"),v=b.getAttribute("data-v");
+  if(a==="close")userClose();
+  else if(a==="tab")showTab(b.getAttribute("data-p"));
+  else if(a==="tool"){S.tool=v;renderTools()}
+  else if(a==="color"){S.color=v;if(S.tool==="er")S.tool="pen";renderTools()}
+  else if(a==="width"){S.width=+v;if(S.tool==="er")S.tool="pen";renderTools()}
+  else if(a==="undo"){for(var i=S.wb.s.length-1;i>=0;i--)if(S.wb.s[i].u===UID){var id=S.wb.s[i].id;removeIds([id]);emit("wb-del",{ids:[id]});save();break}}
+  else if(a==="clear"){if(!S.clr){S.clr=1;renderTools();setTimeout(function(){if(S&&S.clr){S.clr=0;renderTools()}},3500);return}
+    S.clr=0;S.wb={g:S.wb.g+1,s:[],d:[]};S.live={};emit("wb-clr",{g:S.wb.g});redraw();save();renderTools()}
+  else if(a==="png")downloadPNG();
+  else if(a==="sq")clickSq(+b.getAttribute("data-q"));
+  else if(a==="promo"&&S.promo){var g=game(),pr=v,m=CH.moves(g.st,S.promo.f).filter(function(x){return x.to===S.promo.to&&x.pr&&x.pr.toLowerCase()===pr})[0];if(m)doMove(m)}
+  else if(a==="promox"){S.promo=null;S.sel=-1;renderBoard()}
+  else if(a==="swap")newGame(true);
+  else if(a==="newg"){var st=CH.status(game().st);if(!S.newc&&!st.over){S.newc=true;renderChessSide();setTimeout(function(){if(S&&S.newc){S.newc=false;renderChessSide()}},3500);return}newGame(false)}
+  else if(a==="call")startCall();
+  else if(a==="callend"){S.embed=false;setCall(false)}
+  else if(a==="copy")copyLink()}
+
+/* ---------------- ligação ao resto do site ---------------- */
+ACT.sala=function(d){if(!canW(null,true))return;open(d.id)};
+window.salaLive=function(x){if(!ROOM||!ROOM.peers)return false;var o=x.de===UID?x.para:x.de;try{return ROOM.peers().some(function(p){return!p.isMe&&p.by===o&&p.presence&&p.presence.sala===x.id})}catch(e){return false}};
+window.salaBtnHTML=function(x){if(x.estado!=="aceite")return"";var live=salaLive(x);
+  return(live?'<span class="tr-live"><span class="sala-dot on"></span>'+esc(t("Na sala agora"))+'</span>':'')+'<button class="btn s" type="button" data-a="sala" data-id="'+esc(x.id)+'">'+esc(t(live?"Juntar-me":"Abrir sala"))+'</button>'};
+/* quando alguém entra ou sai de uma sala, a lista de trocas atualiza */
+(function hook(){if(ROOM&&ROOM.onPeers){var last="";ROOM.onPeers(function(c){var k=(c.peers||[]).map(function(p){return p.by+":"+(p.presence&&p.presence.sala||"")}).sort().join(",");if(k===last)return;last=k;if(V==="skills"&&!DET)render()});return}setTimeout(hook,1500)})();
+/* abrir diretamente com #sala-ID */
+(function deep(n){var m=/^#sala-(.+)$/.exec(location.hash);if(!m)return;if(UID&&MYP&&trocaById(m[1])){open(m[1],true);return}if(n<40)setTimeout(function(){deep(n+1)},750)})(0);
+window.AnfSala={open:open,close:close};
+})();
+
+(function(){var X={
+"Sala de troca":["Swap room","Sala de intercambio","Tauschraum","Salle d'échange","Stanza di scambio"],
+"Abrir sala":["Open room","Abrir sala","Raum öffnen","Ouvrir la salle","Apri la stanza"],
+"Juntar-me":["Join","Unirme","Beitreten","Rejoindre","Unisciti"],
+"Na sala agora":["In the room now","En la sala ahora","Gerade im Raum","Dans la salle","Nella stanza ora"],
+"\u00a7Chamada":["Call","Llamada","Anruf","Appel","Chiamata"],
+"\u00a7Quadro":["Whiteboard","Pizarra","Whiteboard","Tableau","Lavagna"],
+"\u00a7Xadrez":["Chess","Ajedrez","Schach","Échecs","Scacchi"],
+"Sair da sala":["Leave room","Salir de la sala","Raum verlassen","Quitter la salle","Esci dalla stanza"],
+"A sala abre quando a troca for aceite.":["The room opens once the swap is accepted.","La sala se abre cuando se acepte el intercambio.","Der Raum öffnet sich, sobald der Tausch angenommen ist.","La salle s'ouvre quand l'échange est accepté.","La stanza si apre quando lo scambio viene accettato."],
+"Esta troca já não existe.":["This swap no longer exists.","Este intercambio ya no existe.","Diesen Tausch gibt es nicht mehr.","Cet échange n'existe plus.","Questo scambio non esiste più."],
+"Chamada de vídeo":["Video call","Videollamada","Videoanruf","Appel vidéo","Videochiamata"],
+"Entrar na chamada":["Join the call","Entrar en la llamada","Anruf beitreten","Rejoindre l'appel","Entra nella chiamata"],
+"Voltar à chamada":["Back to the call","Volver a la llamada","Zurück zum Anruf","Revenir à l'appel","Torna alla chiamata"],
+"Sair da chamada":["Leave the call","Salir de la llamada","Anruf verlassen","Quitter l'appel","Esci dalla chiamata"],
+"Copiar link":["Copy link","Copiar enlace","Link kopieren","Copier le lien","Copia il link"],
+"Copia o link:":["Copy the link:","Copia el enlace:","Kopiere den Link:","Copie le lien :","Copia il link:"],
+"Link da chamada copiado.":["Call link copied.","Enlace de la llamada copiado.","Anruf-Link kopiert.","Lien de l'appel copié.","Link della chiamata copiato."],
+"Fala com {n} enquanto usam o quadro e o xadrez. A chamada é feita no Jitsi Meet: gratuita e sem instalar nada.":["Talk to {n} while you use the whiteboard and chess. The call runs on Jitsi Meet: free, nothing to install.","Habla con {n} mientras usáis la pizarra y el ajedrez. La llamada es por Jitsi Meet: gratis y sin instalar nada.","Sprich mit {n}, während ihr Whiteboard und Schach nutzt. Der Anruf läuft über Jitsi Meet: kostenlos, ohne Installation.","Parle avec {n} pendant que vous utilisez le tableau et les échecs. L'appel passe par Jitsi Meet : gratuit, sans rien installer.","Parla con {n} mentre usate la lavagna e gli scacchi. La chiamata usa Jitsi Meet: gratis e senza installare nulla."],
+"Abre numa janela à parte, para continuares a ver o quadro. Se o Jitsi pedir, quem entra primeiro inicia sessão com Google ou GitHub para abrir a sala.":["It opens in a separate window so you can keep seeing the whiteboard. If Jitsi asks, whoever joins first signs in with Google or GitHub to open the room.","Se abre en otra ventana para que sigas viendo la pizarra. Si Jitsi lo pide, quien entra primero inicia sesión con Google o GitHub para abrir la sala.","Öffnet sich in einem eigenen Fenster, damit du das Whiteboard weiter siehst. Falls Jitsi fragt, meldet sich die erste Person mit Google oder GitHub an, um den Raum zu öffnen.","S'ouvre dans une fenêtre à part pour garder le tableau sous les yeux. Si Jitsi le demande, la première personne se connecte avec Google ou GitHub pour ouvrir la salle.","Si apre in una finestra separata, così continui a vedere la lavagna. Se Jitsi lo chiede, chi entra per primo accede con Google o GitHub per aprire la stanza."],
+"{n} está na chamada":["{n} is in the call","{n} está en la llamada","{n} ist im Anruf","{n} est dans l'appel","{n} è nella chiamata"],
+"{n} ainda não está na chamada":["{n} isn't in the call yet","{n} aún no está en la llamada","{n} ist noch nicht im Anruf","{n} n'est pas encore dans l'appel","{n} non è ancora nella chiamata"],
+"{n} está na sala":["{n} is in the room","{n} está en la sala","{n} ist im Raum","{n} est dans la salle","{n} è nella stanza"],
+"{n} está na sala, no quadro":["{n} is in the room, on the whiteboard","{n} está en la sala, en la pizarra","{n} ist im Raum, am Whiteboard","{n} est dans la salle, sur le tableau","{n} è nella stanza, sulla lavagna"],
+"{n} está na sala, no xadrez":["{n} is in the room, playing chess","{n} está en la sala, en el ajedrez","{n} ist im Raum, beim Schach","{n} est dans la salle, aux échecs","{n} è nella stanza, agli scacchi"],
+"{n} entrou na sala.":["{n} joined the room.","{n} entró en la sala.","{n} ist dem Raum beigetreten.","{n} est entré·e dans la salle.","{n} è entrato/a nella stanza."],
+"À espera de {n}. Vê esta troca na página Skills e trocas.":["Waiting for {n}. They'll see this swap on the Skills page.","Esperando a {n}. Verá este intercambio en la página Skills.","Warte auf {n}. Der Tausch erscheint auf der Skills-Seite.","En attente de {n}. L'échange apparaît sur la page Skills.","In attesa di {n}. Vedrà lo scambio nella pagina Skills."],
+"Sem ligação em tempo real: o quadro e o xadrez funcionam só neste dispositivo.":["No live connection: the whiteboard and chess only work on this device.","Sin conexión en tiempo real: la pizarra y el ajedrez solo funcionan en este dispositivo.","Keine Live-Verbindung: Whiteboard und Schach funktionieren nur auf diesem Gerät.","Pas de connexion en direct : le tableau et les échecs ne marchent que sur cet appareil.","Nessuna connessione in tempo reale: lavagna e scacchi funzionano solo su questo dispositivo."],
+"Quadro branco partilhado":["Shared whiteboard","Pizarra compartida","Geteiltes Whiteboard","Tableau partagé","Lavagna condivisa"],
+"O que desenhas aparece no ecrã da outra pessoa ao mesmo tempo. A borracha apaga traços inteiros.":["What you draw shows up on the other person's screen at the same time. The eraser removes whole strokes.","Lo que dibujas aparece a la vez en la pantalla de la otra persona. La goma borra trazos enteros.","Was du zeichnest, erscheint gleichzeitig beim Gegenüber. Der Radierer löscht ganze Striche.","Ce que tu dessines apparaît en même temps chez l'autre personne. La gomme efface des traits entiers.","Ciò che disegni appare nello stesso momento sullo schermo dell'altra persona. La gomma cancella tratti interi."],
+"Ferramenta":["Tool","Herramienta","Werkzeug","Outil","Strumento"],"Caneta":["Pen","Bolígrafo","Stift","Stylo","Penna"],"Marcador":["Highlighter","Marcador","Textmarker","Surligneur","Evidenziatore"],"Borracha":["Eraser","Goma","Radierer","Gomme","Gomma"],
+"Cor":["Colour","Color","Farbe","Couleur","Colore"],"Ameixa":["Plum","Ciruela","Pflaume","Prune","Prugna"],"Coral":["Coral","Coral","Koralle","Corail","Corallo"],"Mostarda":["Mustard","Mostaza","Senf","Moutarde","Senape"],"Azul":["Blue","Azul","Blau","Bleu","Blu"],"Verde":["Green","Verde","Grün","Vert","Verde"],
+"Espessura":["Thickness","Grosor","Stärke","Épaisseur","Spessore"],"\u00a7Fino":["Thin","Fino","Dünn","Fin","Sottile"],"\u00a7Médio":["Medium","Medio","Mittel","Moyen","Medio"],"\u00a7Grosso":["Thick","Grueso","Dick","Épais","Spesso"],
+"Desfazer":["Undo","Deshacer","Rückgängig","Annuler","Annulla"],"Desfazer o meu último traço":["Undo my last stroke","Deshacer mi último trazo","Meinen letzten Strich rückgängig machen","Annuler mon dernier trait","Annulla il mio ultimo tratto"],
+"Limpar quadro":["Clear whiteboard","Limpiar pizarra","Whiteboard leeren","Effacer le tableau","Pulisci lavagna"],"Limpar para os dois?":["Clear for both?","¿Limpiar para los dos?","Für beide leeren?","Effacer pour les deux ?","Pulire per entrambi?"],
+"Descarregar imagem":["Download image","Descargar imagen","Bild herunterladen","Télécharger l'image","Scarica immagine"],"Não foi possível descarregar.":["Couldn't download.","No se pudo descargar.","Download nicht möglich.","Téléchargement impossible.","Impossibile scaricare."],
+"{n} limpou o quadro.":["{n} cleared the whiteboard.","{n} limpió la pizarra.","{n} hat das Whiteboard geleert.","{n} a effacé le tableau.","{n} ha pulito la lavagna."],
+"Tabuleiro de xadrez":["Chessboard","Tablero de ajedrez","Schachbrett","Échiquier","Scacchiera"],
+"Rei":["King","Rey","König","Roi","Re"],"Dama":["Queen","Dama","Dame","Dame","Donna"],"Torre":["Rook","Torre","Turm","Tour","Torre"],"Bispo":["Bishop","Alfil","Läufer","Fou","Alfiere"],"Cavalo":["Knight","Caballo","Springer","Cavalier","Cavallo"],"Peão":["Pawn","Peón","Bauer","Pion","Pedone"],
+"branco":["white","blanco","weiß","blanc","bianco"],"preto":["black","negro","schwarz","noir","nero"],"brancas":["white","blancas","Weiß","blancs","bianco"],"pretas":["black","negras","Schwarz","noirs","nero"],
+"Promover a":["Promote to","Promocionar a","Umwandeln in","Promouvoir en","Promuovi a"],
+"Peças capturadas":["Captured pieces","Piezas capturadas","Geschlagene Figuren","Pièces prises","Pezzi catturati"],
+"Lances":["Moves","Jugadas","Züge","Coups","Mosse"],
+"Trocar cores":["Swap colours","Cambiar colores","Farben tauschen","Changer de couleur","Scambia colori"],
+"Novo jogo":["New game","Nueva partida","Neues Spiel","Nouvelle partie","Nuova partita"],"Confirmar novo jogo":["Confirm new game","Confirmar nueva partida","Neues Spiel bestätigen","Confirmer la nouvelle partie","Conferma nuova partita"],
+"Novo jogo de xadrez.":["New chess game.","Nueva partida de ajedrez.","Neues Schachspiel.","Nouvelle partie d'échecs.","Nuova partita a scacchi."],
+"É a tua vez.":["Your move.","Te toca.","Du bist dran.","À toi de jouer.","Tocca a te."],
+"Estás em xeque! É a tua vez.":["You're in check! Your move.","¡Estás en jaque! Te toca.","Du stehst im Schach! Du bist dran.","Tu es en échec ! À toi de jouer.","Sei sotto scacco! Tocca a te."],
+"Vez de {n}.":["{n}'s move.","Le toca a {n}.","{n} ist dran.","Au tour de {n}.","Tocca a {n}."],
+"Está em xeque.":["They're in check.","Está en jaque.","Steht im Schach.","En échec.","È sotto scacco."],
+"Espera pela jogada de {n}.":["Wait for {n}'s move.","Espera la jugada de {n}.","Warte auf den Zug von {n}.","Attends le coup de {n}.","Aspetta la mossa di {n}."],
+"Xeque-mate! Ganhaste.":["Checkmate! You won.","¡Jaque mate! Has ganado.","Schachmatt! Du hast gewonnen.","Échec et mat ! Tu as gagné.","Scacco matto! Hai vinto."],
+"Xeque-mate. Ganhou {n}.":["Checkmate. {n} won.","Jaque mate. Ha ganado {n}.","Schachmatt. {n} hat gewonnen.","Échec et mat. {n} a gagné.","Scacco matto. Ha vinto {n}."],
+"Empate por afogamento.":["Draw by stalemate.","Tablas por ahogado.","Remis durch Patt.","Nulle par pat.","Patta per stallo."],
+"Empate: material insuficiente.":["Draw: insufficient material.","Tablas: material insuficiente.","Remis: ungenügendes Material.","Nulle : matériel insuffisant.","Patta: materiale insufficiente."],
+"Empate pela regra dos 50 lances.":["Draw by the 50-move rule.","Tablas por la regla de los 50 movimientos.","Remis nach der 50-Züge-Regel.","Nulle par la règle des 50 coups.","Patta per la regola delle 50 mosse."],
+"{n} ainda não está na sala. Os lances ficam guardados e sincronizam quando entrar.":["{n} isn't in the room yet. Moves are saved and sync when they join.","{n} aún no está en la sala. Las jugadas se guardan y se sincronizan cuando entre.","{n} ist noch nicht im Raum. Die Züge bleiben gespeichert und werden beim Beitreten abgeglichen.","{n} n'est pas encore dans la salle. Les coups sont gardés et se synchronisent à son arrivée.","{n} non è ancora nella stanza. Le mosse restano salvate e si sincronizzano quando entra."],
+"Tu":["You","Tú","Du","Toi","Tu"]
+};var L=["en","es","de","fr","it"];Object.keys(X).forEach(function(k){L.forEach(function(l,i){if(window.I18N&&I18N[l])I18N[l][k]=X[k][i]})})})();
 </script>
 </body>
 </html>
