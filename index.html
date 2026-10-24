@@ -4008,12 +4008,13 @@ var GLYPH={k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"};
 var PNAME={k:"Rei",q:"Dama",r:"Torre",b:"Bispo",n:"Cavalo",p:"Peão"};
 var VAL={p:1,n:3,b:3,r:5,q:9,k:0};
 function LS(k,v){try{if(v===undefined){var x=localStorage.getItem(k);return x?JSON.parse(x):null}localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
+function ME(){return S&&S.me||UID}
 function rid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
 function trocaById(id){for(var i=0;i<TROCAS.length;i++)if(TROCAS[i].id===id)return TROCAS[i];return null}
 function T(s,v){var k="\u00a7"+s,x=t(k,v);return x.charAt(0)==="\u00a7"?t(s,v):x}
 function cfg(){return window.UO_CONFIG||{}}
 function roomName(id){return"Anfitriu-troca-"+String(id).replace(/[^a-zA-Z0-9]/g,"")}
-function callUrl(){var dom=cfg().JITSI_DOMAIN||"meet.jit.si",me=nameOf(UID);
+function callUrl(){var dom=cfg().JITSI_DOMAIN||"meet.jit.si",me=nameOf(ME());
   return"https://"+dom+"/"+roomName(S.id)+"#userInfo.displayName="+encodeURIComponent(JSON.stringify(me))+"&config.prejoinPageEnabled=true"}
 function icon(k){var P={
   close:'<path d="M6 6l12 12M18 6L6 18"/>',
@@ -4119,12 +4120,12 @@ var css=document.createElement("style");css.textContent=[
 
 /* ---------------- abrir e fechar ---------------- */
 function open(id,fromHash){
-  var x=trocaById(id);if(!x){toast(t("Esta troca já não existe."));return}
-  if(x.de!==UID&&x.para!==UID)return;
-  if(x.estado!=="aceite"){toast(t("A sala abre quando a troca for aceite."));return}
   if(S)close(true);
+  var x=trocaById(id);if(!x){toast(t("Esta troca já não existe."));return}
+  if(x.de!==ME()&&x.para!==ME())return;
+  if(x.estado!=="aceite"){toast(t("A sala abre quando a troca for aceite."));return}
   var saved=LS("anf.sala."+id)||{},sw=saved.wb||{};
-  S={id:id,x:x,other:x.de===UID?x.para:x.de,tab:"quadro",
+  S={id:id,x:x,other:x.de===ME()?x.para:x.de,tab:"quadro",
     wb:{g:sw.g||0,s:Array.isArray(sw.s)?sw.s:[],d:Array.isArray(sw.d)?sw.d:[]},
     tool:"pen",color:COLORS[0][0],width:7,live:{},cur:null,
     ch:saved.ch&&Array.isArray(saved.ch.mv)?saved.ch:{g:0,w:x.de,mv:[]},sel:-1,promo:null,
@@ -4132,6 +4133,27 @@ function open(id,fromHash){
   build();join();
   if(!fromHash){try{history.pushState({sala:id},"","#sala-"+id)}catch(e){}}
 }
+/* sala de demonstração: experimenta-se sozinho, com um colega a fingir */
+function demo(){if(S)close(true);var me=UID||"demo-me";
+  S={id:"demo",demo:true,me:me,x:{id:"demo",de:me,para:SYS,of:t("O que sabes"),quero:t("O que queres aprender"),estado:"aceite"},other:SYS,tab:"quadro",
+    wb:{g:0,s:[],d:[]},tool:"pen",color:COLORS[0][0],width:7,live:{},cur:null,ch:{g:0,w:me,mv:[]},sel:-1,promo:null,
+    peers:[],room:null,offs:[],hello:true,replied:{},call:false,embed:false,popup:null,tm:[],clr:0};
+  build();try{history.pushState({sala:"demo"},"","#sala-demo")}catch(e){}
+  var s=S;setTimeout(function(){if(S===s)botDraw()},900)}
+function oname(){return S&&S.demo?t("Colega de demonstração"):nameOf(S.other)}
+function botDraw(){var id="bot"+rid(),pts=[],i,a;
+  for(i=0;i<=40;i++){a=i/40*Math.PI*2;pts.push([Math.round(760+70*Math.cos(a)),Math.round(250+70*Math.sin(a))])}
+  var parts=[{c:"#FF5A3C",p:pts},{c:"#FF5A3C",p:[[735,228],[736,236]]},{c:"#FF5A3C",p:[[785,228],[786,236]]},{c:"#FF5A3C",p:(function(){var o=[];for(var j=0;j<=14;j++){var b=Math.PI*(.15+.7*j/14);o.push([Math.round(760+40*Math.cos(b)),Math.round(262+28*Math.sin(b))])}return o})()}];
+  var k=0,j=0,s=S,cur=null;
+  var iv=setInterval(function(){if(S!==s){clearInterval(iv);return}var pr=parts[k];
+    if(!cur){cur={id:id+k,u:S.other,c:pr.c,w:7,m:"pen",p:[]};S.live[cur.id]=cur}
+    var q=pr.p[j];cur.p.push(q[0],q[1]);showCur(q[0],q[1]);redraw();j++;
+    if(j>=pr.p.length){delete S.live[cur.id];S.wb.s.push(cur);cur=null;j=0;k++;if(k>=parts.length)clearInterval(iv)}},28);s.tm.push(iv)}
+function botMove(){var s=S;setTimeout(function(){if(S!==s)return;var g=game(),st=g.st;if(CH.status(st).over||st.t===myColor())return;
+  var L=CH.moves(st),best=null,score=-1e9;
+  L.forEach(function(m){var v=Math.random()*1.5,lp=m.p.toLowerCase(),tf=m.to&7,tr=m.to>>3;if(tf>=2&&tf<=5&&tr>=2&&tr<=5)v+=.9;if(g.hist.length<12&&(lp==="n"||lp==="b")&&(m.f>>3)===0)v+=1.2;if(!m.x&&(lp==="r"||lp==="k")&&!m.ck&&!m.cq)v-=1.5;if(m.ck||m.cq)v+=1.5;if(m.x)v+=VAL[m.x.toLowerCase()]*3;var n=CH.make(st,m),stn=CH.status(n);if(stn.kind==="mate")v+=1000;else if(stn.check)v+=1;
+    if(CH.moves(n).some(function(r){return r.to===m.to}))v-=VAL[m.p.toLowerCase()]*2.5;if(v>score){score=v;best=m}});
+  if(!best)return;S.ch.mv.push(CH.uci(best));renderBoard();renderChessSide()},700)}
 function close(silent){if(!S)return;var s=S;S=null;
   s.offs.forEach(function(f){try{f()}catch(e){}});
   if(s.room){try{s.room.leave()}catch(e){}}
@@ -4165,25 +4187,25 @@ function showTab(p){S.tab=p;var el=document.getElementById("sala");if(!el)return
   el.querySelectorAll(".sala-pane").forEach(function(s){s.classList.toggle("on",s.getAttribute("data-p")===p)});
   var n=el.querySelector('[data-n="'+p+'"]');if(n){n.hidden=true;n.textContent=""}
   if(p==="quadro")sizeCanvas();
-  if(S.room)S.room.presence({uid:UID,tab:p,call:S.call}).catch(noop)}
+  if(S.room)S.room.presence({uid:ME(),tab:p,call:S.call}).catch(noop)}
 function bump(p){if(!S||S.tab===p)return;var n=document.querySelector('#sala [data-n="'+p+'"]');if(!n)return;n.hidden=false;n.textContent=String((+n.textContent||0)+1)}
 
 /* ---------------- tempo real ---------------- */
 function emit(topic,data){if(S&&S.room)S.room.emit(topic,data).catch(noop)}
-function others(){return S?S.peers.filter(function(p){return!p.isMe&&p.by===S.other}):[]}
+function others(){if(S&&S.demo)return[{isMe:false,by:S.other,presence:{tab:S.tab,call:false}}];return S?S.peers.filter(function(p){return!p.isMe&&p.by===S.other}):[]}
 function join(){
   if(!ROOM||!ROOM.join){S.offline=true;renderTop();return}
   var r;try{r=ROOM.join("troca-"+S.id)}catch(e){S.offline=true;renderTop();return}
-  S.room=r;r.presence({uid:UID,tab:S.tab,call:false}).catch(noop);
+  S.room=r;r.presence({uid:ME(),tab:S.tab,call:false}).catch(noop);
   S.offs.push(r.onPeers(function(c){if(!S)return;var before=others().length;S.peers=c.peers||[];
-    if(!S.hello&&S.peers.some(function(p){return p.isMe})){S.hello=true;emit("hi",{u:UID})}
-    var now=others().length;if(now&&!before&&S.hello)toast(t("{n} entrou na sala.",{n:nameOf(S.other)}));
+    if(!S.hello&&S.peers.some(function(p){return p.isMe})){S.hello=true;emit("hi",{u:ME()})}
+    var now=others().length;if(now&&!before&&S.hello)toast(t("{n} entrou na sala.",{n:oname()}));
     renderTop();renderCall();renderChessSide()}));
   [["hi",onHi],["st",onSt],["wb-s",onPart],["wb-e",onEnd],["wb-del",onDel],["wb-clr",onClr],["wb-cur",onCur],["ch-mv",onMv],["ch-new",onNew]].forEach(function(x){S.offs.push(r.on(x[0],function(m){if(!S||!m||m.isMe||!m.data)return;try{x[1](m.data)}catch(e){}}))});
   if(ROOM.presence)ROOM.presence({sala:S.id}).catch(noop)}
-function save(){if(!S)return;clearTimeout(S.svT);var s=S;s.svT=setTimeout(function(){LS("anf.sala."+s.id,{wb:{g:s.wb.g,s:s.wb.s.slice(-600),d:s.wb.d.slice(-600)},ch:s.ch})},400)}
+function save(){if(!S||S.demo)return;clearTimeout(S.svT);var s=S;s.svT=setTimeout(function(){LS("anf.sala."+s.id,{wb:{g:s.wb.g,s:s.wb.s.slice(-600),d:s.wb.d.slice(-600)},ch:s.ch})},400)}
 function sendState(isReply){var s=S.wb.s,chunks=[],i;for(i=0;i<s.length;i+=8)chunks.push(s.slice(i,i+8));if(!chunks.length)chunks.push([]);
-  chunks.forEach(function(c,i){setTimeout(function(){if(S)emit("st",{u:UID,r:isReply?1:0,first:i===0?1:0,wb:{g:S.wb.g,s:c,d:i===0?S.wb.d.slice(-600):[]},ch:i===0?S.ch:null})},i*140)})}
+  chunks.forEach(function(c,i){setTimeout(function(){if(S)emit("st",{u:ME(),r:isReply?1:0,first:i===0?1:0,wb:{g:S.wb.g,s:c,d:i===0?S.wb.d.slice(-600):[]},ch:i===0?S.ch:null})},i*140)})}
 function onHi(d){sendState(false)}
 function onSt(d){
   if(d.wb){var w=d.wb;if(w.g>S.wb.g){S.wb={g:w.g,s:[],d:[]};S.live={}}
@@ -4222,14 +4244,14 @@ function stroke(c,s,k){var p=s.p;if(!p||p.length<2)return;c.save();c.lineCap="ro
 function pt(e){var r=S.cv.getBoundingClientRect();return[Math.round((e.clientX-r.left)/r.width*1000),Math.round((e.clientY-r.top)/r.width*1000)]}
 function pDown(e){if(!S||e.button>0)return;e.preventDefault();try{S.cv.setPointerCapture(e.pointerId)}catch(x){}var q=pt(e);
   if(S.tool==="er"){S.erasing=[];eraseAt(q);return}
-  var s={id:rid(),u:UID,c:S.color,w:S.width,m:S.tool==="hl"?"hl":"pen",p:[q[0],q[1]]};S.drawing=s;S.sent=0;S.wb.s.push(s);redraw();
+  var s={id:rid(),u:ME(),c:S.color,w:S.width,m:S.tool==="hl"?"hl":"pen",p:[q[0],q[1]]};S.drawing=s;S.sent=0;S.wb.s.push(s);redraw();
   S.flushT=setInterval(flushPart,90)}
 function pMove(e){if(!S)return;var q=pt(e);
   if(S.erasing){eraseAt(q);return}
   if(S.drawing){var p=S.drawing.p,lx=p[p.length-2],ly=p[p.length-1];if(Math.abs(q[0]-lx)+Math.abs(q[1]-ly)<2)return;
     p.push(q[0],q[1]);redraw();return}
-  var nw=Date.now();if(!S.curT||nw-S.curT>220){S.curT=nw;emit("wb-cur",{x:q[0],y:q[1],u:UID})}}
-function flushPart(){if(!S||!S.drawing)return;var s=S.drawing;if(s.p.length<=S.sent)return;emit("wb-s",{id:s.id,u:UID,c:s.c,w:s.w,m:s.m,o:S.sent,p:s.p.slice(S.sent)});S.sent=s.p.length}
+  var nw=Date.now();if(!S.curT||nw-S.curT>220){S.curT=nw;emit("wb-cur",{x:q[0],y:q[1],u:ME()})}}
+function flushPart(){if(!S||!S.drawing)return;var s=S.drawing;if(s.p.length<=S.sent)return;emit("wb-s",{id:s.id,u:ME(),c:s.c,w:s.w,m:s.m,o:S.sent,p:s.p.slice(S.sent)});S.sent=s.p.length}
 function pUp(e){if(!S)return;
   if(S.erasing){if(S.erasing.length)emit("wb-del",{ids:S.erasing});S.erasing=undefined;save();return}
   if(!S.drawing)return;clearInterval(S.flushT);var s=S.drawing;S.drawing=null;s.p=simplify(s.p,.9);emit("wb-e",s);redraw();save()}
@@ -4248,16 +4270,16 @@ function onPart(d){var l=S.live[d.id];if(!l){if(S.wb.d.indexOf(d.id)>-1)return;l
   if(d.o>l.p.length)return;l.p=l.p.slice(0,d.o).concat(d.p);showCur(l.p[l.p.length-2],l.p[l.p.length-1]);redraw();bump("quadro")}
 function onEnd(d){delete S.live[d.id];if(!d.id||!Array.isArray(d.p)||S.wb.d.indexOf(d.id)>-1)return;if(!S.wb.s.some(function(x){return x.id===d.id}))S.wb.s.push({id:d.id,u:d.u,c:d.c,w:d.w,m:d.m,p:d.p});redraw();save()}
 function onDel(d){if(Array.isArray(d.ids)){removeIds(d.ids);save()}}
-function onClr(d){if(d.g>S.wb.g){S.wb={g:d.g,s:[],d:[]};S.live={};redraw();save();toast(t("{n} limpou o quadro.",{n:nameOf(S.other)}))}}
+function onClr(d){if(d.g>S.wb.g){S.wb={g:d.g,s:[],d:[]};S.live={};redraw();save();toast(t("{n} limpou o quadro.",{n:oname()}))}}
 function onCur(d){showCur(d.x,d.y)}
 function showCur(x,y){var el=document.getElementById("wb-cur");if(!el||x==null)return;var w=S.cv.clientWidth/1000;el.style.transform="translate("+(x*w)+"px,"+(y*w)+"px)";el.style.opacity="1";
-  el.querySelector("span").textContent=nameOf(S.other);clearTimeout(S.curHide);S.curHide=setTimeout(function(){el.style.opacity="0"},2500)}
+  el.querySelector("span").textContent=oname();clearTimeout(S.curHide);S.curHide=setTimeout(function(){el.style.opacity="0"},2500)}
 function downloadPNG(){try{S.cv.toBlob(function(b){if(!b)return;var u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download="anfitriu-quadro.png";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000)})}catch(e){toast(t("Não foi possível descarregar."))}}
 
 /* ---------------- xadrez ---------------- */
 function game(){var r=CH.replay(S.ch.mv);if(!r){S.ch.mv=[];r=CH.replay([])}return r}
 function whiteUid(){return S.ch.w===S.x.de||S.ch.w===S.x.para?S.ch.w:S.x.de}
-function myColor(){return whiteUid()===UID?"w":"b"}
+function myColor(){return whiteUid()===ME()?"w":"b"}
 function uidOf(col){return col==="w"?whiteUid():(whiteUid()===S.x.de?S.x.para:S.x.de)}
 function glyph(p){return GLYPH[p.toLowerCase()]+"︎"}
 function renderChess(){var el=document.getElementById("sala-ch");if(!el)return;
@@ -4276,7 +4298,7 @@ function renderBoard(){var el=document.getElementById("ch-board");if(!el)return;
 function captured(st){var start={p:8,n:2,b:2,r:2,q:1},cnt={w:{},b:{}};st.b.forEach(function(p){if(!p)return;var c=CH.colorOf(p),k=p.toLowerCase();cnt[c][k]=(cnt[c][k]||0)+1});
   var out={w:[],b:[]},mat={w:0,b:0};["w","b"].forEach(function(c){["q","r","b","n","p"].forEach(function(k){var lost=Math.max(0,start[k]-(cnt[c][k]||0));for(var i=0;i<lost;i++)out[c].push(k);mat[c]+=(cnt[c][k]||0)*VAL[k]})});
   return{lost:out,mat:mat}}
-function renderChessSide(){var el=document.getElementById("ch-side");if(!el||!S)return;var g=game(),st=g.st,stt=CH.status(st),me=myColor(),cap=captured(st),oth=nameOf(S.other),
+function renderChessSide(){var el=document.getElementById("ch-side");if(!el||!S)return;var g=game(),st=g.st,stt=CH.status(st),me=myColor(),cap=captured(st),oth=oname(),
   present=others().length>0,msg,hot=false;
   if(stt.kind==="mate"){msg=stt.winner===me?t("Xeque-mate! Ganhaste."):t("Xeque-mate. Ganhou {n}.",{n:oth});hot=true}
   else if(stt.kind==="stalemate")msg=t("Empate por afogamento.");
@@ -4285,7 +4307,7 @@ function renderChessSide(){var el=document.getElementById("ch-side");if(!el||!S)
   else if(st.t===me){msg=stt.check?t("Estás em xeque! É a tua vez."):t("É a tua vez.");hot=true}
   else msg=t("Vez de {n}.",{n:oth})+(stt.check?" "+t("Está em xeque."):"");
   function pl(col){var u=uidOf(col),lost=cap.lost[col==="w"?"b":"w"],adv=cap.mat[col]-cap.mat[col==="w"?"b":"w"];
-    return'<div class="ch-pl'+(st.t===col&&!stt.over?" turn":"")+'"><span class="g pc '+col+'" style="font-size:1.35rem">'+GLYPH.k+'︎</span><span><b>'+esc(u===UID?t("Tu"):nameOf(u))+'</b> <span class="xs m">· '+esc(t(col==="w"?"brancas":"pretas"))+'</span></span><span class="ch-cap" title="'+esc(t("Peças capturadas"))+'">'+lost.map(function(k){return GLYPH[k]+"︎"}).join("")+(adv>0?' <small>+'+adv+'</small>':'')+'</span></div>'}
+    return'<div class="ch-pl'+(st.t===col&&!stt.over?" turn":"")+'"><span class="g pc '+col+'" style="font-size:1.35rem">'+GLYPH.k+'︎</span><span><b>'+esc(u===ME()?t("Tu"):u===S.other?oname():nameOf(u))+'</b> <span class="xs m">· '+esc(t(col==="w"?"brancas":"pretas"))+'</span></span><span class="ch-cap" title="'+esc(t("Peças capturadas"))+'">'+lost.map(function(k){return GLYPH[k]+"︎"}).join("")+(adv>0?' <small>+'+adv+'</small>':'')+'</span></div>'}
   var rows="";for(var i=0;i<g.hist.length;i+=2)rows+='<span class="i">'+(i/2+1)+'.</span><span>'+esc(g.hist[i].san)+'</span><span>'+(g.hist[i+1]?esc(g.hist[i+1].san):"")+'</span>';
   el.innerHTML='<div class="ch-card">'+pl(me==="w"?"b":"w")+pl(me)+'</div>'+
    '<div class="ch-card"><p class="ch-stat'+(hot?" hot":"")+'" aria-live="polite">'+esc(msg)+'</p>'+(!present&&!S.offline?'<p class="xs m" style="margin:0">'+esc(t("{n} ainda não está na sala. Os lances ficam guardados e sincronizam quando entrar.",{n:oth}))+'</p>':'')+'</div>'+
@@ -4294,41 +4316,41 @@ function renderChessSide(){var el=document.getElementById("ch-side");if(!el||!S)
   var mv=document.getElementById("ch-moves");if(mv)mv.scrollTop=mv.scrollHeight}
 function clickSq(sq){var g=game(),st=g.st,stt=CH.status(st),me=myColor();
   if(stt.over)return;
-  if(st.t!==me){if(st.b[sq]&&CH.colorOf(st.b[sq])===me)toast(t("Espera pela jogada de {n}.",{n:nameOf(S.other)}));return}
+  if(st.t!==me){if(st.b[sq]&&CH.colorOf(st.b[sq])===me)toast(t("Espera pela jogada de {n}.",{n:oname()}));return}
   if(S.sel>-1){var ms=CH.moves(st,S.sel).filter(function(m){return m.to===sq});
     if(ms.length){if(ms.length>1){S.promo={f:S.sel,to:sq};renderBoard();return}doMove(ms[0]);return}}
   var p=st.b[sq];S.sel=p&&CH.colorOf(p)===me&&S.sel!==sq?sq:-1;renderBoard()}
-function doMove(m){var u=CH.uci(m);S.ch.mv.push(u);S.sel=-1;S.promo=null;S.newc=false;emit("ch-mv",{u:u,n:S.ch.mv.length-1,g:S.ch.g});renderBoard();renderChessSide();save()}
-function onMv(d){if(d.g!==S.ch.g){emit("hi",{u:UID});return}
+function doMove(m){var u=CH.uci(m);S.ch.mv.push(u);S.sel=-1;S.promo=null;S.newc=false;emit("ch-mv",{u:u,n:S.ch.mv.length-1,g:S.ch.g});renderBoard();renderChessSide();save();if(S.demo)botMove()}
+function onMv(d){if(d.g!==S.ch.g){emit("hi",{u:ME()});return}
   if(d.n===S.ch.mv.length){var g=game(),m=CH.byUci(g.st,d.u);if(!m||g.st.t===myColor())return;S.ch.mv.push(d.u);S.sel=-1;S.promo=null;renderBoard();renderChessSide();save();bump("xadrez")}
-  else if(!(d.n<S.ch.mv.length&&S.ch.mv[d.n]===d.u))emit("hi",{u:UID})}
+  else if(!(d.n<S.ch.mv.length&&S.ch.mv[d.n]===d.u))emit("hi",{u:ME()})}
 function onNew(d){if(d.g>S.ch.g){S.ch={g:d.g,w:d.w,mv:[]};S.sel=-1;S.promo=null;S.newc=false;renderChess();save();toast(t("Novo jogo de xadrez."));bump("xadrez")}}
-function newGame(swap){var w=whiteUid();if(swap)w=w===S.x.de?S.x.para:S.x.de;S.ch={g:S.ch.g+1,w:w,mv:[]};S.sel=-1;S.promo=null;S.newc=false;emit("ch-new",{g:S.ch.g,w:w});renderChess();save()}
+function newGame(swap){var w=whiteUid();if(swap)w=w===S.x.de?S.x.para:S.x.de;S.ch={g:S.ch.g+1,w:w,mv:[]};S.sel=-1;S.promo=null;S.newc=false;emit("ch-new",{g:S.ch.g,w:w});renderChess();save();if(S.demo)botMove()}
 
 /* ---------------- chamada ---------------- */
 function renderCall(){var el=document.getElementById("sala-call");if(!el||!S)return;
-  var oth=nameOf(S.other),inCall=others().some(function(p){return p.presence&&p.presence.call}),dom=cfg().JITSI_DOMAIN;
+  var oth=oname(),inCall=others().some(function(p){return p.presence&&p.presence.call}),dom=cfg().JITSI_DOMAIN;
   if(S.embed&&el.querySelector("iframe")){var s=el.querySelector("[data-callst]");if(s)s.innerHTML=callSt(inCall,oth);return}
   el.innerHTML='<div class="sala-call">'+(S.embed?'<iframe src="'+esc(callUrl())+'" allow="camera; microphone; display-capture; fullscreen; autoplay; clipboard-write" title="'+esc(t("Chamada de vídeo"))+'"></iframe><div class="st" data-callst>'+callSt(inCall,oth)+'</div><div class="sala-acts"><button class="btn sec s" type="button" data-s="callend">'+esc(t("Sair da chamada"))+'</button></div>':
-   '<div class="art"><div class="faces2">'+ident(UID,54)+ident(S.other,54)+'</div></div><h3>'+esc(t("Chamada de vídeo"))+'</h3><p>'+esc(t("Fala com {n} enquanto usam o quadro e o xadrez. A chamada é feita no Jitsi Meet: gratuita e sem instalar nada.",{n:oth}))+'</p>'+
+   '<div class="art"><div class="faces2">'+ident(ME(),54)+ident(S.other,54)+'</div></div><h3>'+esc(t("Chamada de vídeo"))+'</h3><p>'+esc(t("Fala com {n} enquanto usam o quadro e o xadrez. A chamada é feita no Jitsi Meet: gratuita e sem instalar nada.",{n:oth}))+'</p>'+
    '<div class="st" data-callst>'+callSt(inCall,oth)+'</div><div class="sala-acts"><button class="btn s" type="button" data-s="call">'+icon("cam")+' '+esc(S.call?t("Voltar à chamada"):t("Entrar na chamada"))+'</button><button class="btn sec s" type="button" data-s="copy">'+icon("link")+' '+esc(t("Copiar link"))+'</button></div>'+
    (dom?'':'<p class="xs">'+esc(t("Abre numa janela à parte, para continuares a ver o quadro. Se o Jitsi pedir, quem entra primeiro inicia sessão com Google ou GitHub para abrir a sala."))+'</p>'))+'</div>'}
 function callSt(on,n){return'<span class="sala-dot'+(on?" on":"")+'"></span>'+esc(on?t("{n} está na chamada",{n:n}):t("{n} ainda não está na chamada",{n:n}))}
-function setCall(v){S.call=v;if(S.room)S.room.presence({uid:UID,tab:S.tab,call:v}).catch(noop);renderCall()}
-function startCall(){if(cfg().JITSI_DOMAIN){S.embed=true;setCall(true);return}
+function setCall(v){S.call=v;if(S.room)S.room.presence({uid:ME(),tab:S.tab,call:v}).catch(noop);renderCall()}
+function startCall(){if(S.demo){toast(t("Na demonstração a chamada não abre. Numa troca a sério, abre uma videochamada com a outra pessoa."));return}if(cfg().JITSI_DOMAIN){S.embed=true;setCall(true);return}
   if(S.popup&&!S.popup.closed){try{S.popup.focus()}catch(e){}return}
   var w=Math.min(960,screen.availWidth||960),h=Math.min(720,screen.availHeight||720);
   S.popup=window.open(callUrl(),"anf-call-"+S.id,innerWidth<760?"":"width="+w+",height="+h);
   if(!S.popup){location.href=callUrl();return}
   setCall(true);var s=S,iv=setInterval(function(){if(!s.popup||s.popup.closed){clearInterval(iv);if(S===s)setCall(false)}},2000);s.tm.push(iv)}
-function copyLink(){var u="https://"+(cfg().JITSI_DOMAIN||"meet.jit.si")+"/"+roomName(S.id);
+function copyLink(){if(S.demo){toast(t("Na demonstração não há link de chamada."));return}var u="https://"+(cfg().JITSI_DOMAIN||"meet.jit.si")+"/"+roomName(S.id);
   (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(function(){toast(t("Link da chamada copiado."))}).catch(function(){window.prompt(t("Copia o link:"),u)})}
 
 /* ---------------- topo ---------------- */
-function renderTop(){var w=document.getElementById("sala-with"),fc=document.getElementById("sala-faces");if(!w||!S)return;var oth=nameOf(S.other),on=others(),tab=on.length&&on[0].presence?on[0].presence.tab:null;
-  w.innerHTML=S.offline?'<span class="sala-off">'+esc(t("Sem ligação em tempo real: o quadro e o xadrez funcionam só neste dispositivo."))+'</span>':
+function renderTop(){var w=document.getElementById("sala-with"),fc=document.getElementById("sala-faces");if(!w||!S)return;var oth=oname(),on=others(),tab=on.length&&on[0].presence?on[0].presence.tab:null;
+  w.innerHTML=S.demo?'<span class="sala-off">'+esc(t("Demonstração: experimenta à vontade. Numa troca a sério, a outra pessoa vê tudo ao mesmo tempo."))+'</span>':S.offline?'<span class="sala-off">'+esc(t("Sem ligação em tempo real: o quadro e o xadrez funcionam só neste dispositivo."))+'</span>':
    '<span class="sala-dot'+(on.length?" on":"")+'"></span>'+esc(on.length?(tab==="xadrez"?t("{n} está na sala, no xadrez",{n:oth}):tab==="quadro"?t("{n} está na sala, no quadro",{n:oth}):t("{n} está na sala",{n:oth})):t("À espera de {n}. Vê esta troca na página Skills e trocas.",{n:oth}));
-  fc.innerHTML=ident(UID,30)+(on.length?ident(S.other,30):"")}
+  fc.innerHTML=ident(ME(),30)+(on.length?ident(S.other,30):"")}
 
 /* ---------------- cliques ---------------- */
 function onClick(e){var b=e.target.closest&&e.target.closest("[data-s]");if(!b||!S)return;var a=b.getAttribute("data-s"),v=b.getAttribute("data-v");
@@ -4337,7 +4359,7 @@ function onClick(e){var b=e.target.closest&&e.target.closest("[data-s]");if(!b||
   else if(a==="tool"){S.tool=v;renderTools()}
   else if(a==="color"){S.color=v;if(S.tool==="er")S.tool="pen";renderTools()}
   else if(a==="width"){S.width=+v;if(S.tool==="er")S.tool="pen";renderTools()}
-  else if(a==="undo"){for(var i=S.wb.s.length-1;i>=0;i--)if(S.wb.s[i].u===UID){var id=S.wb.s[i].id;removeIds([id]);emit("wb-del",{ids:[id]});save();break}}
+  else if(a==="undo"){for(var i=S.wb.s.length-1;i>=0;i--)if(S.wb.s[i].u===ME()){var id=S.wb.s[i].id;removeIds([id]);emit("wb-del",{ids:[id]});save();break}}
   else if(a==="clear"){if(!S.clr){S.clr=1;renderTools();setTimeout(function(){if(S&&S.clr){S.clr=0;renderTools()}},3500);return}
     S.clr=0;S.wb={g:S.wb.g+1,s:[],d:[]};S.live={};emit("wb-clr",{g:S.wb.g});redraw();save();renderTools()}
   else if(a==="png")downloadPNG();
@@ -4351,6 +4373,7 @@ function onClick(e){var b=e.target.closest&&e.target.closest("[data-s]");if(!b||
   else if(a==="copy")copyLink()}
 
 /* ---------------- ligação ao resto do site ---------------- */
+ACT.salademo=function(){demo()};
 ACT.sala=function(d){if(!canW(null,true))return;open(d.id)};
 window.salaLive=function(x){if(!ROOM||!ROOM.peers)return false;var o=x.de===UID?x.para:x.de;try{return ROOM.peers().some(function(p){return!p.isMe&&p.by===o&&p.presence&&p.presence.sala===x.id})}catch(e){return false}};
 window.salaBtnHTML=function(x){if(x.estado!=="aceite")return"";var live=salaLive(x);
@@ -4358,8 +4381,8 @@ window.salaBtnHTML=function(x){if(x.estado!=="aceite")return"";var live=salaLive
 /* quando alguém entra ou sai de uma sala, a lista de trocas atualiza */
 (function hook(){if(ROOM&&ROOM.onPeers){var last="";ROOM.onPeers(function(c){var k=(c.peers||[]).map(function(p){return p.by+":"+(p.presence&&p.presence.sala||"")}).sort().join(",");if(k===last)return;last=k;if(V==="skills"&&!DET)render()});return}setTimeout(hook,1500)})();
 /* abrir diretamente com #sala-ID */
-(function deep(n){var m=/^#sala-(.+)$/.exec(location.hash);if(!m)return;if(UID&&MYP&&trocaById(m[1])){open(m[1],true);return}if(n<40)setTimeout(function(){deep(n+1)},750)})(0);
-window.AnfSala={open:open,close:close};
+(function deep(n){var m=/^#sala-(.+)$/.exec(location.hash);if(!m)return;if(m[1]==="demo"){if(n>2)demo();else setTimeout(function(){deep(n+1)},750);return}if(UID&&MYP&&trocaById(m[1])){open(m[1],true);return}if(n<40)setTimeout(function(){deep(n+1)},750)})(0);
+window.AnfSala={open:open,close:close,demo:demo};
 })();
 
 (function(){var X={
@@ -4421,6 +4444,93 @@ window.AnfSala={open:open,close:close};
 "{n} ainda não está na sala. Os lances ficam guardados e sincronizam quando entrar.":["{n} isn't in the room yet. Moves are saved and sync when they join.","{n} aún no está en la sala. Las jugadas se guardan y se sincronizan cuando entre.","{n} ist noch nicht im Raum. Die Züge bleiben gespeichert und werden beim Beitreten abgeglichen.","{n} n'est pas encore dans la salle. Les coups sont gardés et se synchronisent à son arrivée.","{n} non è ancora nella stanza. Le mosse restano salvate e si sincronizzano quando entra."],
 "Tu":["You","Tú","Du","Toi","Tu"]
 };var L=["en","es","de","fr","it"];Object.keys(X).forEach(function(k){L.forEach(function(l,i){if(window.I18N&&I18N[l])I18N[l][k]=X[k][i]})})})();
+
+/* ---------- Trocas de skills em destaque (início e página de entrada) ---------- */
+(function(){
+var css=document.createElement("style");css.textContent=[
+'.tspot{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:1.2rem;align-items:center;background:linear-gradient(135deg,var(--surface),var(--surface2));border:1.5px solid var(--edge);box-shadow:6px 6px 0 var(--c-skills);border-radius:22px;padding:1.3rem 1.4rem;margin:0 0 1.4rem}',
+'@media (max-width:760px){.tspot{grid-template-columns:1fr}.tspot .tsart{order:-1}}',
+'.tspot .lbl{color:var(--c-skills);font-weight:700}',
+'.tspot h3{margin:.25rem 0 .4rem;font:800 clamp(1.25rem,3vw,1.6rem)/1.15 var(--f-disp)}',
+'.tspot p{margin:0 0 .7rem;color:var(--muted);font-size:.93rem;line-height:1.5}',
+'.tsme{display:grid;gap:.35rem;margin:0 0 .9rem;font-size:.9rem}',
+'.tsme .k{display:inline-block;min-width:7.5rem;color:var(--muted)}',
+'.tsme .hot{color:var(--accent);font-weight:700}',
+'.tsart{background:var(--stage);border-radius:18px;padding:.9rem;display:grid;grid-template-columns:1fr 1fr;gap:.55rem;color:var(--stage-ink)}',
+'.tsart .tl{background:var(--stage2);border-radius:12px;padding:.6rem;display:grid;gap:.35rem;font:600 .78rem var(--f-body)}',
+'.tsart .tl.big{grid-row:span 2}',
+'.tsart .tl i{display:block;border-radius:8px}',
+'.tsart .cam{height:46px;background:radial-gradient(circle at 30% 50%,rgba(255,90,60,.7),transparent 60%),radial-gradient(circle at 75% 50%,rgba(255,201,60,.6),transparent 55%),#3A2640}',
+'.tsart .wb{height:100%;min-height:96px;background:#FFFCF7;position:relative;overflow:hidden}',
+'.tsart .wb svg{position:absolute;inset:0;width:100%;height:100%}',
+'.tsart .ch{height:46px;background:conic-gradient(#D9917A 25%,#FBE7D3 0 50%,#D9917A 0 75%,#FBE7D3 0) 0 0/11.5px 11.5px}',
+'.claims li.tnew b::after{content:"novo";margin-left:.4rem;font:700 .62rem var(--f-body);text-transform:uppercase;letter-spacing:.06em;background:var(--acid);color:var(--acid-ink);border-radius:999px;padding:.08rem .4rem;vertical-align:middle}'
+].join("\n");document.head.appendChild(css);
+
+function art(){return'<div class="tsart" aria-hidden="true"><div class="tl"><i class="cam"></i>'+esc(t("Chamada"))+'</div>'+
+  '<div class="tl big"><i class="wb"><svg viewBox="0 0 100 80"><path d="M12 55c10-18 18-18 26-4s16 10 24-8 14-14 26 0" fill="none" stroke="#2B1B2F" stroke-width="3" stroke-linecap="round"/><circle cx="74" cy="22" r="10" fill="none" stroke="#FF5A3C" stroke-width="3"/><path d="M12 68h40" stroke="#FFC93C" stroke-width="7" stroke-linecap="round" opacity=".6"/></svg></i>'+esc(t("Quadro branco"))+'</div>'+
+  '<div class="tl"><i class="ch"></i>'+esc(t("Xadrez a dois"))+'</div></div>'}
+function matches(){var m=MYP;if(!m)return 0;var mo=tags(m.of),mp=tags(m.pr);
+  return Object.keys(P).filter(function(u){if(u===UID||(typeof isBlocked==="function"&&isBlocked(u)))return false;var p=P[u];
+    return tags(p.of).some(function(x){return mp.some(function(y){return same(x,y)})})||tags(p.pr).some(function(x){return mo.some(function(y){return same(x,y)})})}).length}
+window.trocasSpotHTML=function(){var m=MYP||{},of=tags(m.of),pr=tags(m.pr),n=matches(),
+  pend=TROCAS.filter(function(x){return x.para===UID&&x.estado==="pendente"}).length,
+  live=TROCAS.filter(function(x){return(x.de===UID||x.para===UID)&&x.estado==="aceite"}).length,
+  h='<section class="tspot"><div><span class="lbl">'+esc(t("Troca de skills"))+'</span><h3>'+esc(t("Ensina o que sabes. Aprende o que te falta."))+'</h3>'+
+  '<p>'+esc(t("Uma hora tua por uma hora de outra pessoa, sem dinheiro. Quando a troca é aceite, abrem uma sala só vossa com videochamada, quadro branco e xadrez."))+'</p><div class="tsme">';
+  if(!of.length||!pr.length)h+='<span>'+esc(t("Ainda não disseste o que sabes ensinar e o que queres aprender. Sem isso, não te conseguimos sugerir trocas."))+'</span>';
+  else{h+='<span><span class="k">'+esc(t("Ensinas"))+'</span><b>'+of.slice(0,4).map(esc).join(", ")+'</b></span><span><span class="k">'+esc(t("Queres aprender"))+'</span><b>'+pr.slice(0,4).map(esc).join(", ")+'</b></span>'+
+    '<span>'+(n?'<b class="hot">'+esc(t(n===1?"1 pessoa compatível contigo":"{n} pessoas compatíveis contigo",{n:n}))+'</b>':esc(t("Ainda ninguém compatível. Convida colegas: quanto mais gente, mais trocas.")))+'</span>'}
+  if(pend)h+='<span class="hot">'+esc(t(pend===1?"Tens 1 proposta de troca à espera de resposta.":"Tens {n} propostas de troca à espera de resposta.",{n:pend}))+'</span>';
+  if(live)h+='<span>'+esc(t(live===1?"1 troca aceite: a sala está pronta.":"{n} trocas aceites: as salas estão prontas.",{n:live}))+'</span>';
+  h+='</div><div class="row">'+(!of.length||!pr.length?'<button class="btn" type="button" data-a="goto" data-v="espaco" data-t="perfil">'+esc(t("Dizer o que sei e o que quero aprender"))+'</button>':'<button class="btn" type="button" data-a="goto" data-v="skills" data-t="trocas">'+esc(t(pend||live?"Ver as minhas trocas":"Encontrar trocas"))+'</button>')+
+   '<button class="btn sec" type="button" data-a="salademo">'+esc(t("Experimentar a sala"))+'</button></div></div>'+art()+'</section>';
+  return h};
+
+/* início: logo a seguir à pergunta do dia */
+var _inT=RENDER.inicio;
+RENDER.inicio=function(){var h=_inT();if(!DB||!MYP)return h;var s=trocasSpotHTML(),i=h.indexOf('<div class="topmix');return i>-1?h.slice(0,i)+s+h.slice(i):h+s};
+
+/* página de entrada (sem sessão) */
+var _landT=landingHTML;
+landingHTML=function(){var h=_landT(),i=h.indexOf("</ol>");
+  if(i>-1)h=h.slice(0,i)+'<li class="tnew"><span>04</span><div><b>'+esc(t("Troca o que sabes pelo que queres aprender"))+'</b><p class="sm m">'+esc(t("Inglês por Excel, guitarra por estatística. Cada troca tem uma sala com chamada, quadro branco e xadrez."))+'</p></div></li>'+h.slice(i);
+  var j=h.lastIndexOf("</div></section>");
+  if(j>-1)h=h.slice(0,j)+'<div class="panel sample" data-s="'+esc(t("Exemplo"))+'"><span class="lbl">'+esc(t("Troca de skills"))+'</span><h4>'+esc(t("Inglês ⇄ Excel"))+'</h4>'+art()+'<button class="btn sec s" type="button" data-a="salademo" style="justify-self:start">'+esc(t("Experimentar a sala"))+'</button></div>'+h.slice(j);
+  return h};
+
+var X={
+"Troca de skills":["Skill swap","Intercambio de habilidades","Skill-Tausch","Échange de compétences","Scambio di competenze"],
+"Ensina o que sabes. Aprende o que te falta.":["Teach what you know. Learn what you're missing.","Enseña lo que sabes. Aprende lo que te falta.","Lehre, was du kannst. Lerne, was dir fehlt.","Enseigne ce que tu sais. Apprends ce qui te manque.","Insegna ciò che sai. Impara ciò che ti manca."],
+"Uma hora tua por uma hora de outra pessoa, sem dinheiro. Quando a troca é aceite, abrem uma sala só vossa com videochamada, quadro branco e xadrez.":["One hour of yours for one hour of someone else's, no money involved. Once a swap is accepted, you get a private room with video call, whiteboard and chess.","Una hora tuya por una hora de otra persona, sin dinero. Cuando se acepta el intercambio, tenéis una sala propia con videollamada, pizarra y ajedrez.","Eine Stunde von dir gegen eine Stunde von jemand anderem, ohne Geld. Nach dem Annehmen bekommt ihr einen eigenen Raum mit Videoanruf, Whiteboard und Schach.","Une heure de toi contre une heure de quelqu'un d'autre, sans argent. Une fois l'échange accepté, vous avez une salle à vous avec appel vidéo, tableau et échecs.","Un'ora tua per un'ora di un'altra persona, senza soldi. Quando lo scambio è accettato, avete una stanza tutta vostra con videochiamata, lavagna e scacchi."],
+"Ainda não disseste o que sabes ensinar e o que queres aprender. Sem isso, não te conseguimos sugerir trocas.":["You haven't said what you can teach and what you want to learn yet. Without that, we can't suggest swaps.","Aún no has dicho qué sabes enseñar y qué quieres aprender. Sin eso no podemos sugerirte intercambios.","Du hast noch nicht angegeben, was du lehren kannst und lernen willst. Ohne das können wir keine Tausche vorschlagen.","Tu n'as pas encore dit ce que tu sais enseigner et ce que tu veux apprendre. Sans ça, on ne peut pas te proposer d'échanges.","Non hai ancora detto cosa sai insegnare e cosa vuoi imparare. Senza questo non possiamo suggerirti scambi."],
+"Ensinas":["You teach","Enseñas","Du lehrst","Tu enseignes","Insegni"],
+"Queres aprender":["You want to learn","Quieres aprender","Du willst lernen","Tu veux apprendre","Vuoi imparare"],
+"1 pessoa compatível contigo":["1 person matches you","1 persona compatible contigo","1 Person passt zu dir","1 personne compatible avec toi","1 persona compatibile con te"],
+"{n} pessoas compatíveis contigo":["{n} people match you","{n} personas compatibles contigo","{n} Personen passen zu dir","{n} personnes compatibles avec toi","{n} persone compatibili con te"],
+"Ainda ninguém compatível. Convida colegas: quanto mais gente, mais trocas.":["No matches yet. Invite classmates: more people, more swaps.","Aún nadie compatible. Invita a compañeros: más gente, más intercambios.","Noch niemand passt. Lade Kommiliton:innen ein: mehr Leute, mehr Tausche.","Personne de compatible pour l'instant. Invite des camarades : plus de monde, plus d'échanges.","Ancora nessuno compatibile. Invita i compagni: più gente, più scambi."],
+"Tens 1 proposta de troca à espera de resposta.":["You have 1 swap proposal waiting for a reply.","Tienes 1 propuesta esperando respuesta.","Du hast 1 Tauschvorschlag, der auf Antwort wartet.","Tu as 1 proposition d'échange en attente.","Hai 1 proposta di scambio in attesa."],
+"Tens {n} propostas de troca à espera de resposta.":["You have {n} swap proposals waiting for a reply.","Tienes {n} propuestas esperando respuesta.","Du hast {n} Tauschvorschläge, die auf Antwort warten.","Tu as {n} propositions d'échange en attente.","Hai {n} proposte di scambio in attesa."],
+"1 troca aceite: a sala está pronta.":["1 accepted swap: the room is ready.","1 intercambio aceptado: la sala está lista.","1 angenommener Tausch: der Raum ist bereit.","1 échange accepté : la salle est prête.","1 scambio accettato: la stanza è pronta."],
+"{n} trocas aceites: as salas estão prontas.":["{n} accepted swaps: the rooms are ready.","{n} intercambios aceptados: las salas están listas.","{n} angenommene Tausche: die Räume sind bereit.","{n} échanges acceptés : les salles sont prêtes.","{n} scambi accettati: le stanze sono pronte."],
+"Dizer o que sei e o que quero aprender":["Say what I know and want to learn","Decir qué sé y qué quiero aprender","Angeben, was ich kann und lernen will","Dire ce que je sais et veux apprendre","Dire cosa so e cosa voglio imparare"],
+"Ver as minhas trocas":["See my swaps","Ver mis intercambios","Meine Tausche ansehen","Voir mes échanges","Vedi i miei scambi"],
+"Encontrar trocas":["Find swaps","Encontrar intercambios","Tausche finden","Trouver des échanges","Trova scambi"],
+"Experimentar a sala":["Try the room","Probar la sala","Raum ausprobieren","Essayer la salle","Prova la stanza"],
+"Chamada":["Call","Llamada","Anruf","Appel","Chiamata"],
+"Quadro branco":["Whiteboard","Pizarra","Whiteboard","Tableau blanc","Lavagna"],
+"Xadrez a dois":["Chess for two","Ajedrez a dos","Schach zu zweit","Échecs à deux","Scacchi in due"],
+"Troca o que sabes pelo que queres aprender":["Swap what you know for what you want to learn","Cambia lo que sabes por lo que quieres aprender","Tausche, was du kannst, gegen das, was du lernen willst","Échange ce que tu sais contre ce que tu veux apprendre","Scambia ciò che sai con ciò che vuoi imparare"],
+"Inglês por Excel, guitarra por estatística. Cada troca tem uma sala com chamada, quadro branco e xadrez.":["English for Excel, guitar for statistics. Every swap gets a room with a call, whiteboard and chess.","Inglés por Excel, guitarra por estadística. Cada intercambio tiene una sala con llamada, pizarra y ajedrez.","Englisch gegen Excel, Gitarre gegen Statistik. Jeder Tausch hat einen Raum mit Anruf, Whiteboard und Schach.","Anglais contre Excel, guitare contre statistiques. Chaque échange a une salle avec appel, tableau et échecs.","Inglese per Excel, chitarra per statistica. Ogni scambio ha una stanza con chiamata, lavagna e scacchi."],
+"Inglês ⇄ Excel":["English ⇄ Excel","Inglés ⇄ Excel","Englisch ⇄ Excel","Anglais ⇄ Excel","Inglese ⇄ Excel"],
+"Colega de demonstração":["Demo classmate","Compañero de prueba","Demo-Kommiliton:in","Camarade de démo","Compagno demo"],
+"O que sabes":["What you know","Lo que sabes","Was du kannst","Ce que tu sais","Ciò che sai"],
+"O que queres aprender":["What you want to learn","Lo que quieres aprender","Was du lernen willst","Ce que tu veux apprendre","Ciò che vuoi imparare"],
+"Demonstração: experimenta à vontade. Numa troca a sério, a outra pessoa vê tudo ao mesmo tempo.":["Demo: try anything. In a real swap, the other person sees everything live.","Demostración: prueba lo que quieras. En un intercambio real, la otra persona lo ve todo a la vez.","Demo: probier alles aus. Bei einem echten Tausch sieht die andere Person alles live.","Démo : essaie librement. Dans un vrai échange, l'autre personne voit tout en direct.","Demo: prova liberamente. In uno scambio vero, l'altra persona vede tutto in diretta."],
+"Na demonstração a chamada não abre. Numa troca a sério, abre uma videochamada com a outra pessoa.":["The call doesn't open in the demo. In a real swap it opens a video call with the other person.","En la demostración la llamada no se abre. En un intercambio real, abre una videollamada con la otra persona.","In der Demo öffnet sich kein Anruf. Bei einem echten Tausch startet ein Videoanruf mit der anderen Person.","Dans la démo, l'appel ne s'ouvre pas. Dans un vrai échange, il lance un appel vidéo avec l'autre personne.","Nella demo la chiamata non si apre. In uno scambio vero, apre una videochiamata con l'altra persona."],
+"Na demonstração não há link de chamada.":["There's no call link in the demo.","En la demostración no hay enlace de llamada.","In der Demo gibt es keinen Anruf-Link.","Pas de lien d'appel dans la démo.","Nella demo non c'è un link di chiamata."]
+};var L=["en","es","de","fr","it"];Object.keys(X).forEach(function(k){L.forEach(function(l,i){if(window.I18N&&I18N[l])I18N[l][k]=X[k][i]})});
+})();
 </script>
 </body>
 </html>
