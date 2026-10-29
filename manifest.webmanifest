@@ -1,16 +1,31 @@
 {
-  "name": "Anfitriu",
-  "short_name": "Anfitriu",
-  "description": "A rede dos estudantes do ensino superior em Portugal: cursos, mestrados, opiniões, skills e oportunidades.",
+  "name": "Stellamus",
+  "short_name": "Stellamus",
+  "description": "A rede dos estudantes do ensino superior em Portugal: cursos, skills, comunidade e atividades.",
   "lang": "pt-PT",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#FFF6EC",
-  "theme_color": "#2B1B2F",
+  "background_color": "#0E1326",
+  "theme_color": "#0E1326",
   "icons": [
-    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
-    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
