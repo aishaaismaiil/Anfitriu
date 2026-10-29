@@ -1,7 +1,8 @@
 {
   "name": "Stellamus",
   "short_name": "Stellamus",
-  "description": "A rede dos estudantes do ensino superior em Portugal: cursos, skills, comunidade e atividades.",
+  "id": "./",
+  "description": "A rede que junta estudantes, ex-estudantes e jovens de todo o país: skills, hobbies, eventos, clubes e comunidade.",
   "lang": "pt-PT",
   "start_url": "./",
   "scope": "./",

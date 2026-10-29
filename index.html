@@ -87,7 +87,7 @@ p{margin:0}
 .top{display:none}
 .mainwrap{min-width:0;padding-block:1.5rem 3rem;padding-left:clamp(16px,3vw,2.5rem);padding-right:max(16px,env(safe-area-inset-right,0px))}
 main{max-width:1060px;display:grid;gap:1.75rem}
-@media (max-width:900px){
+@media (max-width:820px){
   .app{grid-template-columns:minmax(0,1fr)}
   .rail{display:none}
   .top{display:grid;gap:.5rem;position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:var(--surface);border-bottom:1px solid var(--line);padding-block:.6rem .4rem;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -288,7 +288,7 @@ tbody tr:last-child td,tbody tr:last-child th{border-bottom:0}
 .ped{display:grid;grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:1.5rem;align-items:start}
 @media (max-width:820px){.ped{grid-template-columns:minmax(0,1fr)}}
 .avstage{background:var(--stage);border-radius:var(--r);padding:1rem;display:grid;justify-items:center;gap:.6rem;position:sticky;top:1rem}
-@media (max-width:900px){.avstage{position:static}}
+@media (max-width:820px){.avstage{position:static}}
 .avstage .lbl{color:var(--stage-muted)}
 .opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:.45rem}
 .opt{position:relative;border:1px solid var(--line2);border-radius:var(--r);background:var(--surface2);padding:3px;cursor:pointer;aspect-ratio:1;max-width:100%}
@@ -317,7 +317,7 @@ tbody tr:last-child td,tbody tr:last-child th{border-bottom:0}
 
 /* ---------- início ---------- */
 .hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:2rem;align-items:center;padding-block:.5rem 1rem}
-@media (max-width:900px){.hero{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:820px){.hero{grid-template-columns:minmax(0,1fr)}}
 .claims{display:grid;gap:0;list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
 .claims li{display:grid;grid-template-columns:2.2rem minmax(0,1fr);gap:.6rem;padding:.75rem 0;border-bottom:1px solid var(--line)}
 .claims li span{font:500 .75rem var(--f-mono);color:var(--accent);padding-top:.2rem}
@@ -527,7 +527,7 @@ main[data-v="sinais"]{--sec:var(--c-sinais)} main[data-v="diario"]{--sec:var(--c
 .guide{border-style:dashed}
 .orbitwrap{display:grid;justify-items:center;gap:.3rem}
 .tourmix{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:1.2rem;align-items:start}
-@media (max-width:900px){.tourmix{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:820px){.tourmix{grid-template-columns:minmax(0,1fr)}}
 .tourmix h2{margin:0}
 .pillars.col{grid-template-columns:minmax(0,1fr)}
 .pillar.row1{display:flex;align-items:center;gap:.9rem;padding:.85rem 1rem}
@@ -628,7 +628,7 @@ h1,h2,h3,.logo b{letter-spacing:-.01em}
 .anf-legend .dot.live{background:#2BD48A}.anf-legend .dot.front{background:var(--accent)}
 /* todos os dias */
 .anf-daily{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.6fr) minmax(0,1.1fr);gap:.8rem}
-@media (max-width:900px){.anf-daily{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:820px){.anf-daily{grid-template-columns:minmax(0,1fr)}}
 .anf-tile{background:var(--surface);border:1.5px solid var(--edge);border-radius:18px;padding:.8rem .9rem;display:flex;gap:.7rem;align-items:center;box-shadow:3px 3px 0 var(--edge)}
 .anf-tile.q{flex-direction:column;align-items:flex-start;gap:.4rem;background:linear-gradient(135deg,var(--accent-soft),var(--surface))}
 .anf-tile.streak{background:linear-gradient(135deg,#FFF1C9,var(--surface))}
@@ -4582,7 +4582,7 @@ EDGE+'{border-color:rgba(255,255,255,.12)!important}',
 '.tspot{box-shadow:0 14px 34px -22px rgba(0,0,0,.65)!important}',
 '#toast{background:#F4F1FF;color:#0E1326}',
 /* estrutura */
-'@media (min-width:901px){.app{grid-template-columns:268px minmax(0,1fr)}body.anf-mini .app{grid-template-columns:76px minmax(0,1fr)}}',
+'@media (min-width:821px){.app{grid-template-columns:268px minmax(0,1fr)}body.anf-mini .app{grid-template-columns:76px minmax(0,1fr)}}',
 '.rail{background:rgba(14,19,38,.55);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-right:1px solid rgba(255,255,255,.08)!important;padding:1.3rem .85rem 1rem 1rem;gap:1.1rem}',
 '.anav{display:grid;gap:4px}',
 '.agh,.aone{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:.7rem;width:100%;padding:.5rem .55rem;border-radius:14px;font:700 .95rem/1.15 var(--f-body);color:var(--ink);min-height:44px}',
@@ -4613,7 +4613,7 @@ EDGE+'{border-color:rgba(255,255,255,.12)!important}',
 '.anfbar .meb .av,.anfbar .meb .av-pair{flex:none}',
 /* telemóvel */
 '.anftabs,.anfsheet{display:none}',
-'@media (max-width:900px){',
+'@media (max-width:820px){',
 ' .top{background:rgba(14,19,38,.78)!important;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08)!important;padding-block:.45rem!important}',
 ' .top .topnav{display:none!important}',
 ' .top .row1{gap:.25rem!important}',
@@ -4659,7 +4659,7 @@ EDGE+'{border-color:rgba(255,255,255,.12)!important}',
 '.tlx{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap}',
 '.tlx h2{margin:0;font:800 1.45rem var(--f-disp);letter-spacing:-.01em}',
 '@media (max-width:1100px){.hx{grid-template-columns:minmax(0,1fr)}.hx-r{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}}',
-'@media (max-width:900px){.tlg{grid-template-columns:repeat(2,minmax(0,1fr))}.tl.w2{grid-column:span 2}}',
+'@media (max-width:820px){.tlg{grid-template-columns:repeat(2,minmax(0,1fr))}.tl.w2{grid-column:span 2}}',
 '@media (max-width:600px){.tlg{margin-top:-10px}.hx-r,.tlg{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.hx-r>.tl,.tlg .tl{min-height:94px;padding:8px 9px;gap:4px;border-radius:16px}.tl .swL,.tl .swR{top:2px!important;width:24px!important;height:24px!important}.tl .okp{top:3px!important;font-size:.6rem!important;padding:3px 7px!important}.tl .soft2{font-size:.55rem;padding:3px 0!important}.tl .vz{overflow:hidden}.tl .avbig{width:28px!important;height:28px!important}.tl.w2{grid-column:auto}.tl p{display:none}.tl .th{flex-direction:column;align-items:flex-start;gap:5px}.tl .th b{font-size:.74rem;line-height:1.2}.tl .ti{width:26px;height:26px;border-radius:8px}.tl .ti svg{width:14px;height:14px}.tl .vz{position:relative;min-height:40px;max-height:none;overflow:hidden}.tl .vz>*{zoom:.66}.hx-r>.tl,.tlg .tl{min-height:108px}.tl .hide-s{display:none!important}.hx{gap:8px}}',
 /* animações (param quando a página está escondida) */
 '@keyframes swapL{0%,15%{left:10px}40%,60%{left:calc(100% - 46px)}85%,100%{left:10px}}@keyframes swapR{0%,15%{right:10px}40%,60%{right:calc(100% - 46px)}85%,100%{right:10px}}',
@@ -4755,7 +4755,7 @@ document.addEventListener("click",function(e){
     var cur=OPENG===null?groupOf(V):OPENG;OPENG=cur===k?"":k;drawChrome();return}
   var mb=e.target.closest&&e.target.closest("[data-anfmini]");if(mb){document.body.classList.toggle("anf-mini");lsx("anf.mini",document.body.classList.contains("anf-mini")?"1":"0");drawChrome();return}
   var tb=e.target.closest&&e.target.closest("[data-anftab]");if(tb){var k2=tb.getAttribute("data-anftab");if(k2==="inicio"){SHEET=null;go("inicio");return}SHEET=SHEET===k2?null:k2;drawChrome();return}
-  var me2=e.target.closest&&e.target.closest("[data-anfme]");if(me2){e.preventDefault();e.stopPropagation();if(window.matchMedia("(max-width:900px)").matches){SHEET=SHEET==="me"?null:"me";drawChrome()}else{OPENG="me";go("espaco")}return}
+  var me2=e.target.closest&&e.target.closest("[data-anfme]");if(me2){e.preventDefault();e.stopPropagation();if(window.matchMedia("(max-width:820px)").matches){SHEET=SHEET==="me"?null:"me";drawChrome()}else{OPENG="me";go("espaco")}return}
   var sh=document.getElementById("anfsheet");if(sh&&SHEET){if(e.target===sh){SHEET=null;drawChrome();return}if(e.target.closest(".si")){SHEET=null;setTimeout(drawChrome,0)}}
 },true);
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&SHEET){SHEET=null;drawChrome()}});
@@ -5004,7 +5004,7 @@ S(CARDS.split(",").map(function(c){return c+" .fld"}).join(","))+'{background:rg
 'html.anf-lite .rail,html.anf-lite .top{background:rgba(14,19,38,.96)!important}',
 'html.anf-lite .mainwrap .bigsearch input,html.anf-lite .mainwrap .bigsearch .fld{color:#F4F1FF!important;background:transparent!important}html.anf-lite .mainwrap .bigsearch input::placeholder{color:rgba(244,241,255,.6)!important}',
 S(CARDS.split(",").map(function(c){return c+" .fld::placeholder"}).join(","))+'{color:rgba(244,241,255,.5)}',
-'@media (min-width:901px){html.anf-lite .anfbar button{background:rgba(255,255,255,.08)!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#F4F1FF!important;border-color:rgba(255,255,255,.14)!important}}',
+'@media (min-width:821px){html.anf-lite .anfbar button{background:rgba(255,255,255,.08)!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#F4F1FF!important;border-color:rgba(255,255,255,.14)!important}}',
 'html.anf-lite .mainwrap .olist .olist,html.anf-lite .mainwrap .panel .panel{background-image:none!important;background-color:rgba(255,255,255,.04)!important;box-shadow:none!important}'
 ].join("\n");
 var el=document.createElement("style");el.textContent=css;document.head.appendChild(el);
@@ -5122,7 +5122,7 @@ var css=document.createElement("style");css.textContent=[
 '.ax-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}',
 '.ax-try{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}',
 '.ax-det{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(260px,1fr);gap:20px;align-items:start}',
-'@media (max-width:900px){.ax-det{grid-template-columns:minmax(0,1fr)}}',
+'@media (max-width:820px){.ax-det{grid-template-columns:minmax(0,1fr)}}',
 '.ax-hero{height:240px;border-radius:22px}',
 '.ax-dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0;font-size:.9rem}.ax-dl dt{color:var(--muted)}.ax-dl dd{margin:0;font-weight:600}',
 '.ax-st{display:inline-block;padding:3px 10px;border-radius:999px;font:700 .72rem var(--f-body)}',
@@ -5795,7 +5795,7 @@ try{document.querySelector('meta[name="description"]').setAttribute("content","S
 var css=[
 /* ocupar o ecrã todo no computador */
 '.app{max-width:none!important}',
-'@media (min-width:901px){main{max-width:1500px!important}}',
+'@media (min-width:821px){main{max-width:1500px!important}}',
 /* interruptor do tema, bem visível */
 '.thseg{display:inline-flex;align-items:center;padding:3px;gap:2px;border-radius:999px;border:1px solid rgba(227,207,158,.45);background:rgba(14,19,38,.55);margin-right:.4rem}',
 '.anfbar .thseg button,.thseg button{display:inline-flex!important;align-items:center;justify-content:center;gap:.4rem;width:auto!important;min-width:0!important;height:34px!important;padding:0 .85rem!important;border:0!important;border-radius:999px!important;background:transparent;color:#B8B4CE;font:600 .82rem var(--f-body,inherit);cursor:pointer;box-shadow:none!important;white-space:nowrap}',
@@ -5811,7 +5811,7 @@ var css=[
 /* telemóvel: botão do tema com contorno dourado */
 '#anf-theme{border:1px solid rgba(227,207,158,.55)!important;color:#E3CF9E!important;border-radius:999px!important}',
 'html.anf-light #anf-theme{border-color:rgba(122,99,39,.55)!important;color:#7A6327!important}',
-'@media (max-width:900px){.top .row1{min-width:0;max-width:100%}.top .row1 .logo{min-width:0;overflow:hidden;flex:0 1 auto}.top .row1 .logo b{letter-spacing:.07em!important;font-size:.9rem!important}.top .row1 .logo{gap:.35rem!important}.top .logo .smk{width:30px!important;height:30px!important;margin:0!important}.top .row1 .anfic{flex:0 0 auto;gap:.15rem!important}.top .row1 .logo b{letter-spacing:.05em!important}}',
+'@media (max-width:820px){.top .row1{min-width:0;max-width:100%}.top .row1 .logo{min-width:0;overflow:hidden;flex:0 1 auto}.top .row1 .logo b{letter-spacing:.07em!important;font-size:.9rem!important}.top .row1 .logo{gap:.35rem!important}.top .logo .smk{width:30px!important;height:30px!important;margin:0!important}.top .row1 .anfic{flex:0 0 auto;gap:.15rem!important}.top .row1 .logo b{letter-spacing:.05em!important}}',
 /* para quem é */
 '@media (max-width:379px){.top .row1 .logo b{display:none!important}}',
 '.anfaud{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin:.9rem 0 .2rem}',
@@ -5883,6 +5883,174 @@ var tm=null;function schedule(){clearTimeout(tm);tm=setTimeout(function(){placeA
 new MutationObserver(function(ms){for(var i=0;i<ms.length;i++){if(ms[i].addedNodes.length){placeSeg();schedule();return}}}).observe(document.body,{childList:true,subtree:true});
 window.addEventListener("resize",schedule);
 placeSeg();schedule();
+})();
+</script>
+<script>
+/* Stellamus — convite para instalar a app e pergunta das notificações (29 out 2026) */
+(function(){
+var LI={pt:0,en:1,es:2,de:3,fr:4,it:5};
+var TX={
+ "Instala a app Stellamus":["Instala a app Stellamus","Install the Stellamus app","Instala la app de Stellamus","Installiere die Stellamus-App","Installe l'app Stellamus","Installa l'app Stellamus"],
+ "Abre num toque a partir do ecrã principal, como qualquer outra app. É grátis e quase não ocupa espaço.":["Abre num toque a partir do ecrã principal, como qualquer outra app. É grátis e quase não ocupa espaço.","Open it in one tap from your home screen, like any other app. It's free and takes up almost no space.","Ábrela con un toque desde la pantalla de inicio, como cualquier otra app. Es gratis y casi no ocupa espacio.","Öffne sie mit einem Tipp vom Startbildschirm, wie jede andere App. Kostenlos und braucht kaum Platz.","Ouvre-la d'un geste depuis l'écran d'accueil, comme n'importe quelle app. C'est gratuit et ça ne prend presque pas de place.","Aprila con un tocco dalla schermata home, come qualsiasi altra app. È gratis e non occupa quasi spazio."],
+ "Instalar":["Instalar","Install","Instalar","Installieren","Installer","Installa"],
+ "Agora não":["Agora não","Not now","Ahora no","Jetzt nicht","Pas maintenant","Non ora"],
+ "Queres receber notificações?":["Queres receber notificações?","Want to get notifications?","¿Quieres recibir notificaciones?","Möchtest du Benachrichtigungen erhalten?","Tu veux recevoir des notifications ?","Vuoi ricevere notifiche?"],
+ "Avisamos-te quando alguém te manda mensagem, te junta à constelação ou responde ao que publicaste. Podes desligar quando quiseres.":["Avisamos-te quando alguém te manda mensagem, te junta à constelação ou responde ao que publicaste. Podes desligar quando quiseres.","We'll let you know when someone messages you, adds you to their constellation or replies to your posts. You can turn it off anytime.","Te avisamos cuando alguien te escriba, te añada a su constelación o responda a lo que publicaste. Puedes desactivarlo cuando quieras.","Wir sagen dir Bescheid, wenn dir jemand schreibt, dich zu seinem Sternbild hinzufügt oder auf deine Beiträge antwortet. Du kannst es jederzeit abschalten.","On te prévient quand quelqu'un t'écrit, t'ajoute à sa constellation ou répond à tes publications. Tu peux désactiver quand tu veux.","Ti avvisiamo quando qualcuno ti scrive, ti aggiunge alla sua costellazione o risponde ai tuoi post. Puoi disattivarle quando vuoi."],
+ "Ativar notificações":["Ativar notificações","Turn on notifications","Activar notificaciones","Benachrichtigungen aktivieren","Activer les notifications","Attiva le notifiche"],
+ "Notificações ligadas. Vais saber quando alguém te procurar.":["Notificações ligadas. Vais saber quando alguém te procurar.","Notifications on. You'll know when someone reaches out.","Notificaciones activadas. Sabrás cuando alguien te busque.","Benachrichtigungen an. Du erfährst, wenn sich jemand meldet.","Notifications activées. Tu sauras quand quelqu'un te contacte.","Notifiche attive. Saprai quando qualcuno ti cerca."],
+ "Sem problema. Podes ligá-las mais tarde nas definições do navegador.":["Sem problema. Podes ligá-las mais tarde nas definições do navegador.","No problem. You can turn them on later in your browser settings.","Sin problema. Puedes activarlas más tarde en los ajustes del navegador.","Kein Problem. Du kannst sie später in den Browser-Einstellungen einschalten.","Pas de souci. Tu pourras les activer plus tard dans les réglages du navigateur.","Nessun problema. Puoi attivarle più tardi nelle impostazioni del browser."],
+ "Fechar":["Fechar","Close","Cerrar","Schließen","Fermer","Chiudi"],
+ "Novidades no Stellamus":["Novidades no Stellamus","New on Stellamus","Novedades en Stellamus","Neues auf Stellamus","Du nouveau sur Stellamus","Novità su Stellamus"]
+};
+function tx(k){var o=TX[k];if(!o)return t(k);var i=LI[L];return o[i==null?0:i]}
+function get(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function set(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+var WAIT=14*864e5;
+function due(k){var v=+get(k)||0;return v!==-1&&Date.now()-v>WAIT}
+
+var css=[
+'.anfask{position:fixed;right:20px;bottom:20px;z-index:80;width:min(380px,calc(100vw - 24px));padding:18px 18px 16px;border-radius:18px;background:#161C34;color:#F4F1FF;border:1px solid rgba(227,207,158,.4);box-shadow:0 24px 60px -20px rgba(0,0,0,.6);display:grid;grid-template-columns:44px 1fr;gap:4px 12px;animation:anfaskin .35s ease-out}',
+'@keyframes anfaskin{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}',
+'@media (prefers-reduced-motion:reduce){.anfask{animation:none}}',
+'@media (max-width:820px){.anfask{left:12px;right:12px;width:auto;bottom:calc(86px + env(safe-area-inset-bottom,0px))}}',
+'.anfask .ic{grid-row:1/3;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(227,207,158,.14);color:#E3CF9E}',
+'.anfask h3{margin:2px 0 0;font-size:1rem;line-height:1.3;color:#F4F1FF}',
+'.anfask p{margin:0;font-size:.88rem;line-height:1.5;color:#C9C5DE}',
+'.anfask .acts{grid-column:1/3;display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}',
+'.anfask .acts button{height:40px;padding:0 16px;border-radius:999px;font:600 .88rem var(--f-body,inherit);cursor:pointer;border:1px solid rgba(255,255,255,.18);background:transparent;color:#F4F1FF}',
+'.anfask .acts .go{background:#E3CF9E;border-color:#E3CF9E;color:#0E1326}',
+'.anfask .acts button:focus-visible,.anfask .x:focus-visible{outline:3px solid #6EE7F9;outline-offset:2px}',
+'.anfask .x{position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:50%;border:0;background:transparent;color:#B8B4CE;font-size:20px;line-height:1;cursor:pointer}',
+'html.anf-light .anfask{background:#fff;color:#1C1A33;border-color:rgba(122,99,39,.35);box-shadow:0 24px 60px -24px rgba(28,26,51,.35)}',
+'html.anf-light .anfask h3{color:#1C1A33}html.anf-light .anfask p{color:#55536E}',
+'html.anf-light .anfask .ic{background:rgba(122,99,39,.1);color:#7A6327}',
+'html.anf-light .anfask .acts button{color:#1C1A33;border-color:rgba(28,26,51,.2)}',
+'html.anf-light .anfask .acts .go{background:#7A6327;border-color:#7A6327;color:#fff}',
+'html.anf-light .anfask .x{color:#55536E}'
+].join("\n");
+var st=document.createElement("style");st.textContent=css;document.head.appendChild(st);
+
+var PHONE='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18.5h2"/><path d="M12 7v6m-2.5-2.5L12 13l2.5-2.5"/></svg>';
+var BELL='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10.3 20a1.9 1.9 0 0 0 3.4 0"/></svg>';
+
+var open=null;
+function close(){if(open){open.remove();open=null}}
+function card(kind,ic,title,text,goLabel,goAttr,onGo,onNo){
+  close();var d=document.createElement("div");d.className="anfask";d.setAttribute("role","dialog");d.setAttribute("aria-live","polite");d.setAttribute("aria-label",title);
+  d.innerHTML='<div class="ic">'+ic+'</div><h3>'+esc(title)+'</h3><p>'+esc(text)+'</p><div class="acts"><button type="button" data-ask="no">'+esc(tx("Agora não"))+'</button><button type="button" class="go" data-ask="go" '+(goAttr||"")+'>'+esc(goLabel)+'</button></div><button type="button" class="x" data-ask="no" aria-label="'+esc(tx("Fechar"))+'">×</button>';
+  d.addEventListener("click",function(e){var b=e.target.closest("[data-ask]");if(!b)return;var k=b.getAttribute("data-ask");var me=d;if(k==="go")onGo();else onNo();setTimeout(function(){if(open===me)close()},0)});
+  document.body.appendChild(d);open=d}
+
+function canInstall(){try{return !(window.PWA&&PWA.standalone)}catch(e){return true}}
+function canNotif(){return("Notification" in window)&&Notification.permission==="default"&&!!window.UID}
+function askNotif(){if(!canNotif()||!due("anf.notifAsk"))return;
+  card("notif",BELL,tx("Queres receber notificações?"),tx("Avisamos-te quando alguém te manda mensagem, te junta à constelação ou responde ao que publicaste. Podes desligar quando quiseres."),tx("Ativar notificações"),"",
+   function(){set("anf.notifAsk","-1");try{var r=Notification.requestPermission(function(p){done(p)});if(r&&r.then)r.then(done)}catch(e){}},
+   function(){set("anf.notifAsk",String(Date.now()))})}
+var told=false;function done(p){if(told)return;told=true;if(p==="granted"){toast(tx("Notificações ligadas. Vais saber quando alguém te procurar."));LAST=Date.now();pushSub(true)}else toast(tx("Sem problema. Podes ligá-las mais tarde nas definições do navegador."))}
+function askInstall(){
+  if(canInstall()&&due("anf.installAsk")){
+    card("install",PHONE,tx("Instala a app Stellamus"),tx("Abre num toque a partir do ecrã principal, como qualquer outra app. É grátis e quase não ocupa espaço."),tx("Instalar"),'data-pwa="install"',
+     function(){set("anf.installAsk",String(Date.now()));setTimeout(askNotif,1500)},
+     function(){set("anf.installAsk",String(Date.now()));setTimeout(askNotif,1200)})}
+  else askNotif()}
+/* espera que a pessoa veja a página primeiro; se ainda não entrou, volta a tentar depois de entrar */
+setTimeout(askInstall,3500);
+var tries=0,iv=setInterval(function(){tries++;if(open||tries>40){if(tries>40)clearInterval(iv);return}if(window.UID&&canNotif()&&due("anf.notifAsk")&&(!canInstall()||!due("anf.installAsk"))){clearInterval(iv);askNotif()}},15000);
+
+/* ---------- avisar quando há notificações novas e o site está em segundo plano ---------- */
+var LAST=+get("anf.notifLast")||Date.now();
+function check(){
+  if(PUSHOK||!("Notification" in window)||Notification.permission!=="granted"||typeof sinais!=="function"||!window.DB)return;
+  var list;try{list=sinais()}catch(e){return}
+  var seen=typeof SINSEEN==="number"?SINSEEN:0,fresh=list.filter(function(x){return x.ts>LAST&&x.ts>seen});
+  if(!fresh.length)return;LAST=Math.max.apply(null,fresh.map(function(x){return x.ts}));set("anf.notifLast",String(LAST));
+  if(!document.hidden)return;
+  var body=fresh.length===1?fresh[0].txt:fresh[0].txt+" (+"+(fresh.length-1)+")";
+  var opts={body:body,icon:"icon-192.png",badge:"icon-192.png",tag:"stellamus",renotify:true,data:{url:location.href.split("#")[0]+"#sinais"}};
+  try{if(navigator.serviceWorker&&navigator.serviceWorker.ready){navigator.serviceWorker.ready.then(function(r){r.showNotification(tx("Novidades no Stellamus"),opts)}).catch(function(){new Notification(tx("Novidades no Stellamus"),opts)})}else new Notification(tx("Novidades no Stellamus"),opts)}catch(e){}}
+setInterval(check,20000);document.addEventListener("visibilitychange",check);
+
+/* ---------- notificações push: chegam mesmo com o site fechado ---------- */
+var PUSHOK=false,FN=(window.UO_CONFIG&&UO_CONFIG.SUPABASE_URL||"")+"/functions/v1/push",AK=window.UO_CONFIG&&UO_CONFIG.SUPABASE_ANON_KEY||"";
+function token(){try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){var v=JSON.parse(localStorage.getItem(k));return v&&(v.access_token||(v.currentSession&&v.currentSession.access_token))||null}}}catch(e){}return null}
+function b64u(s){var p="===".slice(0,(4-s.length%4)%4),b=atob((s+p).replace(/-/g,"+").replace(/_/g,"/")),a=new Uint8Array(b.length);for(var i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a}
+function pushCan(){return("serviceWorker" in navigator)&&("PushManager" in window)&&("Notification" in window)&&/^https:/.test(location.protocol)}
+function pushSub(force){
+  if(!pushCan()||Notification.permission!=="granted"||!window.UID)return Promise.resolve(false);
+  if(!force&&Date.now()-(+get("anf.pushTs")||0)<864e5&&get("anf.pushUid")===String(UID)){PUSHOK=true;return Promise.resolve(true)}
+  var tk=token();if(!tk)return Promise.resolve(false);
+  return navigator.serviceWorker.ready.then(function(reg){return reg.pushManager.getSubscription().then(function(sub){if(sub)return sub;
+      return fetch(FN,{headers:{apikey:AK}}).then(function(r){return r.json()}).then(function(j){return reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(j.publicKey)})})})})
+   .then(function(sub){return fetch(FN,{method:"POST",headers:{"Content-Type":"application/json",apikey:AK,Authorization:"Bearer "+tk},body:JSON.stringify({action:"subscribe",sub:sub.toJSON(),lang:L})})})
+   .then(function(r){if(!r.ok)throw new Error("push "+r.status);PUSHOK=true;set("anf.pushTs",String(Date.now()));set("anf.pushUid",String(UID));return true})
+   .catch(function(){PUSHOK=false;return false})}
+function pushTest(){var tk=token();if(!tk)return Promise.reject();return fetch(FN,{method:"POST",headers:{"Content-Type":"application/json",apikey:AK,Authorization:"Bearer "+tk},body:JSON.stringify({action:"test"})}).then(function(r){return r.json()})}
+function pushOff(){var tk=token();if(!pushCan())return Promise.resolve();return navigator.serviceWorker.ready.then(function(reg){return reg.pushManager.getSubscription()}).then(function(sub){if(!sub)return;var ep=sub.endpoint;return sub.unsubscribe().then(function(){if(tk)return fetch(FN,{method:"POST",headers:{"Content-Type":"application/json",apikey:AK,Authorization:"Bearer "+tk},body:JSON.stringify({action:"unsubscribe",endpoint:ep})})})}).catch(function(){}).then(function(){PUSHOK=false;set("anf.pushTs","0")})}
+/* renovar a ligação quando a pessoa entra; desligar quando sai da conta */
+var pv=setInterval(function(){if(window.UID){clearInterval(pv);pushSub(false)}},4000);
+try{if(window.UO_AUTH&&UO_AUTH.signOut){var _so=UO_AUTH.signOut;UO_AUTH.signOut=function(){var a=arguments,self=this;return pushOff().then(function(){return _so.apply(self,a)})}}}catch(e){}
+
+/* ---------- cartão na página das notificações ---------- */
+var NT={
+ "Notificações neste aparelho":["Notificações neste aparelho","Notifications on this device","Notificaciones en este dispositivo","Benachrichtigungen auf diesem Gerät","Notifications sur cet appareil","Notifiche su questo dispositivo"],
+ "Ligadas. Recebes avisos mesmo com o Stellamus fechado.":["Ligadas. Recebes avisos mesmo com o Stellamus fechado.","On. You'll get alerts even when Stellamus is closed.","Activadas. Recibes avisos incluso con Stellamus cerrado.","An. Du bekommst Hinweise, auch wenn Stellamus geschlossen ist.","Activées. Tu reçois des alertes même quand Stellamus est fermé.","Attive. Ricevi avvisi anche con Stellamus chiuso."],
+ "Desligadas. Liga-as para saberes quando alguém te escreve ou te junta à constelação.":["Desligadas. Liga-as para saberes quando alguém te escreve ou te junta à constelação.","Off. Turn them on to know when someone messages you or adds you to their constellation.","Desactivadas. Actívalas para saber cuándo alguien te escribe o te añade a su constelación.","Aus. Schalte sie ein, um zu erfahren, wenn dir jemand schreibt oder dich zum Sternbild hinzufügt.","Désactivées. Active-les pour savoir quand quelqu'un t'écrit ou t'ajoute à sa constellation.","Disattivate. Attivale per sapere quando qualcuno ti scrive o ti aggiunge alla costellazione."],
+ "Bloqueadas no navegador. Para as ligar, carrega no cadeado ao lado do endereço do site e permite as notificações.":["Bloqueadas no navegador. Para as ligar, carrega no cadeado ao lado do endereço do site e permite as notificações.","Blocked in your browser. To turn them on, tap the padlock next to the site address and allow notifications.","Bloqueadas en el navegador. Para activarlas, toca el candado junto a la dirección del sitio y permite las notificaciones.","Im Browser blockiert. Tippe auf das Schloss neben der Adresse und erlaube Benachrichtigungen.","Bloquées dans le navigateur. Touche le cadenas à côté de l'adresse du site et autorise les notifications.","Bloccate nel browser. Tocca il lucchetto accanto all'indirizzo del sito e consenti le notifiche."],
+ "No iPhone, as notificações só funcionam com a app instalada: Partilhar › Adicionar ao ecrã principal, e depois abre o Stellamus a partir daí.":["No iPhone, as notificações só funcionam com a app instalada: Partilhar › Adicionar ao ecrã principal, e depois abre o Stellamus a partir daí.","On iPhone, notifications only work with the app installed: Share › Add to Home Screen, then open Stellamus from there.","En iPhone, las notificaciones solo funcionan con la app instalada: Compartir › Añadir a pantalla de inicio, y luego abre Stellamus desde ahí.","Auf dem iPhone funktionieren Benachrichtigungen nur mit installierter App: Teilen › Zum Home-Bildschirm, dann Stellamus von dort öffnen.","Sur iPhone, les notifications ne marchent qu'avec l'app installée : Partager › Sur l'écran d'accueil, puis ouvre Stellamus depuis là.","Su iPhone le notifiche funzionano solo con l'app installata: Condividi › Aggiungi a Home, poi apri Stellamus da lì."],
+ "Enviar uma de teste":["Enviar uma de teste","Send a test one","Enviar una de prueba","Test senden","Envoyer un test","Invia una di prova"],
+ "Desligar":["Desligar","Turn off","Desactivar","Ausschalten","Désactiver","Disattiva"],
+ "Enviada. Deve aparecer daqui a uns segundos.":["Enviada. Deve aparecer daqui a uns segundos.","Sent. It should show up in a few seconds.","Enviada. Debería aparecer en unos segundos.","Gesendet. Sie sollte in ein paar Sekunden erscheinen.","Envoyée. Elle devrait apparaître dans quelques secondes.","Inviata. Dovrebbe comparire tra pochi secondi."],
+ "Não foi possível enviar. Tenta outra vez daqui a pouco.":["Não foi possível enviar. Tenta outra vez daqui a pouco.","Couldn't send. Try again in a moment.","No se pudo enviar. Inténtalo de nuevo en un momento.","Senden fehlgeschlagen. Versuch es gleich nochmal.","Envoi impossible. Réessaie dans un instant.","Invio non riuscito. Riprova tra poco."],
+ "Notificações desligadas neste aparelho.":["Notificações desligadas neste aparelho.","Notifications turned off on this device.","Notificaciones desactivadas en este dispositivo.","Benachrichtigungen auf diesem Gerät ausgeschaltet.","Notifications désactivées sur cet appareil.","Notifiche disattivate su questo dispositivo."]
+};
+function nt(k){var o=NT[k];var i=LI[L];return o?o[i==null?0:i]:tx(k)}
+var IOS=/iP(hone|ad|od)/.test(navigator.userAgent)&&!(window.PWA&&PWA.standalone);
+function ncard(){
+  if(typeof V==="undefined"||V!=="sinais"||!window.UID)return;var main=document.querySelector("main");if(!main)return;
+  var perm=("Notification" in window)?Notification.permission:"none";
+  var state=IOS&&perm==="none"?"ios":perm==="granted"&&PUSHOK?"on":perm==="denied"?"denied":perm==="none"?"ios":"off";
+  var ex=main.querySelector(".anfnc");if(ex&&ex.getAttribute("data-s")===state)return;
+  var txt=state==="on"?nt("Ligadas. Recebes avisos mesmo com o Stellamus fechado."):state==="denied"?nt("Bloqueadas no navegador. Para as ligar, carrega no cadeado ao lado do endereço do site e permite as notificações."):state==="ios"?nt("No iPhone, as notificações só funcionam com a app instalada: Partilhar › Adicionar ao ecrã principal, e depois abre o Stellamus a partir daí."):nt("Desligadas. Liga-as para saberes quando alguém te escreve ou te junta à constelação.");
+  var btns=state==="on"?'<button class="btn sec s" type="button" data-nc="test">'+esc(nt("Enviar uma de teste"))+'</button><button class="btn sec s" type="button" data-nc="off">'+esc(nt("Desligar"))+'</button>':state==="off"?'<button class="btn s" type="button" data-nc="on">'+esc(tx("Ativar notificações"))+'</button>':"";
+  var h='<div class="ic">'+BELL+'</div><div><b>'+esc(nt("Notificações neste aparelho"))+'</b><p>'+esc(txt)+'</p>'+(btns?'<div class="row">'+btns+'</div>':'')+'</div>';
+  if(!ex){ex=document.createElement("section");ex.className="anfnc panel";var sh=main.querySelector(".sechead,header,.hero");if(sh&&sh.parentNode===main)sh.insertAdjacentElement("afterend",ex);else main.insertBefore(ex,main.children[1]||null)}
+  ex.setAttribute("data-s",state);ex.innerHTML=h}
+document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("[data-nc]");if(!b)return;var k=b.getAttribute("data-nc");
+  if(k==="on"){try{var r=Notification.requestPermission(function(p){done2(p)});if(r&&r.then)r.then(done2)}catch(x){}}
+  if(k==="test"){b.disabled=true;pushTest().then(function(j){toast(j&&j.sent?nt("Enviada. Deve aparecer daqui a uns segundos."):nt("Não foi possível enviar. Tenta outra vez daqui a pouco."))}).catch(function(){toast(nt("Não foi possível enviar. Tenta outra vez daqui a pouco."))}).then(function(){b.disabled=false})}
+  if(k==="off"){pushOff().then(function(){toast(nt("Notificações desligadas neste aparelho."));ncard()})}});
+var t2=false;function done2(p){if(t2)return;t2=true;setTimeout(function(){t2=false},500);set("anf.notifAsk","-1");if(p==="granted"){pushSub(true).then(function(ok){toast(tx("Notificações ligadas. Vais saber quando alguém te procurar."));ncard()})}else ncard()}
+new MutationObserver(function(){ncard()}).observe(document.body,{childList:true,subtree:true});
+var ncss=document.createElement("style");ncss.textContent='.anfnc{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:start}.anfnc .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(227,207,158,.14);color:#E3CF9E}html.anf-light .anfnc .ic{background:rgba(122,99,39,.1);color:#7A6327}.anfnc p{margin:.2rem 0 .6rem;font-size:.9rem}.anfnc .row{display:flex;gap:8px;flex-wrap:wrap}';document.head.appendChild(ncss);
+
+/* ---------- bola fixa e bem visível: descarregar a app ---------- */
+var FT={"Descarregar a app":["Descarregar a app","Get the app","Descargar la app","App holen","Télécharger l'app","Scarica l'app"]};
+function ft(k){var i=LI[L];return FT[k][i==null?0:i]}
+var DL='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>';
+var fcss=document.createElement("style");fcss.textContent=[
+'.anffab{position:fixed;right:22px;bottom:22px;z-index:70;display:flex;align-items:center;gap:10px;border:0;padding:0;background:none;cursor:pointer;font:700 .9rem var(--f-body,inherit)}',
+'.anffab .b{position:relative;width:62px;height:62px;border-radius:50%;display:grid;place-items:center;background:#E3CF9E;color:#0E1326;box-shadow:0 10px 30px -8px rgba(227,207,158,.7),0 0 0 4px rgba(14,19,38,.85)}',
+'.anffab .b:after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid #E3CF9E;opacity:.7;animation:anffab 2.2s ease-out infinite}',
+'@keyframes anffab{0%{transform:scale(.9);opacity:.8}100%{transform:scale(1.35);opacity:0}}',
+'@media (prefers-reduced-motion:reduce){.anffab .b:after{animation:none;opacity:.5}}',
+'.anffab .l{order:-1;padding:9px 14px;border-radius:999px;background:#0E1326;color:#F4F1FF;border:1px solid rgba(227,207,158,.55);white-space:nowrap;box-shadow:0 8px 24px -10px rgba(0,0,0,.6)}',
+'.anffab:hover .b{transform:scale(1.05)}.anffab:focus-visible .b{outline:3px solid #6EE7F9;outline-offset:4px}',
+'html.anf-light .anffab .b{background:#7A6327;color:#fff;box-shadow:0 10px 30px -8px rgba(122,99,39,.6),0 0 0 4px #fff}',
+'html.anf-light .anffab .b:after{border-color:#7A6327}',
+'html.anf-light .anffab .l{background:#fff;color:#1C1A33;border-color:rgba(122,99,39,.5)}',
+'@media (max-width:820px){.anffab{right:14px;bottom:calc(92px + env(safe-area-inset-bottom,0px))}.anffab .b{width:56px;height:56px}.anffab .l{font-size:.82rem;padding:7px 12px}}',
+'body.anf-hasask .anffab{display:none}'
+].join("\n");document.head.appendChild(fcss);
+function fabPlace(){var has=document.querySelector(".anffab");var show=canInstall();
+  if(!show){if(has)has.remove();return}
+  if(!has){has=document.createElement("button");has.type="button";has.className="anffab";has.setAttribute("data-pwa","install");document.body.appendChild(has)}
+  var lab=ft("Descarregar a app");if(has.getAttribute("aria-label")!==lab){has.setAttribute("aria-label",lab);has.innerHTML='<span class="l">'+esc(lab)+'</span><span class="b">'+DL+'</span>'}
+  document.body.classList.toggle("anf-hasask",!!open)}
+setInterval(fabPlace,1500);fabPlace();
+window.addEventListener("appinstalled",function(){var f=document.querySelector(".anffab");if(f)f.remove()});
+window.anfPush={sub:pushSub,test:pushTest,off:pushOff};
+window.anfAsk={install:askInstall,notif:askNotif};
 })();
 </script>
 </body>
