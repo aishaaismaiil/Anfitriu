@@ -9,7 +9,7 @@
 <title>Stellamus</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0E1326">
-<script>(function(){try{var v=localStorage.getItem("anf.theme");if(v!=="light"&&v!=="dark")v=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";if(v==="light")document.documentElement.classList.add("anf-light")}catch(e){}})();</script>
+<script>(function(){try{var v=localStorage.getItem("anf.theme");if(v!=="light"&&v!=="dark")v="dark";if(v==="light")document.documentElement.classList.add("anf-light")}catch(e){}})();</script>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -5512,7 +5512,7 @@ function cutHead(h){/* tira o cabeçalho antigo (primeiro bloco .banner/.sec-hea
 /* Anfitriu — modo claro e modo escuro (29 out 2026) */
 (function(){
 var KEY="anf.theme";
-function pref(){var v=null;try{v=localStorage.getItem(KEY)}catch(e){}if(v==="light"||v==="dark")return v;try{return matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"}catch(e){return"dark"}}
+function pref(){var v=null;try{v=localStorage.getItem(KEY)}catch(e){}if(v==="light"||v==="dark")return v;return"dark"}
 function apply(m){var r=document.documentElement;r.classList.toggle("anf-light",m==="light");r.style.colorScheme=m;
   var mt=document.querySelector('meta[name="theme-color"]');if(mt)mt.setAttribute("content",m==="light"?"#F4F1FA":"#0E1326");
   var b=document.getElementById("anf-theme");if(b){b.setAttribute("aria-pressed",String(m==="light"));b.setAttribute("aria-label",t(m==="light"?"Mudar para modo escuro":"Mudar para modo claro"));b.title=b.getAttribute("aria-label");b.innerHTML=ICON[m==="light"?"moon":"sun"]}
@@ -5748,6 +5748,141 @@ orbitViz=function(list,size,demo){
 
 if(typeof drawChrome==="function")try{drawChrome()}catch(e){}
 if(typeof render==="function")try{render()}catch(e){}
+})();
+</script>
+<script>
+/* Stellamus — ecrã inteiro no computador, escuro por defeito, botão de tema visível,
+   contraste automático no modo claro e texto de entrada para toda a gente (29 out 2026) */
+(function(){
+var LI={pt:0,en:1,es:2,de:3,fr:4,it:5};
+
+/* ---------- textos: não é só para estudantes ---------- */
+var OV={
+ "Escolhe, estuda e cresce com quem já lá está.":[
+  "Cada um de nós é uma estrela. Juntos, somos constelação.",
+  "Each of us is a star. Together, we're a constellation.",
+  "Cada uno de nosotros es una estrella. Juntos, somos constelación.",
+  "Jede:r von uns ist ein Stern. Zusammen sind wir ein Sternbild.",
+  "Chacun de nous est une étoile. Ensemble, nous sommes une constellation.",
+  "Ognuno di noi è una stella. Insieme, siamo una costellazione."],
+ "A Anfitriu junta estudantes do ensino superior de todo o país, do continente aos Açores e à Madeira, para partilharem o que sabem sobre cursos, skills e oportunidades.":[
+  "O Stellamus junta estudantes, ex-estudantes e jovens com vontade de aprender e conhecer gente nova, de todo o país, do continente aos Açores e à Madeira. Partilha o que sabes, troca skills, descobre hobbies e oportunidades e faz coisas com outras pessoas.",
+  "Stellamus brings together students, alumni and young people who want to learn and meet new people, from all over Portugal, from the mainland to the Azores and Madeira. Share what you know, swap skills, discover hobbies and opportunities, and do things with others.",
+  "Stellamus reúne a estudiantes, antiguos alumnos y jóvenes con ganas de aprender y conocer gente nueva, de todo Portugal, del continente a las Azores y Madeira. Comparte lo que sabes, intercambia habilidades, descubre aficiones y oportunidades y haz cosas con otras personas.",
+  "Stellamus bringt Studierende, Ehemalige und junge Leute zusammen, die Neues lernen und Menschen kennenlernen wollen, aus ganz Portugal, vom Festland bis zu den Azoren und Madeira. Teile, was du weißt, tausche Skills, entdecke Hobbys und Chancen und unternimm etwas mit anderen.",
+  "Stellamus réunit étudiants, anciens étudiants et jeunes qui veulent apprendre et rencontrer du monde, de tout le Portugal, du continent aux Açores et à Madère. Partage ce que tu sais, échange des compétences, découvre des loisirs et des opportunités et fais des choses avec d'autres.",
+  "Stellamus riunisce studenti, ex studenti e giovani che vogliono imparare e conoscere gente nuova, da tutto il Portogallo, dal continente alle Azzorre e a Madeira. Condividi quello che sai, scambia skill, scopri hobby e opportunità e fai cose con altre persone."],
+ "Pessoas com os mesmos interesses, de qualquer distrito ou ilha, no teu anfiteatro.":[
+  "Pessoas com os mesmos interesses e hobbies, estudantes ou não, de qualquer distrito ou ilha, na tua constelação.",
+  "People with the same interests and hobbies, students or not, from any district or island, in your constellation.",
+  "Personas con los mismos intereses y aficiones, estudiantes o no, de cualquier distrito o isla, en tu constelación.",
+  "Leute mit denselben Interessen und Hobbys, ob studierend oder nicht, aus jedem Bezirk und von jeder Insel, in deinem Sternbild.",
+  "Des personnes avec les mêmes centres d'intérêt et loisirs, étudiantes ou non, de n'importe quel district ou île, dans ta constellation.",
+  "Persone con gli stessi interessi e hobby, studenti o no, da qualsiasi distretto o isola, nella tua costellazione."],
+ "Para quem é":["Para quem é","Who it's for","Para quién es","Für wen","Pour qui","Per chi è"],
+ "Estudantes do ensino superior":["Estudantes do ensino superior","Higher-education students","Estudiantes de educación superior","Studierende","Étudiants du supérieur","Studenti universitari"],
+ "Ex-estudantes e recém-formados":["Ex-estudantes e recém-formados","Alumni and recent graduates","Antiguos alumnos y recién graduados","Ehemalige und Absolvent:innen","Anciens étudiants et jeunes diplômés","Ex studenti e neolaureati"],
+ "Jovens com vontade de aprender":["Jovens com vontade de aprender","Young people keen to learn","Jóvenes con ganas de aprender","Junge Leute, die lernen wollen","Jeunes qui ont envie d'apprendre","Giovani con voglia di imparare"],
+ "Quem procura hobbies e gente nova":["Quem procura hobbies e gente nova","Anyone looking for hobbies and new people","Quien busca aficiones y gente nueva","Alle, die Hobbys und neue Leute suchen","Ceux qui cherchent des loisirs et de nouvelles têtes","Chi cerca hobby e gente nuova"],
+ "Escuro":["Escuro","Dark","Oscuro","Dunkel","Sombre","Scuro"],
+ "Claro":["Claro","Light","Claro","Hell","Clair","Chiaro"],
+ "Tema do site":["Tema do site","Site theme","Tema del sitio","Design der Seite","Thème du site","Tema del sito"]
+};
+var _t3=t;t=function(s,v){var o=OV[s];if(o){var i=LI[L];if(i==null)i=0;return o[i]}return _t3(s,v)};
+try{document.querySelector('meta[name="description"]').setAttribute("content","Stellamus: a rede que junta estudantes, ex-estudantes e jovens de todo o país. Troca de skills, hobbies, eventos, clubes, avaliações de cursos e comunidade.")}catch(e){}
+
+/* ---------- estilos ---------- */
+var css=[
+/* ocupar o ecrã todo no computador */
+'.app{max-width:none!important}',
+'@media (min-width:901px){main{max-width:1500px!important}}',
+/* interruptor do tema, bem visível */
+'.thseg{display:inline-flex;align-items:center;padding:3px;gap:2px;border-radius:999px;border:1px solid rgba(227,207,158,.45);background:rgba(14,19,38,.55);margin-right:.4rem}',
+'.anfbar .thseg button,.thseg button{display:inline-flex!important;align-items:center;justify-content:center;gap:.4rem;width:auto!important;min-width:0!important;height:34px!important;padding:0 .85rem!important;border:0!important;border-radius:999px!important;background:transparent;color:#B8B4CE;font:600 .82rem var(--f-body,inherit);cursor:pointer;box-shadow:none!important;white-space:nowrap}',
+'.thseg button svg{flex:0 0 auto}',
+'.thseg button svg{width:17px;height:17px}',
+'.anfbar .thseg button[aria-pressed="true"],.thseg button[aria-pressed="true"]{background:#E3CF9E!important;color:#0E1326!important}',
+'.thseg button:not([aria-pressed="true"]):hover{color:#F4F1FF;background:rgba(255,255,255,.08)}',
+'.thseg button:focus-visible{outline:3px solid #6EE7F9;outline-offset:2px}',
+'html.anf-light .thseg{background:#fff;border-color:rgba(122,99,39,.45)}',
+'html.anf-light .thseg button{color:#55536E}',
+'html.anf-light .anfbar .thseg button[aria-pressed="true"],html.anf-light .thseg button[aria-pressed="true"]{background:#7A6327!important;color:#fff!important}',
+'html.anf-light .thseg button:not([aria-pressed="true"]):hover{color:#1C1A33;background:rgba(28,26,51,.06)}',
+/* telemóvel: botão do tema com contorno dourado */
+'#anf-theme{border:1px solid rgba(227,207,158,.55)!important;color:#E3CF9E!important;border-radius:999px!important}',
+'html.anf-light #anf-theme{border-color:rgba(122,99,39,.55)!important;color:#7A6327!important}',
+'@media (max-width:900px){.top .row1{min-width:0;max-width:100%}.top .row1 .logo{min-width:0;overflow:hidden;flex:0 1 auto}.top .row1 .logo b{letter-spacing:.07em!important;font-size:.9rem!important}.top .row1 .logo{gap:.35rem!important}.top .logo .smk{width:30px!important;height:30px!important;margin:0!important}.top .row1 .anfic{flex:0 0 auto;gap:.15rem!important}.top .row1 .logo b{letter-spacing:.05em!important}}',
+/* para quem é */
+'@media (max-width:379px){.top .row1 .logo b{display:none!important}}',
+'.anfaud{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin:.9rem 0 .2rem}',
+'.anfaud b{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:#E3CF9E;margin-right:.2rem}',
+'html.anf-light .anfaud b{color:#7A6327}',
+'.anfaud span{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .7rem;border-radius:999px;font-size:.84rem;border:1px solid rgba(227,207,158,.35);background:rgba(227,207,158,.08)}',
+'.anfaud span:before{content:"✦";color:#E3CF9E;font-size:.7rem}',
+'html.anf-light .anfaud span{border-color:rgba(122,99,39,.3);background:rgba(122,99,39,.06)}',
+'html.anf-light .anfaud span:before{color:#7A6327}'
+].join("\n");
+var st=document.createElement("style");st.id="anf-ajustes2";st.textContent=css;document.head.appendChild(st);
+
+/* ---------- interruptor Escuro | Claro ---------- */
+var SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+var MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
+function isLight(){return document.documentElement.classList.contains("anf-light")}
+function segHTML(){var l=isLight();return'<button type="button" data-thset="dark" aria-pressed="'+(!l)+'">'+MOON+'<span>'+esc(t("Escuro"))+'</span></button><button type="button" data-thset="light" aria-pressed="'+l+'">'+SUN+'<span>'+esc(t("Claro"))+'</span></button>'}
+function placeSeg(){
+  var bars=[].slice.call(document.querySelectorAll(".anfbar")).filter(function(b){return !b.classList.contains("anfic")});
+  bars.forEach(function(bar){var s=bar.querySelector(".thseg");
+    if(!s){s=document.createElement("div");s.className="thseg";s.setAttribute("role","group");bar.insertBefore(s,bar.firstChild)}
+    s.setAttribute("aria-label",t("Tema do site"));
+    var want=segHTML();if(s.getAttribute("data-k")!==want){s.innerHTML=want;s.setAttribute("data-k",want)}})}
+document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("[data-thset]");if(!b)return;e.preventDefault();e.stopPropagation();
+  var m=b.getAttribute("data-thset");if((m==="light")!==isLight()){anfSetTheme(m);toast(t(m==="light"?"Modo claro ligado.":"Modo escuro ligado."))}placeSeg();schedule()},true);
+/* quando o tema muda por outro botão, atualizar o interruptor e as cores */
+new MutationObserver(function(){placeSeg();schedule()}).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});
+
+/* ---------- para quem é (página de entrada) ---------- */
+function placeAud(){
+  var sub=t("A Anfitriu junta estudantes do ensino superior de todo o país, do continente aos Açores e à Madeira, para partilharem o que sabem sobre cursos, skills e oportunidades.");
+  var ps=document.querySelectorAll("main p");for(var i=0;i<ps.length;i++){var p=ps[i];
+    if(p.textContent.trim()===sub){if(p.nextElementSibling&&p.nextElementSibling.classList.contains("anfaud"))return;
+      var d=document.createElement("div");d.className="anfaud";
+      d.innerHTML='<b>'+esc(t("Para quem é"))+'</b>'+["Estudantes do ensino superior","Ex-estudantes e recém-formados","Jovens com vontade de aprender","Quem procura hobbies e gente nova"].map(function(k){return'<span>'+esc(t(k))+'</span>'}).join("");
+      p.parentNode.insertBefore(d,p.nextSibling);return}}}
+
+/* ---------- contraste automático no modo claro ---------- */
+function rgb(s){var m=s&&s.match(/rgba?\(([^)]+)\)/);if(!m)return null;var p=m[1].split(/[ ,\/]+/).filter(Boolean).map(Number);return[p[0],p[1],p[2],p.length>3?p[3]:1]}
+function lum(c){var a=[c[0],c[1],c[2]].map(function(v){v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*a[0]+.7152*a[1]+.0722*a[2]}
+function ratio(a,b){var x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05)}
+var bodyBg=null;
+function bgOf(el){var stack=[],e=el;
+  while(e&&e!==document.documentElement){var cs=getComputedStyle(e),b=rgb(cs.backgroundColor);
+    if(cs.backgroundImage&&cs.backgroundImage!=="none"&&cs.backgroundImage.indexOf("gradient")>-1){var m=cs.backgroundImage.match(/rgba?\([^)]+\)/);if(m){var g=rgb(m[0]);if(g&&g[3]>.5)stack.push(g)}}
+    if(b&&b[3]>0)stack.push(b);if(b&&b[3]>=.95)break;e=e.parentElement}
+  var r=bodyBg||[253,252,254];
+  for(var i=stack.length-1;i>=0;i--){var c=stack[i];r=[0,1,2].map(function(k){return c[k]*c[3]+r[k]*(1-c[3])})}return r}
+function mix(a,b,p){return[0,1,2].map(function(k){return Math.round(a[k]*(1-p)+b[k]*p)})}
+function undo(){[].forEach.call(document.querySelectorAll("[data-lfix]"),function(el){var o=el.getAttribute("data-lfix");if(o)el.style.setProperty("color",o);else el.style.removeProperty("color");el.removeAttribute("data-lfix")})}
+function fixAll(){
+  if(!isLight()){undo();return}
+  var bb=rgb(getComputedStyle(document.body).backgroundColor);bodyBg=bb&&bb[3]>0?bb.slice(0,3):[253,252,254];
+  var els=document.querySelectorAll("body *");
+  for(var i=0;i<els.length;i++){var el=els[i];
+    if(el.closest("svg")||el.tagName==="SCRIPT"||el.tagName==="STYLE"||el.tagName==="OPTION")continue;
+    var has=false;for(var n=el.firstChild;n;n=n.nextSibling){if(n.nodeType===3&&n.nodeValue.trim().length>1){has=true;break}}if(!has)continue;
+    var r=el.getBoundingClientRect();if(r.width<2||r.height<2)continue;
+    var cs=getComputedStyle(el);if(cs.visibility==="hidden")continue;
+    var fg=rgb(cs.color);if(!fg)continue;var bg=bgOf(el);
+    var f=[0,1,2].map(function(k){return fg[k]*fg[3]+bg[k]*(1-fg[3])});
+    if(ratio(f,bg)>=4)continue;
+    var target=lum(bg)>.35?[28,26,51]:[255,255,255],nc=f,p=0;
+    while(p<1&&ratio(nc,bg)<4.6){p+=.1;nc=mix(f,target,p)}
+    if(!el.hasAttribute("data-lfix"))el.setAttribute("data-lfix",el.style.color||"");
+    el.style.setProperty("color","rgb("+nc.join(",")+")","important")}
+}
+var tm=null;function schedule(){clearTimeout(tm);tm=setTimeout(function(){placeAud();fixAll()},140)}
+new MutationObserver(function(ms){for(var i=0;i<ms.length;i++){if(ms[i].addedNodes.length){placeSeg();schedule();return}}}).observe(document.body,{childList:true,subtree:true});
+window.addEventListener("resize",schedule);
+placeSeg();schedule();
 })();
 </script>
 </body>
