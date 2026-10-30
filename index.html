@@ -4696,15 +4696,13 @@ var mt=document.querySelector('meta[name="theme-color"]');if(mt)mt.setAttribute(
 
 /* ---------------- menu ---------------- */
 var GROUPS=[
- {k:"inicio",n:"Início",ic:"inicio",c:SEC.inicio,items:[["inicio","Início","O teu resumo e tudo o que podes fazer"]]},
- {k:"uni",n:"Universidades e cursos",short:"Cursos",ic:"explorar",c:SEC.uni,items:[["explorar","Pesquisar cursos e pessoas","Universidades, cursos, mestrados e pessoas"],["avaliacoes","Avaliações e comparar","Opiniões de alunos, até 8 lado a lado"],["oportunidades","Bolsas e estágios","Prazos com lembrete no calendário"]]},
- {k:"skills",n:"Skills e trocas",short:"Trocas",ic:"skills",c:SEC.skills,items:[["skills","Quem me pode ensinar","Skills úteis para cada área",null,"aprender"],["skills","As minhas trocas","Propostas e trocas aceites",null,"trocas"],["sala","Sala de troca (experimentar)","Chamada, quadro e xadrez"]]},
+ {k:"inicio",n:"Início",ic:"inicio",c:SEC.inicio,items:[["inicio","Início","O teu resumo"]]},
+ {k:"skills",n:"Trocas de skills",short:"Trocas",ic:"skills",c:"#2BD4B4",items:[["skills","Quem me pode ensinar","O que sei e o que quero aprender",null,"aprender"],["skills","As minhas trocas","Propostas e trocas aceites",null,"trocas"],["espaco","O meu perfil","O que sei e o que quero aprender",null,"perfil"],["sala","Experimentar a sala","Chamada, quadro e xadrez"]]},
  {k:"exp",n:"Explorar",ic:"atividades",c:"#FFD27A",items:[["atividades","Descobrir atividades","Hobbies, experiências e convívio",null,"explorar"],["atividades","Clubes e grupos","Leitura, xadrez, jogos, teatro, coros, corrida",null,"clubes"],["atividades","Os meus planos","Guardadas e com interesse",null,"planos"],["atividades","Publicar e gerir","Para associações e organizações",null,"publicar"]]},
- {k:"deb",n:"Debates",ic:"agora",c:SEC.deb,items:[["agora","Debates escritos","Argumentos a favor e contra, com calma"],["aovivo","Ao vivo (em direto)","Escrito, mais aceso e com hora para acabar"]]},
- {k:"com",n:"Comunidade",ic:"comunidades",c:SEC.com,items:[["mural","Publicações","Perguntas e dicas de todo o país"],["comunidades","Grupos de estudantes","Para estudar juntos ou falar de um tema"],["mensagens","Mensagens","Conversas a dois"]]},
- {k:"me",n:"Perfil e agenda",short:"Perfil",ic:"espaco",c:SEC.me,items:[["espaco","O meu perfil e anfiteatro","Avatar, crachás e privacidade"],["agenda","Agenda e prazos","Liga ao Google ou Outlook"],["diario","Diário de bordo","O teu blogue do semestre"]]}
+ {k:"uni",n:"Cursos e mestrados",short:"Cursos",ic:"explorar",c:"#7FB2FF",items:[["explorar","Pesquisar","Universidades, cursos, mestrados e pessoas"],["avaliacoes","Comparar","Até 8 lado a lado",null,"comparar"],["avaliacoes","Avaliações","Opiniões de quem lá estuda",null,"recentes"]]},
+ {k:"mais",n:"Mais",ic:"spark",c:"#B9B5D3",items:[["mais","Ver tudo","Debates, diário, agenda, bolsas e comunidade"],["mural","Publicações","Perguntas e dicas de todo o país"],["comunidades","Grupos","Para estudar juntos ou falar de um tema"],["mensagens","Mensagens","Conversas a dois"],["agora","Debates escritos","Argumentos a favor e contra"],["aovivo","Ao vivo","Debates com hora marcada"],["diario","Diário de bordo","O teu blogue do semestre"],["agenda","Agenda","Entregas, exames e eventos"],["oportunidades","Bolsas e estágios","Prazos com lembrete"],["sinais","Notificações","Tudo o que aconteceu à tua volta"]]}
 ];
-function groupOf(v){for(var i=0;i<GROUPS.length;i++)for(var j=0;j<GROUPS[i].items.length;j++)if(GROUPS[i].items[j][0]===v)return GROUPS[i].k;return"inicio"}
+function groupOf(v){if(v==="sala")return"skills";for(var i=0;i<GROUPS.length;i++)for(var j=0;j<GROUPS[i].items.length;j++)if(GROUPS[i].items[j][0]===v)return GROUPS[i].k;return"inicio"}
 var OPENG=null;
 function lsx(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
 function itemAttrs(it){if(it[0]==="sala")return' href="#sala-demo" data-a="salademo"';return' href="#'+it[0]+'"'+(it[4]?' data-a="goto" data-v="'+it[0]+'" data-t="'+it[4]+'"':' data-go="'+it[0]+'"')}
@@ -4732,9 +4730,9 @@ function iconsHTML(withName){var m=cnt("mensagens"),s=cnt("sinais");
 function ensureBar(){var mw=document.querySelector(".mainwrap");if(!mw)return;var b=document.getElementById("anfbar");
   if(!b){b=document.createElement("div");b.id="anfbar";b.className="anfbar";mw.insertBefore(b,mw.firstChild)}
   b.innerHTML=iconsHTML(true)}
-function tabsHTML2(){var cg=groupOf(V),open=SHEET;
-  return["inicio","uni","exp","skills","com"].map(function(k){var g=GROUPS.filter(function(x){return x.k===k})[0],sum=g.items.reduce(function(a,it){return a+cnt(it[0])},0),cur=open?open===k:(cg===k||(k==="com"&&cg==="deb"));
-    return'<button type="button" class="'+(cur?'cur':'')+'" style="--c:'+g.c+'" data-anftab="'+k+'" aria-pressed="'+cur+'"><span class="ti">'+ico(g.ic,16)+'</span>'+esc(t(g.short||g.n))+(sum?'<span class="badge-n" style="position:absolute;margin:-30px 0 0 26px">'+sum+'</span>':'')+'</button>'}).join("")}
+function tabsHTML2(){var cg=groupOf(V);
+  return["inicio","skills","exp","uni","mais"].map(function(k){var g=GROUPS.filter(function(x){return x.k===k})[0],sum=k==="mais"?cnt("sinais"):g.items.reduce(function(a,it){return a+cnt(it[0])},0),cur=cg===k;
+    return'<button type="button" class="'+(cur?'cur':'')+'" style="--c:'+g.c+'" data-anftab="'+k+'" aria-pressed="'+cur+'"'+(cur?' aria-current="page"':'')+'><span class="ti">'+ico(g.ic,18)+'</span>'+esc(t(g.short||g.n))+(sum?'<span class="badge-n" style="position:absolute;margin:-30px 0 0 26px">'+sum+'</span>':'')+'</button>'}).join("")}
 var SHEET=null;
 function sheetHTML(k){var g=GROUPS.filter(function(x){return x.k===k})[0];if(!g)return"";if(k==="com"){var dg=GROUPS.filter(function(x){return x.k==="deb"})[0];g=Object.assign({},g,{items:g.items.concat(dg.items)})}
   var langs=k==="me"?'<label class="lang"><span class="lbl">'+esc(t("Língua"))+'</span><select class="fld" id="langPick2" aria-label="'+esc(t("Língua"))+'">'+LANGS.map(function(l){return'<option value="'+l[0]+'"'+(l[0]===L?" selected":"")+'>'+l[1]+'</option>'}).join("")+'</select></label>':'';
@@ -4755,7 +4753,7 @@ document.addEventListener("click",function(e){
     if(document.body.classList.contains("anf-mini")){var gg=GROUPS.filter(function(x){return x.k===k})[0];SHEET=null;var it=gg.items[0];if(it[4]){ACT.goto({v:it[0],t:it[4]})}else go(it[0]);return}
     var cur=OPENG===null?groupOf(V):OPENG;OPENG=cur===k?"":k;drawChrome();return}
   var mb=e.target.closest&&e.target.closest("[data-anfmini]");if(mb){document.body.classList.toggle("anf-mini");lsx("anf.mini",document.body.classList.contains("anf-mini")?"1":"0");drawChrome();return}
-  var tb=e.target.closest&&e.target.closest("[data-anftab]");if(tb){var k2=tb.getAttribute("data-anftab");if(k2==="inicio"){SHEET=null;go("inicio");return}SHEET=SHEET===k2?null:k2;drawChrome();return}
+  var tb=e.target.closest&&e.target.closest("[data-anftab]");if(tb){var k2=tb.getAttribute("data-anftab"),TG={inicio:["inicio"],skills:["skills","aprender"],exp:["atividades","explorar"],uni:["explorar"],mais:["mais"]}[k2];SHEET=null;if(TG){window.scrollTo(0,0);if(TG[1])go(TG[0],null,TG[1]);else go(TG[0])}drawChrome();return}
   var me2=e.target.closest&&e.target.closest("[data-anfme]");if(me2){e.preventDefault();e.stopPropagation();if(window.matchMedia("(max-width:820px)").matches){SHEET=SHEET==="me"?null:"me";drawChrome()}else{OPENG="me";go("espaco")}return}
   var sh=document.getElementById("anfsheet");if(sh&&SHEET){if(e.target===sh){SHEET=null;drawChrome();return}if(e.target.closest(".si")){SHEET=null;setTimeout(drawChrome,0)}}
 },true);
@@ -5767,12 +5765,12 @@ var OV={
   "Chacun de nous est une étoile. Ensemble, nous sommes une constellation.",
   "Ognuno di noi è una stella. Insieme, siamo una costellazione."],
  "A Anfitriu junta estudantes do ensino superior de todo o país, do continente aos Açores e à Madeira, para partilharem o que sabem sobre cursos, skills e oportunidades.":[
-  "O Stellamus junta estudantes, ex-estudantes e jovens com vontade de aprender e conhecer gente nova, de todo o país, do continente aos Açores e à Madeira. Partilha o que sabes, troca skills, descobre hobbies e oportunidades e faz coisas com outras pessoas.",
-  "Stellamus brings together students, alumni and young people who want to learn and meet new people, from all over Portugal, from the mainland to the Azores and Madeira. Share what you know, swap skills, discover hobbies and opportunities, and do things with others.",
-  "Stellamus reúne a estudiantes, antiguos alumnos y jóvenes con ganas de aprender y conocer gente nueva, de todo Portugal, del continente a las Azores y Madeira. Comparte lo que sabes, intercambia habilidades, descubre aficiones y oportunidades y haz cosas con otras personas.",
-  "Stellamus bringt Studierende, Ehemalige und junge Leute zusammen, die Neues lernen und Menschen kennenlernen wollen, aus ganz Portugal, vom Festland bis zu den Azoren und Madeira. Teile, was du weißt, tausche Skills, entdecke Hobbys und Chancen und unternimm etwas mit anderen.",
-  "Stellamus réunit étudiants, anciens étudiants et jeunes qui veulent apprendre et rencontrer du monde, de tout le Portugal, du continent aux Açores et à Madère. Partage ce que tu sais, échange des compétences, découvre des loisirs et des opportunités et fais des choses avec d'autres.",
-  "Stellamus riunisce studenti, ex studenti e giovani che vogliono imparare e conoscere gente nuova, da tutto il Portogallo, dal continente alle Azzorre e a Madeira. Condividi quello che sai, scambia skill, scopri hobby e opportunità e fai cose con altre persone."],
+  "Troca o que sabes pelo que queres aprender, descobre clubes e eventos e compara cursos, com estudantes e jovens de todo o país.",
+  "Swap what you know for what you want to learn, discover clubs and events and compare courses, with students and young people from all over Portugal.",
+  "Intercambia lo que sabes por lo que quieres aprender, descubre clubes y eventos y compara cursos, con estudiantes y jóvenes de todo Portugal.",
+  "Tausche, was du kannst, gegen das, was du lernen willst, entdecke Clubs und Events und vergleiche Studiengänge, mit jungen Leuten aus ganz Portugal.",
+  "Échange ce que tu sais contre ce que tu veux apprendre, découvre des clubs et des événements et compare des formations, avec des jeunes de tout le Portugal.",
+  "Scambia ciò che sai con ciò che vuoi imparare, scopri club ed eventi e confronta corsi, con studenti e giovani da tutto il Portogallo."],
  "Pessoas com os mesmos interesses, de qualquer distrito ou ilha, no teu anfiteatro.":[
   "Pessoas com os mesmos interesses e hobbies, estudantes ou não, de qualquer distrito ou ilha, na tua constelação.",
   "People with the same interests and hobbies, students or not, from any district or island, in your constellation.",
@@ -5817,6 +5815,7 @@ var css=[
 '@media (max-width:820px){.top .row1{min-width:0;max-width:100%}.top .row1 .logo{min-width:0;overflow:hidden;flex:0 1 auto}.top .row1 .logo b{letter-spacing:.07em!important;font-size:.9rem!important}.top .row1 .logo{gap:.35rem!important}.top .logo .smk{width:30px!important;height:30px!important;margin:0!important}.top .row1 .anfic{flex:0 0 auto;gap:.15rem!important}.top .row1 .logo b{letter-spacing:.05em!important}}',
 /* para quem é */
 '@media (max-width:379px){.top .row1 .logo b{display:none!important}}',
+'html,body{overflow-x:clip}','@media (max-width:440px){.orbitwrap .cstv{zoom:.86}}',
 '.anfaud{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin:.9rem 0 .2rem}',
 '.anfaud b{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:#E3CF9E;margin-right:.2rem}',
 'html.anf-light .anfaud b{color:#7A6327}',
@@ -6062,6 +6061,227 @@ setInterval(fabPlace,1500);fabPlace();
 window.addEventListener("appinstalled",function(){var f=document.querySelector(".anffab");if(f)f.remove()});
 window.anfPush={sub:pushSub,test:pushTest,off:pushOff};
 window.anfAsk={install:askInstall,notif:askNotif};
+})();
+</script>
+<script>
+/* Stellamus focado (30 out 2026): menos coisas, mais bem feitas.
+   Em destaque: Trocas de skills (com o perfil), Explorar e Cursos.
+   O resto continua a existir, arrumado em «Mais». */
+(function(){
+var LI={pt:0,en:1,es:2,de:3,fr:4,it:5};
+var TX={
+ "Trocas":["Trocas","Swaps","Intercambios","Tausch","Échanges","Scambi"],
+ "Cursos":["Cursos","Courses","Cursos","Kurse","Formations","Corsi"],
+ "Mais":["Mais","More","Más","Mehr","Plus","Altro"],
+ "mais":["mais","more","más","mehr","plus","altro"],
+ "Trocas de skills":["Trocas de skills","Skill swaps","Intercambio de habilidades","Skill-Tausch","Échanges de compétences","Scambi di skill"],
+ "Cursos e mestrados":["Cursos e mestrados","Courses and master's","Grados y másteres","Studiengänge und Master","Formations et masters","Corsi e master"],
+ "Pesquisar":["Pesquisar","Search","Buscar","Suchen","Rechercher","Cerca"],
+ "Comparar":["Comparar","Compare","Comparar","Vergleichen","Comparer","Confronta"],
+ "Avaliar":["Avaliar","Review","Valorar","Bewerten","Évaluer","Valuta"],
+ "Avaliações":["Avaliações","Reviews","Opiniones","Bewertungen","Avis","Recensioni"],
+ "Quem me pode ensinar":["Quem me pode ensinar","Who can teach me","Quién me puede enseñar","Wer mir etwas beibringen kann","Qui peut m'apprendre","Chi può insegnarmi"],
+ "As minhas trocas":["As minhas trocas","My swaps","Mis intercambios","Meine Tauschs","Mes échanges","I miei scambi"],
+ "O meu perfil":["O meu perfil","My profile","Mi perfil","Mein Profil","Mon profil","Il mio profilo"],
+ "O que sei e o que quero aprender":["O que sei e o que quero aprender","What I know and what I want to learn","Lo que sé y lo que quiero aprender","Was ich kann und was ich lernen will","Ce que je sais et ce que je veux apprendre","Cosa so e cosa voglio imparare"],
+ "Experimentar a sala":["Experimentar a sala","Try the room","Probar la sala","Raum ausprobieren","Essayer la salle","Prova la stanza"],
+ "Chamada, quadro e xadrez":["Chamada, quadro e xadrez","Call, whiteboard and chess","Llamada, pizarra y ajedrez","Anruf, Whiteboard und Schach","Appel, tableau et échecs","Chiamata, lavagna e scacchi"],
+ "Ver tudo":["Ver tudo","See everything","Ver todo","Alles ansehen","Tout voir","Vedi tutto"],
+ "Debates, diário, agenda, bolsas e comunidade":["Debates, diário, agenda, bolsas e comunidade","Debates, logbook, planner, scholarships and community","Debates, diario, agenda, becas y comunidad","Debatten, Logbuch, Planer, Stipendien und Community","Débats, journal, agenda, bourses et communauté","Dibattiti, diario, agenda, borse e community"],
+ "Tudo o resto que o Stellamus tem, arrumado num só sítio.":["Tudo o resto que o Stellamus tem, arrumado num só sítio.","Everything else Stellamus has, in one place.","Todo lo demás que tiene Stellamus, en un solo sitio.","Alles andere von Stellamus an einem Ort.","Tout le reste de Stellamus, au même endroit.","Tutto il resto di Stellamus, in un unico posto."],
+ "Comunidade":["Comunidade","Community","Comunidad","Community","Communauté","Community"],
+ "Debates":["Debates","Debates","Debates","Debatten","Débats","Dibattiti"],
+ "O teu espaço":["O teu espaço","Your space","Tu espacio","Dein Bereich","Ton espace","Il tuo spazio"],
+ "Oportunidades":["Oportunidades","Opportunities","Oportunidades","Chancen","Opportunités","Opportunità"],
+ "Publicações":["Publicações","Posts","Publicaciones","Beiträge","Publications","Post"],
+ "Perguntas e dicas de todo o país":["Perguntas e dicas de todo o país","Questions and tips from all over the country","Preguntas y consejos de todo el país","Fragen und Tipps aus dem ganzen Land","Questions et conseils de tout le pays","Domande e consigli da tutto il paese"],
+ "Grupos":["Grupos","Groups","Grupos","Gruppen","Groupes","Gruppi"],
+ "Para estudar juntos ou falar de um tema":["Para estudar juntos ou falar de um tema","To study together or talk about a topic","Para estudiar juntos o hablar de un tema","Zum gemeinsamen Lernen oder Austausch über ein Thema","Pour étudier ensemble ou parler d'un sujet","Per studiare insieme o parlare di un tema"],
+ "Mensagens":["Mensagens","Messages","Mensajes","Nachrichten","Messages","Messaggi"],
+ "Conversas a dois":["Conversas a dois","One-to-one chats","Conversaciones a dos","Zweiergespräche","Conversations à deux","Conversazioni a due"],
+ "Debates escritos":["Debates escritos","Written debates","Debates escritos","Schriftliche Debatten","Débats écrits","Dibattiti scritti"],
+ "Argumentos a favor e contra":["Argumentos a favor e contra","Arguments for and against","Argumentos a favor y en contra","Argumente dafür und dagegen","Arguments pour et contre","Argomenti a favore e contro"],
+ "Ao vivo":["Ao vivo","Live","En directo","Live","En direct","Dal vivo"],
+ "Debates com hora marcada":["Debates com hora marcada","Scheduled live debates","Debates con hora fijada","Debatten mit fester Uhrzeit","Débats à heure fixe","Dibattiti a orario fisso"],
+ "Diário de bordo":["Diário de bordo","Logbook","Diario de a bordo","Logbuch","Journal de bord","Diario di bordo"],
+ "O teu blogue do semestre":["O teu blogue do semestre","Your semester blog","Tu blog del semestre","Dein Semester-Blog","Ton blog du semestre","Il tuo blog del semestre"],
+ "Agenda":["Agenda","Planner","Agenda","Planer","Agenda","Agenda"],
+ "Entregas, exames e eventos":["Entregas, exames e eventos","Deadlines, exams and events","Entregas, exámenes y eventos","Abgaben, Prüfungen und Events","Rendus, examens et événements","Consegne, esami ed eventi"],
+ "Crachás e nível":["Crachás e nível","Badges and level","Insignias y nivel","Abzeichen und Level","Badges et niveau","Badge e livello"],
+ "O que já desbloqueaste":["O que já desbloqueaste","What you've unlocked","Lo que ya desbloqueaste","Was du freigeschaltet hast","Ce que tu as débloqué","Cosa hai sbloccato"],
+ "Notificações":["Notificações","Notifications","Notificaciones","Benachrichtigungen","Notifications","Notifiche"],
+ "Tudo o que aconteceu à tua volta":["Tudo o que aconteceu à tua volta","Everything that happened around you","Todo lo que pasó a tu alrededor","Alles, was um dich herum passiert ist","Tout ce qui s'est passé autour de toi","Tutto ciò che è successo intorno a te"],
+ "Bolsas e estágios":["Bolsas e estágios","Scholarships and internships","Becas y prácticas","Stipendien und Praktika","Bourses et stages","Borse e tirocini"],
+ "Prazos com lembrete":["Prazos com lembrete","Deadlines with reminders","Plazos con recordatorio","Fristen mit Erinnerung","Échéances avec rappel","Scadenze con promemoria"],
+ "Olá, {n}.":["Olá, {n}.","Hi, {n}.","Hola, {n}.","Hallo, {n}.","Salut, {n}.","Ciao, {n}."],
+ "Olá.":["Olá.","Hi.","Hola.","Hallo.","Salut.","Ciao."],
+ "O que vais aprender esta semana?":["O que vais aprender esta semana?","What will you learn this week?","¿Qué vas a aprender esta semana?","Was lernst du diese Woche?","Qu'est-ce que tu vas apprendre cette semaine ?","Cosa imparerai questa settimana?"],
+ "Começa por aqui":["Começa por aqui","Start here","Empieza aquí","Fang hier an","Commence ici","Inizia da qui"],
+ "Diz o que sabes ensinar e o que queres aprender. É assim que encontramos pessoas para trocares.":["Diz o que sabes ensinar e o que queres aprender. É assim que encontramos pessoas para trocares.","Tell us what you can teach and what you want to learn. That's how we find people for you to swap with.","Di lo que sabes enseñar y lo que quieres aprender. Así encontramos personas para intercambiar.","Sag, was du beibringen kannst und was du lernen willst. So finden wir Leute zum Tauschen.","Dis ce que tu sais enseigner et ce que tu veux apprendre. C'est ainsi qu'on trouve des personnes avec qui échanger.","Di' cosa sai insegnare e cosa vuoi imparare. Così troviamo persone con cui scambiare."],
+ "Completar o perfil":["Completar o perfil","Complete profile","Completar el perfil","Profil vervollständigen","Compléter le profil","Completa il profilo"],
+ "Pessoas para trocar contigo":["Pessoas para trocar contigo","People to swap with","Personas para intercambiar contigo","Leute zum Tauschen","Personnes avec qui échanger","Persone con cui scambiare"],
+ "O que podes fazer":["O que podes fazer","What you can do","Lo que puedes hacer","Was du machen kannst","Ce que tu peux faire","Cosa puoi fare"],
+ "Ensina o que sabes e aprende o que te falta, uma hora por uma hora. Quando aceitam, abrem uma sala com chamada, quadro e xadrez.":["Ensina o que sabes e aprende o que te falta, uma hora por uma hora. Quando aceitam, abrem uma sala com chamada, quadro e xadrez.","Teach what you know and learn what you're missing, one hour for one hour. Once accepted, you get a room with call, whiteboard and chess.","Enseña lo que sabes y aprende lo que te falta, una hora por una hora. Al aceptar, se abre una sala con llamada, pizarra y ajedrez.","Bring bei, was du kannst, und lerne, was dir fehlt, Stunde gegen Stunde. Danach gibt es einen Raum mit Anruf, Whiteboard und Schach.","Enseigne ce que tu sais et apprends ce qui te manque, une heure pour une heure. Une fois accepté, une salle s'ouvre avec appel, tableau et échecs.","Insegna ciò che sai e impara ciò che ti manca, un'ora per un'ora. Accettato lo scambio, si apre una stanza con chiamata, lavagna e scacchi."],
+ "Eventos, clubes e hobbies perto de ti, e quem mais tem interesse em ir.":["Eventos, clubes e hobbies perto de ti, e quem mais tem interesse em ir.","Events, clubs and hobbies near you, and who else wants to go.","Eventos, clubes y aficiones cerca de ti, y quién más quiere ir.","Events, Clubs und Hobbys in deiner Nähe, und wer noch hin will.","Événements, clubs et loisirs près de chez toi, et qui d'autre veut y aller.","Eventi, club e hobby vicino a te, e chi altro vuole andarci."],
+ "Compara cursos e mestrados lado a lado, com dados oficiais e a opinião de quem lá estuda.":["Compara cursos e mestrados lado a lado, com dados oficiais e a opinião de quem lá estuda.","Compare courses and master's side by side, with official data and reviews from people who study there.","Compara grados y másteres lado a lado, con datos oficiales y la opinión de quien estudia allí.","Vergleiche Studiengänge und Master nebeneinander, mit offiziellen Daten und Meinungen von Studierenden.","Compare formations et masters côte à côte, avec données officielles et avis d'étudiants.","Confronta corsi e master fianco a fianco, con dati ufficiali e l'opinione di chi ci studia."],
+ "E ainda: grupos, debates, diário de bordo e agenda, arrumados em «Mais».":["E ainda: grupos, debates, diário de bordo e agenda, arrumados em «Mais».","Plus groups, debates, a logbook and a planner, under «More».","Y además: grupos, debates, diario y agenda, en «Más».","Außerdem Gruppen, Debatten, Logbuch und Planer unter «Mehr».","Et aussi : groupes, débats, journal et agenda, dans «Plus».","E inoltre: gruppi, dibattiti, diario e agenda, in «Altro»."],
+ "A tua constelação":["A tua constelação","Your constellation","Tu constelación","Dein Sternbild","Ta constellation","La tua costellazione"],
+ "Quando juntares pessoas, elas acendem-se à tua volta.":["Quando juntares pessoas, elas acendem-se à tua volta.","When you add people, they light up around you.","Cuando añadas personas, se encienden a tu alrededor.","Wenn du Leute hinzufügst, leuchten sie um dich herum auf.","Quand tu ajoutes des personnes, elles s'allument autour de toi.","Quando aggiungi persone, si accendono intorno a te."],
+ "{n} pessoas na tua constelação":["{n} pessoas na tua constelação","{n} people in your constellation","{n} personas en tu constelación","{n} Leute in deinem Sternbild","{n} personnes dans ta constellation","{n} persone nella tua costellazione"],
+ "Juntar pessoas":["Juntar pessoas","Add people","Añadir personas","Leute hinzufügen","Ajouter des personnes","Aggiungi persone"],
+ "Ensina-te":["Ensina-te","Can teach you","Te enseña","Bringt dir bei","T'apprend","Ti insegna"],
+ "Quer aprender":["Quer aprender","Wants to learn","Quiere aprender","Will lernen","Veut apprendre","Vuole imparare"],
+ "Propor troca":["Propor troca","Propose swap","Proponer intercambio","Tausch vorschlagen","Proposer un échange","Proponi scambio"],
+ "Ver mais pessoas":["Ver mais pessoas","See more people","Ver más personas","Mehr Leute ansehen","Voir plus de personnes","Vedi altre persone"],
+ "Ainda não há ninguém com o que procuras. Junta mais skills ao perfil ou convida amigos.":["Ainda não há ninguém com o que procuras. Junta mais skills ao perfil ou convida amigos.","Nobody matches yet. Add more skills to your profile or invite friends.","Aún no hay nadie con lo que buscas. Añade más habilidades o invita a amigos.","Noch niemand passt. Füge mehr Skills hinzu oder lade Freunde ein.","Personne ne correspond encore. Ajoute des compétences ou invite des amis.","Ancora nessuno corrisponde. Aggiungi skill al profilo o invita amici."],
+ "As tuas trocas":["As tuas trocas","Your swaps","Tus intercambios","Deine Tauschs","Tes échanges","I tuoi scambi"],
+ "Abrir sala":["Abrir sala","Open room","Abrir sala","Raum öffnen","Ouvrir la salle","Apri stanza"],
+ "Ver proposta":["Ver proposta","See proposal","Ver propuesta","Vorschlag ansehen","Voir la proposition","Vedi proposta"],
+ "quer trocar contigo":["quer trocar contigo","wants to swap with you","quiere intercambiar contigo","möchte mit dir tauschen","veut échanger avec toi","vuole scambiare con te"],
+ "troca aceite":["troca aceite","swap accepted","intercambio aceptado","Tausch angenommen","échange accepté","scambio accettato"],
+ "à espera de resposta":["à espera de resposta","waiting for a reply","esperando respuesta","wartet auf Antwort","en attente de réponse","in attesa di risposta"],
+ "Perto de ti":["Perto de ti","Near you","Cerca de ti","In deiner Nähe","Près de chez toi","Vicino a te"],
+ "Eventos, clubes e hobbies para fazeres com outras pessoas.":["Eventos, clubes e hobbies para fazeres com outras pessoas.","Events, clubs and hobbies to do with other people.","Eventos, clubes y aficiones para hacer con otras personas.","Events, Clubs und Hobbys mit anderen.","Événements, clubs et loisirs à faire avec d'autres.","Eventi, club e hobby da fare con altre persone."],
+ "Ver atividades":["Ver atividades","See activities","Ver actividades","Aktivitäten ansehen","Voir les activités","Vedi attività"],
+ "Ver clubes":["Ver clubes","See clubs","Ver clubes","Clubs ansehen","Voir les clubs","Vedi club"],
+ "Procura um curso ou mestrado e compara-o com outros, com a opinião de quem lá estuda.":["Procura um curso ou mestrado e compara-o com outros, com a opinião de quem lá estuda.","Find a course or master's and compare it with others, with reviews from people who study there.","Busca un grado o máster y compáralo con otros, con la opinión de quien estudia allí.","Finde einen Studiengang oder Master und vergleiche ihn mit Meinungen von Studierenden.","Trouve une formation ou un master et compare-le, avec l'avis de ceux qui y étudient.","Cerca un corso o master e confrontalo con altri, con l'opinione di chi ci studia."],
+ "Ex.: mestrado psicologia clínica":["Ex.: mestrado psicologia clínica","E.g. master clinical psychology","Ej.: máster psicología clínica","Z. B. Master klinische Psychologie","Ex. : master psychologie clinique","Es.: master psicologia clinica"],
+ "Procurar":["Procurar","Search","Buscar","Suchen","Rechercher","Cerca"],
+ "Sei ensinar":["Sei ensinar","I can teach","Sé enseñar","Kann ich beibringen","Je sais enseigner","So insegnare"],
+ "Quero aprender":["Quero aprender","I want to learn","Quiero aprender","Will ich lernen","Je veux apprendre","Voglio imparare"],
+ "Editar":["Editar","Edit","Editar","Bearbeiten","Modifier","Modifica"],
+ "ainda nada":["ainda nada","nothing yet","nada aún","noch nichts","rien pour l'instant","ancora niente"]
+};
+var _tF=t;t=function(s,v){if(L!=="pt"&&TX[s]){var r=TX[s][LI[L]==null?0:LI[L]];if(v)Object.keys(v).forEach(function(x){r=r.split("{"+x+"}").join(v[x])});return r}return _tF(s,v)};
+function tx(k,v){var o=TX[k];var s=o?o[LI[L]==null?0:LI[L]]:t(k,v);if(v)Object.keys(v).forEach(function(x){s=s.split("{"+x+"}").join(v[x])});return s}
+
+var C2="#FFD27A",C3="#7FB2FF";
+function cnt(v){try{return typeof navCount==="function"?navCount(v):0}catch(e){return 0}}
+if(!VIEWS.some(function(x){return x[0]==="mais"}))VIEWS.push(["mais","Mais","c-inicio"]);
+/* ---------- página «Mais» ---------- */
+var MAIS=[
+ ["Comunidade",[["mural","Publicações","Perguntas e dicas de todo o país"],["comunidades","Grupos","Para estudar juntos ou falar de um tema"],["mensagens","Mensagens","Conversas a dois"]]],
+ ["Debates",[["agora","Debates escritos","Argumentos a favor e contra"],["aovivo","Ao vivo","Debates com hora marcada"]]],
+ ["O teu espaço",[["diario","Diário de bordo","O teu blogue do semestre"],["agenda","Agenda","Entregas, exames e eventos"],["espaco:conquistas","Crachás e nível","O que já desbloqueaste"],["sinais","Notificações","Tudo o que aconteceu à tua volta"]]],
+ ["Oportunidades",[["oportunidades","Bolsas e estágios","Prazos com lembrete"]]]
+];
+RENDER.mais=function(){
+  var h=secHead(tx("mais"),tx("Mais"),esc(tx("Tudo o resto que o Stellamus tem, arrumado num só sítio.")));
+  return h+'<div class="mais">'+MAIS.map(function(g){return'<section class="mais-g"><h3>'+esc(tx(g[0]))+'</h3><div class="mais-l">'+g[1].map(function(it){var p=it[0].split(":"),v=p[0],tb=p[1];var n=cnt(v);
+    return'<button type="button" class="mais-i" '+(tb?'data-a="goto" data-v="'+v+'" data-t="'+tb+'"':'data-go="'+v+'"')+'><span class="mi-ic">'+ico(v==="espaco"?"espaco":v,20)+'</span><span class="mi-t"><b>'+esc(tx(it[1]))+'</b><small>'+esc(tx(it[2]))+'</small></span>'+(n?'<span class="badge-n">'+n+'</span>':'<span class="mi-ch" aria-hidden="true">›</span>')+'</button>'}).join("")+'</div></section>'}).join("")+'</div>'};
+
+/* ---------- início focado (com sessão) ---------- */
+function myMatches(max){var m=MYP;if(!m)return[];var mo=tags(m.of),mp=tags(m.pr);
+  return Object.keys(P).filter(function(u){return u!==UID&&!(typeof isBlocked==="function"&&isBlocked(u))}).map(function(u){var p=P[u],e=tags(p.of).filter(function(x){return mp.some(function(y){return same(x,y)})}),q=tags(p.pr).filter(function(x){return mo.some(function(y){return same(x,y)})});return{u:u,e:e,q:q,s:(e.length?2:0)+(q.length?1:0)+(e.length&&q.length?3:0)}}).filter(function(r){return r.s}).sort(function(a,b){return b.s-a.s}).slice(0,max)}
+function chips(list){return list.length?list.slice(0,6).map(function(x){return'<span class="fh-chip">'+esc(x)+'</span>'}).join(""):'<span class="fh-none">'+esc(tx("ainda nada"))+'</span>'}
+function miniConst(){if(typeof orbitViz!=="function")return"";var orb=[];try{orb=myOrbit()}catch(e){}var demo=!orb.length,L0=demo?["tour-1","tour-2","tour-3","tour-4","tour-5","tour-6","tour-7","tour-8"]:orb;
+  return'<section class="fh-card fh-const"><button class="fh-cv" type="button" data-a="goto" data-v="espaco" data-t="perfil" aria-label="'+esc(tx("A tua constelação"))+'">'+orbitViz(L0,118,demo)+'</button><div class="fh-ct"><b>'+esc(tx("A tua constelação"))+'</b><small>'+esc(demo?tx("Quando juntares pessoas, elas acendem-se à tua volta."):tx("{n} pessoas na tua constelação",{n:orb.length}))+'</small><button class="btn sec s" type="button" data-a="goto" data-v="skills" data-t="trocas">'+esc(tx("Juntar pessoas"))+'</button></div></section>'}
+function tourBlock(){if(typeof tourHTML!=="function")return"";var t0="";try{t0=tourHTML()}catch(e){return""}return t0?'<section class="fh-tour">'+t0+'</section>':""}
+function focusHome(){
+  var first=MYP&&MYP.nome?MYP.nome.split(" ")[0]:"";
+  var h='<header class="fh-head"><p class="crumb">stellamus / <b>'+esc(t("início"))+'</b></p><h2>'+esc(first?tx("Olá, {n}.",{n:first}):tx("Olá."))+'</h2><p class="lead">'+esc(tx("O que vais aprender esta semana?"))+'</p></header>';
+  h+=miniConst();
+  var of=MYP?tags(MYP.of):[],pr=MYP?tags(MYP.pr):[];
+  /* 1. perfil de skills */
+  if(!MYP||!of.length||!pr.length){
+    h+='<section class="fh-card fh-start"><span class="fh-k">'+esc(tx("Começa por aqui"))+'</span><p>'+esc(tx("Diz o que sabes ensinar e o que queres aprender. É assim que encontramos pessoas para trocares."))+'</p><button class="btn fh-big" type="button" data-a="goto" data-v="espaco" data-t="perfil">'+esc(tx("Completar o perfil"))+'</button></section>';
+  }else{
+    h+='<section class="fh-card fh-me"><div class="fh-me-row"><span class="fh-k">'+esc(tx("Sei ensinar"))+'</span><div class="fh-chips">'+chips(of)+'</div></div><div class="fh-me-row"><span class="fh-k">'+esc(tx("Quero aprender"))+'</span><div class="fh-chips">'+chips(pr)+'</div></div><button class="lnk fh-edit" type="button" data-a="goto" data-v="espaco" data-t="perfil">'+esc(tx("Editar"))+'</button></section>';
+  }
+  /* 2. trocas em curso */
+  var mine=(TROCAS||[]).filter(function(x){return(x.de===UID||x.para===UID)&&x.estado!=="recusada"}).sort(function(a,b){return(b.ts||0)-(a.ts||0)}).slice(0,3);
+  if(mine.length){
+    h+='<section class="fh-sec"><div class="fh-sh"><h3>'+esc(tx("As tuas trocas"))+'</h3><button class="lnk" type="button" data-a="goto" data-v="skills" data-t="trocas">'+esc(tx("Ver tudo"))+'</button></div><div class="fh-list">'+mine.map(function(x){var o=x.de===UID?x.para:x.de,ac=x.estado==="aceite",inc=x.para===UID&&x.estado==="pendente";
+      var st=ac?tx("troca aceite"):inc?tx("quer trocar contigo"):tx("à espera de resposta");
+      var btn=ac?'<button class="btn s" type="button" data-a="sala" data-id="'+esc(x.id)+'">'+esc(tx("Abrir sala"))+'</button>':'<button class="btn sec s" type="button" data-a="goto" data-v="skills" data-t="trocas">'+esc(tx("Ver proposta"))+'</button>';
+      return'<div class="fh-row">'+ident(o,44)+'<div class="fh-rt"><b>'+esc(nameOf(o))+'</b><small>'+esc((x.of||"")+" ⇄ "+(x.quero||""))+'</small><span class="fh-st'+(ac?' ok':inc?' new':'')+'">'+esc(st)+'</span></div>'+btn+'</div>'}).join("")+'</div></section>';
+  }
+  /* 3. pessoas para trocar */
+  if(MYP&&of.length&&pr.length){var M=myMatches(3);
+    h+='<section class="fh-sec"><div class="fh-sh"><h3>'+esc(tx("Pessoas para trocar contigo"))+'</h3>'+(M.length?'<button class="lnk" type="button" data-a="goto" data-v="skills" data-t="trocas">'+esc(tx("Ver mais pessoas"))+'</button>':'')+'</div>'+
+     (M.length?'<div class="fh-list">'+M.map(function(r){return'<div class="fh-row">'+ident(r.u,44)+'<div class="fh-rt"><b>'+esc(nameOf(r.u))+'</b>'+(r.e.length?'<small>'+esc(tx("Ensina-te"))+': <b>'+r.e.slice(0,2).map(esc).join(", ")+'</b></small>':'')+(r.q.length?'<small>'+esc(tx("Quer aprender"))+': '+r.q.slice(0,2).map(esc).join(", ")+'</small>':'')+'</div><button class="btn s" type="button" data-a="tropen" data-u="'+esc(r.u)+'" data-o="'+esc(r.q[0]||of[0]||"")+'" data-q="'+esc(r.e[0]||"")+'">'+esc(tx("Propor troca"))+'</button></div>'}).join("")+'</div>'
+       :'<div class="fh-card fh-empty">'+esc(tx("Ainda não há ninguém com o que procuras. Junta mais skills ao perfil ou convida amigos."))+'</div>')+'</section>';
+  }
+  h+=tourBlock();
+  /* 4. explorar e cursos */
+  h+='<div class="fh-two">'+
+   '<section class="fh-card fh-exp" style="--c:'+C2+'"><span class="fh-ic">'+ico("atividades",22)+'</span><h3>'+esc(tx("Perto de ti"))+'</h3><p>'+esc(tx("Eventos, clubes e hobbies para fazeres com outras pessoas."))+'</p><div class="fh-acts"><button class="btn s" type="button" data-a="goto" data-v="atividades" data-t="explorar">'+esc(tx("Ver atividades"))+'</button><button class="btn sec s" type="button" data-a="goto" data-v="atividades" data-t="clubes">'+esc(tx("Ver clubes"))+'</button></div></section>'+
+   '<section class="fh-card fh-cur" style="--c:'+C3+'"><span class="fh-ic">'+ico("explorar",22)+'</span><h3>'+esc(tx("Cursos e mestrados"))+'</h3><p>'+esc(tx("Procura um curso ou mestrado e compara-o com outros, com a opinião de quem lá estuda."))+'</p><form class="fh-q" data-f="fhq"><input class="fld" id="fh-q" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" placeholder="'+esc(tx("Ex.: mestrado psicologia clínica"))+'" aria-label="'+esc(tx("Pesquisar"))+'"><button class="btn s" type="submit">'+esc(tx("Procurar"))+'</button></form></section>'+
+  '</div>';
+  return h}
+function meCard(){var of=MYP?tags(MYP.of):[],pr=MYP?tags(MYP.pr):[];if(!MYP||(!of.length&&!pr.length))return'<section class="fh-card fh-start"><span class="fh-k">'+esc(tx("Começa por aqui"))+'</span><p>'+esc(tx("Diz o que sabes ensinar e o que queres aprender. É assim que encontramos pessoas para trocares."))+'</p><button class="btn fh-big" type="button" data-a="goto" data-v="espaco" data-t="perfil">'+esc(tx("Completar o perfil"))+'</button></section>';
+  return'<section class="fh-card fh-me"><div class="fh-me-row"><span class="fh-k">'+esc(tx("Sei ensinar"))+'</span><div class="fh-chips">'+chips(of)+'</div></div><div class="fh-me-row"><span class="fh-k">'+esc(tx("Quero aprender"))+'</span><div class="fh-chips">'+chips(pr)+'</div></div><button class="lnk fh-edit" type="button" data-a="goto" data-v="espaco" data-t="perfil">'+esc(tx("Editar"))+'</button></section>'}
+function cutSec(h,start){var i=h.indexOf(start);if(i<0)return h;var re=/<\/?section\b/g;re.lastIndex=i;var d=0,m;while((m=re.exec(h))){if(m[0]==="<section")d++;else d--;if(d===0){var j=h.indexOf(">",m.index)+1;return h.slice(0,i)+h.slice(j)}}return h}
+var _rsk=RENDER.skills;RENDER.skills=function(){var h=_rsk.apply(this,arguments);if(MYP&&tags(MYP.of).length&&tags(MYP.pr).length)h=cutSec(h,'<section class="tex"');return afterHead(h,meCard())};
+FORM.fhq=function(){var q=val("fh-q");F.cmpq=q;TAB.avaliacoes="comparar";go("avaliacoes",null,"comparar")};
+function pillars(){var P3=[["skills","#2BD4B4","Trocas de skills","Ensina o que sabes e aprende o que te falta, uma hora por uma hora. Quando aceitam, abrem uma sala com chamada, quadro e xadrez."],["atividades","#FFD27A","Explorar","Eventos, clubes e hobbies perto de ti, e quem mais tem interesse em ir."],["explorar","#7FB2FF","Cursos e mestrados","Compara cursos e mestrados lado a lado, com dados oficiais e a opinião de quem lá estuda."]];
+  return'<section class="pil"><h3>'+esc(tx("O que podes fazer"))+'</h3><div class="pil-g">'+P3.map(function(x){return'<div class="pil-c" style="--c:'+x[1]+'"><span class="fh-ic">'+ico(x[0],22)+'</span><b>'+esc(tx(x[2]))+'</b><p>'+esc(tx(x[3]))+'</p></div>'}).join("")+'</div><p class="pil-more">'+esc(tx("E ainda: grupos, debates, diário de bordo e agenda, arrumados em «Mais»."))+'</p></section>'}
+var _iniF=RENDER.inicio;RENDER.inicio=function(){if(!DB){var h=_iniF(),i=h.indexOf('<div class="tourmix');if(i<0)i=h.indexOf('<section class="stack');return(i>-1?h.slice(0,i):h)+tourBlock()+pillars()}return focusHome()};
+
+/* ---------- sub-navegação dos Cursos ---------- */
+function cursoNav(cur){var L=[["explorar",null,"Pesquisar"],["avaliacoes","comparar","Comparar"],["avaliacoes","recentes","Avaliações"],["avaliacoes","escrever","Avaliar"]];
+  return'<nav class="fnav" aria-label="'+esc(tx("Cursos e mestrados"))+'">'+L.map(function(x){var on=x[0]===cur[0]&&(!x[1]||x[1]===cur[1]);return'<button type="button" '+(x[1]?'data-a="goto" data-v="'+x[0]+'" data-t="'+x[1]+'"':'data-go="'+x[0]+'"')+(on?' class="on" aria-current="page"':'')+'>'+esc(tx(x[2]))+'</button>'}).join("")+'</nav>'}
+function afterHead(h,ins){var i=h.indexOf('<div class="banner');if(i<0)i=h.indexOf('<div class="sec-head');if(i<0)return ins+h;var depth=0,j=i;var re=/<\/?div\b/g;re.lastIndex=i;var m;while((m=re.exec(h))){if(m[0]==="<div")depth++;else depth--;if(depth===0){j=h.indexOf(">",m.index)+1;break}}return h.slice(0,j)+ins+h.slice(j)}
+function retitle(h){var a='</span>'+esc(t("Explorar"))+'</h2>',b='</span>'+esc(tx("Cursos e mestrados"))+'</h2>';var i=h.indexOf(a);if(i>-1&&i<3000)h=h.slice(0,i)+b+h.slice(i+a.length);var c='<b>'+esc(t("explorar"))+'</b>',j=h.indexOf(c);if(j>-1&&j<1500)h=h.slice(0,j)+'<b>'+esc(tx("Cursos").toLowerCase())+'</b>'+h.slice(j+c.length);return h}
+var _rex=RENDER.explorar;RENDER.explorar=function(){var h=_rex.apply(this,arguments);if(DET)return h;return afterHead(retitle(h),cursoNav(["explorar"]))};
+var _rav=RENDER.avaliacoes;RENDER.avaliacoes=function(){var h=_rav.apply(this,arguments);var tb=curTab("avaliacoes","recentes");return afterHead(h,cursoNav(["avaliacoes",tb]))};
+
+/* ---------- estilos: pensado para o telemóvel ---------- */
+var css=[
+'.fh-head{display:grid;gap:.35rem;padding:.4rem 0 .2rem}.fh-head h2{font-size:clamp(1.9rem,6vw,2.6rem);line-height:1.05;letter-spacing:-.03em}.fh-head .lead{margin:0}',
+'.fh-card{border-radius:20px;padding:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)}',
+'.fh-k{display:block;font:700 .72rem var(--f-body,inherit);letter-spacing:.14em;text-transform:uppercase;color:#E3CF9E;margin-bottom:.4rem}',
+'.fh-start p{margin:0 0 14px;font-size:1.05rem;line-height:1.45}.fh-big{width:100%;min-height:52px;font-size:1.05rem;justify-content:center}',
+'.fh-me{position:relative;display:grid;gap:12px}.fh-me-row .fh-k{margin-bottom:.35rem}.fh-chips{display:flex;flex-wrap:wrap;gap:6px}',
+'.fh-chip{padding:6px 12px;border-radius:999px;background:rgba(43,212,180,.14);border:1px solid rgba(43,212,180,.35);font-size:.9rem}',
+'.fh-me-row:nth-child(2) .fh-chip{background:rgba(127,178,255,.14);border-color:rgba(127,178,255,.35)}',
+'.fh-none{font-size:.9rem;opacity:.7}.fh-edit{position:absolute;top:14px;right:16px;min-height:36px}',
+'.fh-sec{display:grid;gap:10px}.fh-sh{display:flex;align-items:baseline;justify-content:space-between;gap:10px}.fh-sh h3{margin:0;font-size:1.15rem}.fh-sh .lnk{min-height:40px}',
+'.fh-list{display:grid;gap:8px}',
+'.fh-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}',
+'.fh-rt{display:grid;gap:2px;min-width:0}.fh-rt b{font-size:1rem}.fh-rt small{font-size:.86rem;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+'.fh-row .btn{min-height:44px;white-space:nowrap}',
+'.fh-st{justify-self:start;margin-top:3px;padding:2px 9px;border-radius:999px;font-size:.74rem;font-weight:700;background:rgba(255,255,255,.08)}.fh-st.ok{background:#2BD48A;color:#0B2A1D}.fh-st.new{background:#FF6B5A;color:#2A0905}',
+'.fh-empty{font-size:.95rem;line-height:1.45}',
+'.fh-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}',
+'.fh-two .fh-card{display:grid;gap:8px;align-content:start;border-color:color-mix(in srgb,var(--c) 35%,transparent);background:linear-gradient(160deg,color-mix(in srgb,var(--c) 14%,transparent),rgba(255,255,255,.03))}',
+'.fh-two h3{margin:0;font-size:1.15rem}.fh-two p{margin:0;font-size:.95rem;line-height:1.45;opacity:.9}',
+'.fh-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 22%,transparent);color:var(--c)}',
+'.fh-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}.fh-acts .btn{min-height:44px;flex:1 1 auto;justify-content:center}',
+'.fh-q{display:flex;gap:8px;margin-top:4px}.fh-q .fld{flex:1;min-width:0;min-height:46px}.fh-q .btn{min-height:46px}',
+'main[data-v="inicio"]{gap:16px}','@media (min-width:821px){html:not(.anf-visitor) main[data-v="inicio"]:has(.fh-head){max-width:1040px!important;margin-inline:auto!important}}','main[data-v="mais"]{max-width:1100px!important;margin-inline:auto!important}',
+'.fh-const{display:flex;align-items:center;gap:14px;padding:12px 16px}.fh-cv{all:unset;cursor:pointer;flex:none;border-radius:50%}.fh-cv:focus-visible{outline:3px solid #6EE7F9}.fh-ct{display:grid;gap:4px;min-width:0}.fh-ct b{font-size:1.05rem}.fh-ct small{font-size:.86rem;opacity:.8}.fh-ct .btn{justify-self:start;margin-top:4px}',
+'.fh-tour{display:block}.fh-tour>*{max-width:100%}',
+'.pil{display:grid;gap:12px}.pil h3{margin:0;font-size:1.3rem}.pil-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}',
+'.pil-c{display:grid;gap:8px;align-content:start;padding:18px;border-radius:20px;border:1px solid color-mix(in srgb,var(--c) 35%,transparent);background:linear-gradient(160deg,color-mix(in srgb,var(--c) 14%,transparent),rgba(255,255,255,.03))}',
+'.pil-c b{font-size:1.1rem}.pil-c p{margin:0;font-size:.95rem;line-height:1.45;opacity:.9}.pil-more{margin:0;font-size:.92rem;opacity:.75}',
+'html.anf-light .pil-c{background:#fff}',
+/* Mais */
+'.mais{display:grid;gap:18px}.mais-g h3{margin:0 0 8px;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:#E3CF9E}',
+'.mais-l{display:grid;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04)}',
+'.mais-i{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:12px;width:100%;min-height:64px;padding:10px 16px;border:0;border-bottom:1px solid rgba(255,255,255,.07);background:transparent;color:inherit;text-align:left;cursor:pointer;font:inherit}',
+'.mais-i:last-child{border-bottom:0}.mais-i:hover{background:rgba(255,255,255,.05)}.mais-i:focus-visible{outline:3px solid #6EE7F9;outline-offset:-3px}',
+'.mi-ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:rgba(255,255,255,.07)}',
+'.mi-t{display:grid;gap:2px;min-width:0}.mi-t b{font-size:1rem}.mi-t small{font-size:.85rem;opacity:.75}.mi-ch{font-size:1.4rem;opacity:.5}',
+'@media (min-width:821px){.mais{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}}',
+/* sub-navegação */
+'.fnav{display:flex;gap:6px;padding:4px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);overflow-x:auto}',
+'.fnav button{flex:1 0 auto;min-height:44px;padding:0 16px;border:0;border-radius:12px;background:transparent;color:inherit;font:600 .95rem var(--f-body,inherit);cursor:pointer}',
+'.fnav button.on{background:#7FB2FF;color:#0E1326}',
+'main[data-v="avaliacoes"] .fnav~.tabs{display:none}',
+'@media (max-width:420px){.fnav button{padding:0 10px;font-size:.88rem}}',
+/* telemóvel: barra de baixo e toques maiores */
+'@media (max-width:820px){.anftabs button{min-height:56px;font-size:.72rem}.anftabs .ti svg{width:22px;height:22px}',
+' main .tabs{overflow-x:auto;scrollbar-width:none}main .tabs button{min-height:44px;white-space:nowrap}',
+' main .btn.s{min-height:42px}',
+' .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}.scroll table{min-width:560px}.scroll table th:first-child{position:sticky;left:0;z-index:1;background:#141A35;min-width:132px;max-width:150px}.scroll table td{min-width:150px}',
+' .fh-row{grid-template-columns:auto minmax(0,1fr)}.fh-row .btn{grid-column:1/-1;width:100%;justify-content:center}}',
+'html.anf-light .fh-card,html.anf-light .fh-row,html.anf-light .mais-l,html.anf-light .fnav{background:#fff;border-color:rgba(28,26,51,.12)}',
+'html.anf-light .fh-k,html.anf-light .mais-g h3{color:#7A6327}html.anf-light .mi-ic{background:rgba(28,26,51,.06)}',
+'html.anf-light .scroll table th:first-child{background:#fff}'
+].join("\n");
+var st=document.createElement("style");st.id="anf-foco";st.textContent=css;document.head.appendChild(st);
+try{render();drawChrome()}catch(e){}
 })();
 </script>
 </body>
