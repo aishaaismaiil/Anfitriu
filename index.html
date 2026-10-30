@@ -10,7 +10,7 @@
 <script>/* não deixar outros sites meterem o Stellamus dentro de uma moldura (clickjacking) */if(window.top!==window.self){try{window.top.location=window.self.location.href}catch(e){document.documentElement.style.display="none"}}</script>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0E1326">
-<script>(function(){try{var v=localStorage.getItem("anf.theme");if(v!=="light"&&v!=="dark")v="dark";if(v==="light")document.documentElement.classList.add("anf-light")}catch(e){}})();</script>
+<script>(function(){try{var v=localStorage.getItem("anf.theme");if(v!=="light"&&v!=="dark")v="light";if(v==="light")document.documentElement.classList.add("anf-light")}catch(e){}})();</script>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -4754,7 +4754,7 @@ document.addEventListener("click",function(e){
     if(document.body.classList.contains("anf-mini")){var gg=GROUPS.filter(function(x){return x.k===k})[0];SHEET=null;var it=gg.items[0];if(it[4]){ACT.goto({v:it[0],t:it[4]})}else go(it[0]);return}
     var cur=OPENG===null?groupOf(V):OPENG;OPENG=cur===k?"":k;drawChrome();return}
   var mb=e.target.closest&&e.target.closest("[data-anfmini]");if(mb){document.body.classList.toggle("anf-mini");lsx("anf.mini",document.body.classList.contains("anf-mini")?"1":"0");drawChrome();return}
-  var tb=e.target.closest&&e.target.closest("[data-anftab]");if(tb){var k2=tb.getAttribute("data-anftab"),TG={inicio:["inicio"],skills:["skills","aprender"],exp:["atividades","explorar"],uni:["explorar"],mais:["mais"]}[k2];SHEET=null;if(TG){window.scrollTo(0,0);if(TG[1])go(TG[0],null,TG[1]);else go(TG[0])}drawChrome();return}
+  var tb=e.target.closest&&e.target.closest("[data-anftab]");if(tb){var k2=tb.getAttribute("data-anftab"),TG={inicio:["inicio"],skills:["skills","aprender"],exp:["atividades",(window.AnfExplorar&&AnfExplorar.all().length)?"explorar":"clubes"],uni:["explorar"],mais:["mais"]}[k2];SHEET=null;if(TG){window.scrollTo(0,0);if(TG[1])go(TG[0],null,TG[1]);else go(TG[0])}drawChrome();return}
   var me2=e.target.closest&&e.target.closest("[data-anfme]");if(me2){e.preventDefault();e.stopPropagation();if(window.matchMedia("(max-width:820px)").matches){SHEET=SHEET==="me"?null:"me";drawChrome()}else{OPENG="me";go("espaco")}return}
   var sh=document.getElementById("anfsheet");if(sh&&SHEET){if(e.target===sh){SHEET=null;drawChrome();return}if(e.target.closest(".si")){SHEET=null;setTimeout(drawChrome,0)}}
 },true);
@@ -5074,8 +5074,8 @@ var DEMO=[
 ].map(function(x){x.demo=true;x.data=dPlus(x.d);x.estado="publicada";["tit","desc","org"].forEach(function(f){var v=f==="org"?"Organização de exemplo":x[f];delete x[f];Object.defineProperty(x,f,{get:function(){return t(v)},enumerable:true})});return x});
 
 /* ---------------- dados ---------------- */
-function all(){var pub=AT.filter(function(a){return a.estado==="publicada"&&(typeof visible!=="function"||visible(a))});return pub.concat(DEMO)}
-function find(id){return AT.filter(function(a){return a.id===id})[0]||DEMO.filter(function(a){return a.id===id})[0]||null}
+function all(){var pub=AT.filter(function(a){return a.estado==="publicada"&&(typeof visible!=="function"||visible(a))});return pub}
+function find(id){return AT.filter(function(a){return a.id===id})[0]||null}
 function mine(){return AT.filter(function(a){return a.uid===UID})}
 function pend(){return AT.filter(function(a){return a.estado==="pendente"})}
 function isInt(id){return arr(ATME.interesse).indexOf(id)>-1}
@@ -5191,8 +5191,8 @@ function saveQuero(list){if(!canW(null,true))return;list=list.map(function(x){re
 function listHTML(){var L0=all().filter(match).sort(function(a,b){return(a.data||"9").localeCompare(b.data||"9")}),q=quero();
   var h=tryStrip()+filtersHTML();
   var f=FX(),act=["q","cat","dist","quando","preco","nivel","fmt"].some(function(k){return f[k]});
-  h+='<div class="ax-head"><p class="sm m" style="margin:0" aria-live="polite">'+esc(t(L0.length===1?"1 atividade":"{n} atividades",{n:L0.length}))+(DEMO.length?' · '+esc(t("os exemplos estão marcados como Demonstração")):'')+'</p>'+(act?'<button class="lnk sm" type="button" data-a="axclear">'+esc(t("Limpar filtros"))+'</button>':'')+'</div>';
-  h+=L0.length?'<div class="ax-grid">'+L0.map(card).join("")+'</div>':emptyHTML(esc(t("Nenhuma atividade com estes filtros.")),act?'<button class="btn s" type="button" data-a="axclear">'+esc(t("Limpar filtros"))+'</button>':'');
+  h+='<div class="ax-head"><p class="sm m" style="margin:0" aria-live="polite">'+esc(t(L0.length===1?"1 atividade":"{n} atividades",{n:L0.length}))+'</p>'+(act?'<button class="lnk sm" type="button" data-a="axclear">'+esc(t("Limpar filtros"))+'</button>':'')+'</div>';
+  h+=L0.length?'<div class="ax-grid">'+L0.map(card).join("")+'</div>':(act?emptyHTML(esc(t("Nenhuma atividade com estes filtros.")),'<button class="btn s" type="button" data-a="axclear">'+esc(t("Limpar filtros"))+'</button>'):emptyHTML(esc(t("Ainda não há atividades publicadas. Entretanto, vê os clubes que já existem perto de ti, ou publica a primeira atividade.")),'<div class="row"><button class="btn s" type="button" data-a="goto" data-v="atividades" data-t="clubes">'+esc(t("Ver clubes"))+'</button><button class="btn sec s" type="button" data-a="goto" data-v="atividades" data-t="publicar">'+esc(t("Publicar atividade"))+'</button></div>'));
   return h}
 function planosHTML(){var S=SAVES.filter(function(s){return s.k.indexOf("ativ:")===0}).map(function(s){return find(s.k.slice(5))}).filter(Boolean),I=arr(ATME.interesse).map(find).filter(Boolean);
   var h='<section class="stack"><h3>'+esc(t("Tenho interesse"))+'</h3>'+(I.length?'<div class="ax-grid">'+I.map(card).join("")+'</div>':emptyHTML(esc(t("Ainda não marcaste interesse em nenhuma atividade."))))+'</section>';
@@ -5512,7 +5512,7 @@ function cutHead(h){/* tira o cabeçalho antigo (primeiro bloco .banner/.sec-hea
 /* Anfitriu — modo claro e modo escuro (29 out 2026) */
 (function(){
 var KEY="anf.theme";
-function pref(){var v=null;try{v=localStorage.getItem(KEY)}catch(e){}if(v==="light"||v==="dark")return v;return"dark"}
+function pref(){var v=null;try{v=localStorage.getItem(KEY)}catch(e){}if(v==="light"||v==="dark")return v;return"light"}
 function apply(m){var r=document.documentElement;r.classList.toggle("anf-light",m==="light");r.style.colorScheme=m;
   var mt=document.querySelector('meta[name="theme-color"]');if(mt)mt.setAttribute("content",m==="light"?"#F4F1FA":"#0E1326");
   var b=document.getElementById("anf-theme");if(b){b.setAttribute("aria-pressed",String(m==="light"));b.setAttribute("aria-label",t(m==="light"?"Mudar para modo escuro":"Mudar para modo claro"));b.title=b.getAttribute("aria-label");b.innerHTML=ICON[m==="light"?"moon":"sun"]}
@@ -6132,6 +6132,8 @@ var TX={
  "Juntar pessoas":["Juntar pessoas","Add people","Añadir personas","Leute hinzufügen","Ajouter des personnes","Aggiungi persone"],
  "Escritos":["Escritos","Written","Escritos","Schriftlich","Écrits","Scritti"],
  "Escritos e ao vivo, num só sítio":["Escritos e ao vivo, num só sítio","Written and live, in one place","Escritos y en directo, en un solo sitio","Schriftlich und live an einem Ort","Écrits et en direct, au même endroit","Scritti e dal vivo, in un unico posto"],
+ "Ainda não há atividades publicadas. Entretanto, vê os clubes que já existem perto de ti, ou publica a primeira atividade.":["Ainda não há atividades publicadas. Entretanto, vê os clubes que já existem perto de ti, ou publica a primeira atividade.","No activities published yet. Meanwhile, see the clubs that already exist near you, or publish the first one.","Aún no hay actividades publicadas. Mientras, mira los clubes que ya existen cerca de ti o publica la primera.","Noch keine Aktivitäten veröffentlicht. Schau dir inzwischen die Clubs in deiner Nähe an oder veröffentliche die erste.","Aucune activité publiée pour l'instant. En attendant, découvre les clubs près de chez toi ou publie la première.","Nessuna attività pubblicata. Intanto guarda i club vicino a te o pubblica la prima."],
+ "Publicar atividade":["Publicar atividade","Publish activity","Publicar actividad","Aktivität veröffentlichen","Publier une activité","Pubblica attività"],
  "Ensina-te":["Ensina-te","Can teach you","Te enseña","Bringt dir bei","T'apprend","Ti insegna"],
  "Quer aprender":["Quer aprender","Wants to learn","Quiere aprender","Will lernen","Veut apprendre","Vuole imparare"],
  "Propor troca":["Propor troca","Propose swap","Proponer intercambio","Tausch vorschlagen","Proposer un échange","Proponi scambio"],
@@ -6293,6 +6295,30 @@ var css=[
 ].join("\n");
 var st=document.createElement("style");st.id="anf-foco";st.textContent=css;document.head.appendChild(st);
 try{render();drawChrome()}catch(e){}
+})();
+</script>
+<script>
+/* Stellamus — deslizar sem atrasos (30 out 2026):
+   o céu de estrelas passa para uma camada fixa própria (antes era pintado de novo a cada movimento),
+   o desfoque por trás das barras sai no telemóvel e as animações param quando não estão à vista. */
+(function(){
+var bg=document.createElement("div");bg.id="anf-bg";bg.setAttribute("aria-hidden","true");document.body.insertBefore(bg,document.body.firstChild);
+var st=document.createElement("style");st.textContent=[
+'#anf-bg{position:fixed;inset:0;z-index:-1;pointer-events:none;transform:translateZ(0);background-repeat:repeat}',
+'html body.anf-bgl.anf-bgl.anf-bgl{background:transparent!important}',
+'@media (max-width:820px){*,*::before,*::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}',
+' .top,.anftabs{background:rgba(14,19,38,.96)!important}html.anf-light .top,html.anf-light .anftabs{background:rgba(255,255,255,.97)!important}}',
+'.anf-paused,.anf-paused *{animation-play-state:paused!important}'
+].join("\n");document.head.appendChild(st);
+function sync(){var b=document.body;b.classList.remove("anf-bgl");var cs=getComputedStyle(b);
+  bg.style.backgroundImage=cs.backgroundImage;bg.style.backgroundSize=cs.backgroundSize;bg.style.backgroundPosition=cs.backgroundPosition;bg.style.backgroundColor=cs.backgroundColor;document.documentElement.style.backgroundColor=cs.backgroundColor;
+  b.classList.add("anf-bgl")}
+sync();
+new MutationObserver(function(){sync()}).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});
+/* parar animações fora do ecrã */
+if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){e.target.classList.toggle("anf-paused",!e.isIntersecting)})},{rootMargin:"100px"});
+  var seen=new WeakSet();function watch(){document.querySelectorAll(".cstv,.tour,.orbitwrap,.hero").forEach(function(el){if(!seen.has(el)){seen.add(el);io.observe(el)}})}
+  new MutationObserver(function(){watch()}).observe(document.body,{childList:true,subtree:true});watch()}
 })();
 </script>
 </body>
